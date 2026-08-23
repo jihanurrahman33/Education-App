@@ -1,4 +1,4 @@
-/// Functional programming Either<L, R> implementation.
+/// Functional programming `Either<L, R>` implementation.
 ///
 /// By convention:
 /// - [Left] always represents Failure or Error.

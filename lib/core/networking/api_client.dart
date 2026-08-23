@@ -3,18 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_endpoints.dart';
 import '../constants/app_constants.dart';
 import '../error/exceptions.dart';
-import '../utils/typedefs.dart';
 
 class ApiClient {
-  final Dio _dio;
-  final SharedPreferences _prefs;
+  final Dio dio;
+  final SharedPreferences prefs;
 
   ApiClient({
-    required Dio dio,
-    required SharedPreferences prefs,
-  })  : _dio = dio,
-        _prefs = prefs {
-    _dio.options = BaseOptions(
+    required this.dio,
+    required this.prefs,
+  }) {
+    dio.options = BaseOptions(
       baseUrl: ApiEndpoints.baseUrl,
       connectTimeout: AppConstants.connectTimeout,
       receiveTimeout: AppConstants.receiveTimeout,
@@ -24,10 +22,10 @@ class ApiClient {
       },
     );
 
-    _dio.interceptors.add(
+    dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          final token = _prefs.getString(AppConstants.tokenKey);
+          final token = prefs.getString(AppConstants.tokenKey);
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -46,7 +44,7 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final response = await _dio.get(
+      final response = await dio.get(
         path,
         queryParameters: queryParameters,
         options: options,
@@ -66,7 +64,7 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
@@ -87,7 +85,7 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await dio.put(
         path,
         data: data,
         queryParameters: queryParameters,
@@ -108,7 +106,7 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final response = await _dio.patch(
+      final response = await dio.patch(
         path,
         data: data,
         queryParameters: queryParameters,
@@ -129,7 +127,7 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final response = await _dio.delete(
+      final response = await dio.delete(
         path,
         data: data,
         queryParameters: queryParameters,

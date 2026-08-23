@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:education_app/main.dart';
+import 'package:education_app/core/utils/either.dart';
+import 'package:education_app/features/auth/domain/entities/user_entity.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('UserEntity instantiation and equality check', () {
+    const user1 = UserEntity(
+      id: 1,
+      email: 'student@example.com',
+      username: 'student1',
+      role: UserRole.student,
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    const user2 = UserEntity(
+      id: 1,
+      email: 'student@example.com',
+      username: 'student1',
+      role: UserRole.student,
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(user1, equals(user2));
+    expect(user1.role, equals(UserRole.student));
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('Either Right value fold returns expected value', () {
+    const Either<String, int> either = Right(42);
+    final result = either.fold(
+      (left) => 0,
+      (right) => right,
+    );
+    expect(result, equals(42));
   });
 }

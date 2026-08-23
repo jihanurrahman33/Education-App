@@ -80,7 +80,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   ResultFuture<UserEntity> getCurrentUser() async {
     try {
-      // First check local cache for fast loading
       final cachedUser = await _localDataSource.getCachedUser();
       final token = await _localDataSource.getAuthToken();
 

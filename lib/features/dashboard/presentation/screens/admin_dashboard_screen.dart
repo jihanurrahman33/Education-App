@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../auth/domain/entities/user_entity.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   final UserEntity user;

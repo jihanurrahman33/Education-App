@@ -1,14 +1,14 @@
 import 'package:equatable/equatable.dart';
 import '../utils/typedefs.dart';
 
-abstract class UseCase<Type, Params> {
+abstract class UseCase<T, Params> {
   const UseCase();
-  ResultFuture<Type> call(Params params);
+  ResultFuture<T> call(Params params);
 }
 
-abstract class UseCaseWithoutParams<Type> {
+abstract class UseCaseWithoutParams<T> {
   const UseCaseWithoutParams();
-  ResultFuture<Type> call();
+  ResultFuture<T> call();
 }
 
 class NoParams extends Equatable {

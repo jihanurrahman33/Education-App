@@ -17,8 +17,7 @@ abstract class AuthLocalDataSource {
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final SharedPreferences _prefs;
 
-  const AuthLocalDataSourceImpl({required SharedPreferences prefs})
-      : _prefs = prefs;
+  const AuthLocalDataSourceImpl({required SharedPreferences prefs}) : _prefs = prefs;
 
   @override
   Future<void> cacheAuthToken(String token) async {

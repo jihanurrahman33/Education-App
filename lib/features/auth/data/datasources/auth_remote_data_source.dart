@@ -26,8 +26,7 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiClient _apiClient;
 
-  const AuthRemoteDataSourceImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+  const AuthRemoteDataSourceImpl({required ApiClient apiClient}) : _apiClient = apiClient;
 
   @override
   Future<UserModel> login({

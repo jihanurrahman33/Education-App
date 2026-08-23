@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../auth/domain/entities/user_entity.dart';
-import '../../courses/presentation/bloc/course_bloc.dart';
-import '../../courses/presentation/bloc/course_event.dart';
-import '../../courses/presentation/bloc/course_state.dart';
-import '../../courses/presentation/widgets/course_card_widget.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../courses/presentation/bloc/course_bloc.dart';
+import '../../../courses/presentation/bloc/course_event.dart';
+import '../../../courses/presentation/bloc/course_state.dart';
+import '../../../courses/presentation/widgets/course_card_widget.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   final UserEntity user;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../../auth/domain/entities/user_entity.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 
 class TeacherDashboardScreen extends StatelessWidget {
   final UserEntity user;
