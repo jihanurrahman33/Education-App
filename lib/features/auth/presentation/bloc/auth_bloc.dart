@@ -8,21 +8,17 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final LoginUseCase _loginUseCase;
-  final RegisterUseCase _registerUseCase;
-  final GetCurrentUserUseCase _getCurrentUserUseCase;
-  final LogoutUseCase _logoutUseCase;
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final GetCurrentUserUseCase getCurrentUserUseCase;
+  final LogoutUseCase logoutUseCase;
 
   AuthBloc({
-    required LoginUseCase loginUseCase,
-    required RegisterUseCase registerUseCase,
-    required GetCurrentUserUseCase getCurrentUserUseCase,
-    required LogoutUseCase logoutUseCase,
-  })  : _loginUseCase = loginUseCase,
-        _registerUseCase = registerUseCase,
-        _getCurrentUserUseCase = getCurrentUserUseCase,
-        _logoutUseCase = logoutUseCase,
-        super(const AuthState()) {
+    required this.loginUseCase,
+    required this.registerUseCase,
+    required this.getCurrentUserUseCase,
+    required this.logoutUseCase,
+  }) : super(const AuthState()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginSubmitted>(_onAuthLoginSubmitted);
     on<AuthRegisterSubmitted>(_onAuthRegisterSubmitted);
@@ -35,7 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
 
-    final result = await _getCurrentUserUseCase(const NoParams());
+    final result = await getCurrentUserUseCase(const NoParams());
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -55,7 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading, errorMessage: null));
 
-    final result = await _loginUseCase(
+    final result = await loginUseCase(
       LoginParams(
         usernameOrEmail: event.usernameOrEmail,
         password: event.password,
@@ -81,7 +77,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading, errorMessage: null));
 
-    final result = await _registerUseCase(
+    final result = await registerUseCase(
       RegisterParams(
         username: event.username,
         email: event.email,
@@ -110,7 +106,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    await _logoutUseCase(const NoParams());
+    await logoutUseCase(const NoParams());
     emit(const AuthState(status: AuthStatus.unauthenticated));
   }
 }

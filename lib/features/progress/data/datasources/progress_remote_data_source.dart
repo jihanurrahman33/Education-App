@@ -11,8 +11,7 @@ abstract class ProgressRemoteDataSource {
 class ProgressRemoteDataSourceImpl implements ProgressRemoteDataSource {
   final ApiClient _apiClient;
 
-  const ProgressRemoteDataSourceImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+  const ProgressRemoteDataSourceImpl({required this._apiClient});
 
   @override
   Future<ProgressSummaryModel> getProgressSummary() async {

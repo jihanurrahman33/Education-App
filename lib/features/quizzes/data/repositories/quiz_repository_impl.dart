@@ -9,8 +9,7 @@ import '../datasources/quiz_remote_data_source.dart';
 class QuizRepositoryImpl implements QuizRepository {
   final QuizRemoteDataSource _remoteDataSource;
 
-  const QuizRepositoryImpl({required QuizRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+  const QuizRepositoryImpl({required this._remoteDataSource});
 
   @override
   ResultFuture<QuizEntity> getQuizDetails(int quizId) async {

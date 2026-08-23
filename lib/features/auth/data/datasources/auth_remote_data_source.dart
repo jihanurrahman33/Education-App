@@ -26,7 +26,7 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiClient _apiClient;
 
-  const AuthRemoteDataSourceImpl({required ApiClient apiClient}) : _apiClient = apiClient;
+  const AuthRemoteDataSourceImpl({required this._apiClient});
 
   @override
   Future<UserModel> login({
@@ -75,8 +75,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'email': email,
         'password': password,
         'role': role.toApiValue(),
-        if (firstName != null) 'first_name': firstName,
-        if (lastName != null) 'last_name': lastName,
+        'first_name': ?firstName,
+        'last_name': ?lastName,
       },
     );
 

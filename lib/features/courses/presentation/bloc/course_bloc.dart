@@ -6,18 +6,15 @@ import 'course_event.dart';
 import 'course_state.dart';
 
 class CourseBloc extends Bloc<CourseEvent, CourseState> {
-  final GetCoursesUseCase _getCoursesUseCase;
-  final GetCourseDetailsUseCase _getCourseDetailsUseCase;
-  final EnrollCourseUseCase _enrollCourseUseCase;
+  final GetCoursesUseCase getCoursesUseCase;
+  final GetCourseDetailsUseCase getCourseDetailsUseCase;
+  final EnrollCourseUseCase enrollCourseUseCase;
 
   CourseBloc({
-    required GetCoursesUseCase getCoursesUseCase,
-    required GetCourseDetailsUseCase getCourseDetailsUseCase,
-    required EnrollCourseUseCase enrollCourseUseCase,
-  })  : _getCoursesUseCase = getCoursesUseCase,
-        _getCourseDetailsUseCase = getCourseDetailsUseCase,
-        _enrollCourseUseCase = enrollCourseUseCase,
-        super(const CourseState()) {
+    required this.getCoursesUseCase,
+    required this.getCourseDetailsUseCase,
+    required this.enrollCourseUseCase,
+  }) : super(const CourseState()) {
     on<FetchCoursesRequested>(_onFetchCoursesRequested);
     on<FetchCourseDetailsRequested>(_onFetchCourseDetailsRequested);
     on<EnrollCourseRequested>(_onEnrollCourseRequested);
@@ -29,7 +26,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
   ) async {
     emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
 
-    final result = await _getCoursesUseCase(
+    final result = await getCoursesUseCase(
       GetCoursesParams(
         category: event.category,
         searchQuery: event.searchQuery,
@@ -55,7 +52,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
   ) async {
     emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
 
-    final result = await _getCourseDetailsUseCase(
+    final result = await getCourseDetailsUseCase(
       GetCourseDetailsParams(courseId: event.courseId),
     );
 
@@ -78,7 +75,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
   ) async {
     emit(state.copyWith(isEnrolling: true));
 
-    final result = await _enrollCourseUseCase(
+    final result = await enrollCourseUseCase(
       EnrollCourseParams(courseId: event.courseId),
     );
 
@@ -88,9 +85,6 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
         errorMessage: failure.message,
       )),
       (_) {
-        final updatedCourse = state.selectedCourse != null
-            ? CourseState(selectedCourse: state.selectedCourse)
-            : null;
         emit(state.copyWith(
           isEnrolling: false,
         ));

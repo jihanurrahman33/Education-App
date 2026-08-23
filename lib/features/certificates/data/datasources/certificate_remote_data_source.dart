@@ -10,8 +10,7 @@ abstract class CertificateRemoteDataSource {
 class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
   final ApiClient _apiClient;
 
-  const CertificateRemoteDataSourceImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+  const CertificateRemoteDataSourceImpl({required this._apiClient});
 
   @override
   Future<List<CertificateModel>> getMyCertificates() async {

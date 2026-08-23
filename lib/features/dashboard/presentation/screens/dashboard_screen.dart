@@ -61,24 +61,11 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildRoleBadge(UserRole role) {
-    Color badgeColor;
-    String label;
-
-    switch (role) {
-      case UserRole.admin:
-        badgeColor = AppColors.roleAdmin;
-        label = 'ADMIN';
-        break;
-      case UserRole.teacher:
-        badgeColor = AppColors.roleTeacher;
-        label = 'TEACHER';
-        break;
-      case UserRole.student:
-      default:
-        badgeColor = AppColors.roleStudent;
-        label = 'STUDENT';
-        break;
-    }
+    final (badgeColor, label) = switch (role) {
+      UserRole.admin => (AppColors.roleAdmin, 'ADMIN'),
+      UserRole.teacher => (AppColors.roleTeacher, 'TEACHER'),
+      UserRole.student => (AppColors.roleStudent, 'STUDENT'),
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -98,14 +85,10 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildRoleDashboard(UserEntity user) {
-    switch (user.role) {
-      case UserRole.admin:
-        return AdminDashboardScreen(user: user);
-      case UserRole.teacher:
-        return TeacherDashboardScreen(user: user);
-      case UserRole.student:
-      default:
-        return StudentDashboardScreen(user: user);
-    }
+    return switch (user.role) {
+      UserRole.admin => AdminDashboardScreen(user: user),
+      UserRole.teacher => TeacherDashboardScreen(user: user),
+      UserRole.student => StudentDashboardScreen(user: user),
+    };
   }
 }

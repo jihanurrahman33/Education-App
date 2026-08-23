@@ -20,8 +20,7 @@ abstract class CourseRemoteDataSource {
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   final ApiClient _apiClient;
 
-  const CourseRemoteDataSourceImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+  const CourseRemoteDataSourceImpl({required this._apiClient});
 
   @override
   Future<List<CourseModel>> getCourses({

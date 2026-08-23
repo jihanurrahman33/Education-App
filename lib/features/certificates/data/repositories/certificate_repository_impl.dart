@@ -9,8 +9,7 @@ import '../datasources/certificate_remote_data_source.dart';
 class CertificateRepositoryImpl implements CertificateRepository {
   final CertificateRemoteDataSource _remoteDataSource;
 
-  const CertificateRepositoryImpl({required CertificateRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+  const CertificateRepositoryImpl({required this._remoteDataSource});
 
   @override
   ResultFuture<List<CertificateEntity>> getMyCertificates() async {

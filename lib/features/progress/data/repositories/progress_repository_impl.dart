@@ -9,8 +9,7 @@ import '../datasources/progress_remote_data_source.dart';
 class ProgressRepositoryImpl implements ProgressRepository {
   final ProgressRemoteDataSource _remoteDataSource;
 
-  const ProgressRepositoryImpl({required ProgressRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+  const ProgressRepositoryImpl({required this._remoteDataSource});
 
   @override
   ResultFuture<ProgressSummaryEntity> getProgressSummary() async {

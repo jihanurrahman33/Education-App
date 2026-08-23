@@ -13,8 +13,7 @@ abstract class QuizRemoteDataSource {
 class QuizRemoteDataSourceImpl implements QuizRemoteDataSource {
   final ApiClient _apiClient;
 
-  const QuizRemoteDataSourceImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+  const QuizRemoteDataSourceImpl({required this._apiClient});
 
   @override
   Future<QuizModel> getQuizDetails(int quizId) async {

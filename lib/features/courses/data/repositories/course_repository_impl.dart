@@ -9,8 +9,7 @@ import '../datasources/course_remote_data_source.dart';
 class CourseRepositoryImpl implements CourseRepository {
   final CourseRemoteDataSource _remoteDataSource;
 
-  const CourseRepositoryImpl({required CourseRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+  const CourseRepositoryImpl({required this._remoteDataSource});
 
   @override
   ResultFuture<List<CourseEntity>> getCourses({
