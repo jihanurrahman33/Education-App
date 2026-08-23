@@ -57,7 +57,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? lastName,
   }) async {
     try {
-      final userModel = await _remoteDataSource.register(
+      final registeredUser = await _remoteDataSource.register(
         username: username,
         email: email,
         password: password,
@@ -66,7 +66,26 @@ class AuthRepositoryImpl implements AuthRepository {
         lastName: lastName,
       );
 
-      return Right(userModel);
+      // Automatically login right after registration to acquire JWT tokens
+      try {
+        final loggedInUser = await _remoteDataSource.login(
+          usernameOrEmail: username,
+          password: password,
+        );
+
+        if (loggedInUser.token != null) {
+          await _localDataSource.cacheAuthToken(loggedInUser.token!);
+        }
+        if (loggedInUser.refreshToken != null) {
+          await _localDataSource.cacheRefreshToken(loggedInUser.refreshToken!);
+        }
+        await _localDataSource.cacheUser(loggedInUser);
+
+        return Right(loggedInUser);
+      } catch (_) {
+        // If auto-login fails (e.g., teacher pending admin approval)
+        return Right(registeredUser);
+      }
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, code: e.statusCode));
     } on NetworkException catch (e) {

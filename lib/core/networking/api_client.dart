@@ -146,7 +146,10 @@ class ApiClient {
         error.type == DioExceptionType.sendTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.connectionError) {
-      throw const NetworkException(message: 'Network connection timeout or unreachable.');
+      final detail = error.error?.toString() ?? error.message ?? 'Server unreachable';
+      throw NetworkException(
+        message: 'Network connection timeout or unreachable ($detail). Please check internet and rebuild app.',
+      );
     }
 
     final statusCode = error.response?.statusCode;
@@ -157,6 +160,9 @@ class ApiClient {
       errorMessage = responseData['detail'] ??
           responseData['message'] ??
           responseData['error'] ??
+          (responseData.entries.isNotEmpty
+              ? '${responseData.entries.first.key}: ${responseData.entries.first.value}'
+              : null) ??
           error.message ??
           'Unknown server error';
     } else if (responseData is String && responseData.isNotEmpty) {

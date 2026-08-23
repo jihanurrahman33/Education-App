@@ -36,7 +36,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     }
 
     final response = await _apiClient.get(
-      ApiEndpoints.courses,
+      ApiEndpoints.approvedCourses,
       queryParameters: queryParams,
     );
 
