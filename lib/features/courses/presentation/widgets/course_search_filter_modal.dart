@@ -20,7 +20,7 @@ class CourseSearchFilterModal extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -82,11 +82,11 @@ class _CourseSearchFilterModalState extends State<CourseSearchFilterModal> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
+                  color: AppColors.textPrimary,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded),
+                icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -96,7 +96,7 @@ class _CourseSearchFilterModalState extends State<CourseSearchFilterModal> {
           // Categories
           const Text(
             'Subject / Domain',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -111,11 +111,11 @@ class _CourseSearchFilterModalState extends State<CourseSearchFilterModal> {
                   if (val) setState(() => _category = cat);
                 },
                 selectedColor: AppColors.primary,
-                backgroundColor: AppColors.surfaceContainerLow,
+                backgroundColor: AppColors.surfaceContainerHigh,
                 labelStyle: TextStyle(
-                  color: isSel ? Colors.white : AppColors.onSurfaceVariant,
+                  color: isSel ? AppColors.onPrimary : AppColors.textSecondary,
                   fontSize: 12,
-                  fontWeight: isSel ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
                 ),
               );
             }).toList(),
@@ -125,7 +125,7 @@ class _CourseSearchFilterModalState extends State<CourseSearchFilterModal> {
           // Difficulty Levels
           const Text(
             'Difficulty Level',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -140,11 +140,11 @@ class _CourseSearchFilterModalState extends State<CourseSearchFilterModal> {
                   if (val) setState(() => _level = lvl);
                 },
                 selectedColor: AppColors.secondary,
-                backgroundColor: AppColors.surfaceContainerLow,
+                backgroundColor: AppColors.surfaceContainerHigh,
                 labelStyle: TextStyle(
-                  color: isSel ? Colors.white : AppColors.onSurfaceVariant,
+                  color: isSel ? Colors.white : AppColors.textSecondary,
                   fontSize: 12,
-                  fontWeight: isSel ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
                 ),
               );
             }).toList(),

@@ -17,7 +17,7 @@ class CourseCategoryFilterPills extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 48,
-      color: Colors.white,
+      color: AppColors.background,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -33,18 +33,16 @@ class CourseCategoryFilterPills extends StatelessWidget {
               selected: isSelected,
               onSelected: (_) => onSelectCategory(cat),
               selectedColor: AppColors.primary,
-              backgroundColor: AppColors.surfaceContainerLow,
+              backgroundColor: AppColors.surface,
               labelStyle: TextStyle(
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? AppColors.onPrimary : AppColors.textSecondary,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.outlineVariant.withValues(alpha: 0.3),
+                  color: isSelected ? AppColors.primary : AppColors.border,
                 ),
               ),
               showCheckmark: false,

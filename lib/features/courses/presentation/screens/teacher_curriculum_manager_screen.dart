@@ -388,16 +388,16 @@ class _TeacherCurriculumManagerScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Curriculum & Syllabus',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -461,9 +461,9 @@ class _TeacherCurriculumManagerScreenState
                   padding: const EdgeInsets.all(32.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
                     children: [
@@ -494,11 +494,11 @@ class _TeacherCurriculumManagerScreenState
                   return Card(
                     margin: const EdgeInsets.only(bottom: 16),
                     elevation: 0,
-                    color: Colors.white,
+                    color: AppColors.surface,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(
-                        color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(
+                        color: AppColors.border,
                       ),
                     ),
                     child: Padding(

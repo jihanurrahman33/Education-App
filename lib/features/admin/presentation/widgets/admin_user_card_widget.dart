@@ -29,22 +29,20 @@ class AdminUserCardWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: AppColors.outlineVariant.withValues(alpha: 0.4),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: AppColors.surfaceContainer,
+                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
                 child: Text(
                   fullName.isNotEmpty ? fullName[0].toUpperCase() : 'U',
                   style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -57,7 +55,11 @@ class AdminUserCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       fullName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     Text(
                       '@$username • $email',

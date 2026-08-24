@@ -10,12 +10,12 @@ class TeacherPendingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
       ),
@@ -48,7 +48,7 @@ class TeacherPendingScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.onSurface,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -57,7 +57,7 @@ class TeacherPendingScreen extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.onSurfaceVariant,
+                      color: AppColors.textSecondary,
                       height: 1.5,
                     ),
                   ),
@@ -67,9 +67,9 @@ class TeacherPendingScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: const Column(
                       children: [

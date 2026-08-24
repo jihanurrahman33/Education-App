@@ -57,16 +57,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Course Details',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -364,7 +364,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border),
         ),
@@ -372,7 +372,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
           children: [
             CircleAvatar(
               radius: 36,
-              backgroundColor: AppColors.primaryContainer,
+              backgroundColor: AppColors.primary,
               child: Text(
                 (course.instructorName != null && course.instructorName!.isNotEmpty)
                     ? course.instructorName![0].toUpperCase()
@@ -380,7 +380,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                 ),
               ),
             ),
@@ -390,7 +390,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),

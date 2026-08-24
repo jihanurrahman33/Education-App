@@ -114,23 +114,23 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'My Learning Progress',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
             tooltip: 'Refresh Progress',
             onPressed: _loadProgress,
           ),
@@ -189,7 +189,7 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
                   padding: const EdgeInsets.all(32),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
                   ),

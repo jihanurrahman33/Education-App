@@ -68,18 +68,18 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     final avgScore = _stats?.avgQuizScore.toStringAsFixed(1) ?? '0.0';
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Platform Analytics & Metrics',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -180,10 +180,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.border,
                     ),
                   ),
                   child: const Center(
@@ -196,10 +196,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               else
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                      color: AppColors.border,
                     ),
                   ),
                   child: ListView.separated(
@@ -274,10 +274,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                    color: AppColors.border,
                   ),
                 ),
                 child: Column(
@@ -314,7 +314,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -322,10 +322,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                    color: AppColors.border,
                   ),
                 ),
                 child: const Column(

@@ -55,16 +55,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Notifications',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),

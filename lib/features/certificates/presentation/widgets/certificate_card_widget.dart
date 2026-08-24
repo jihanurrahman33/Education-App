@@ -21,7 +21,11 @@ class CertificateCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.border),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -30,17 +34,17 @@ class CertificateCardWidget extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 60,
-                height: 60,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF9E6),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFD4AF37)),
                 ),
                 child: const Icon(
                   Icons.workspace_premium_rounded,
                   color: Color(0xFFD4AF37),
-                  size: 32,
+                  size: 30,
                 ),
               ),
               const SizedBox(width: 14),
@@ -53,7 +57,7 @@ class CertificateCardWidget extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -76,7 +80,7 @@ class CertificateCardWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.outline),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
             ],
           ),
         ),

@@ -27,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  late UserRole _selectedRole;
+  late final UserRole _selectedRole;
   bool _obscurePassword = true;
   bool _agreeToTerms = true;
 
@@ -58,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SnackBar(
           content: Text('Please accept the terms and conditions to proceed'),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -86,18 +87,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTeacher = _selectedRole == UserRole.teacher;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.go('/login'),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/role-selection');
+            }
+          },
         ),
-        title: const Text(
-          'Create Account',
-          style: TextStyle(
+        title: Text(
+          isTeacher ? 'Teacher Registration' : 'Student Registration',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -117,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           } else if (state.status.isAuthenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Account created successfully! Welcome.'),
+                content: Text('Account created successfully! Welcome to EduFlow.'),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -135,117 +144,69 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Start your journey with EduFlow',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
+                      // Role Badge Pill
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isTeacher
+                                ? AppColors.secondary.withValues(alpha: 0.15)
+                                : AppColors.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isTeacher
+                                  ? AppColors.secondary.withValues(alpha: 0.4)
+                                  : AppColors.primary.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isTeacher
+                                    ? Icons.cast_for_education_rounded
+                                    : Icons.school_rounded,
+                                size: 16,
+                                color: isTeacher ? AppColors.secondary : AppColors.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isTeacher ? 'Teacher Account' : 'Student Account',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isTeacher ? AppColors.secondary : AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Header Title
+                      Text(
+                        isTeacher ? 'Create Instructor Account' : 'Create Student Account',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
                           color: AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
-                        'Choose your account type to personalize your experience.',
-                        style: TextStyle(
+                      Text(
+                        isTeacher
+                            ? 'Fill in your details to begin creating and publishing courses.'
+                            : 'Fill in your details to start learning and earning certificates.',
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
+                          height: 1.4,
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Sleek Segmented Role Selector
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () => setState(() => _selectedRole = UserRole.student),
-                                borderRadius: BorderRadius.circular(12),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: _selectedRole == UserRole.student
-                                        ? AppColors.primary
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.school_rounded,
-                                        size: 18,
-                                        color: _selectedRole == UserRole.student
-                                            ? AppColors.onPrimary
-                                            : AppColors.textSecondary,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Student',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: _selectedRole == UserRole.student
-                                            ? AppColors.onPrimary
-                                            : AppColors.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () => setState(() => _selectedRole = UserRole.teacher),
-                                borderRadius: BorderRadius.circular(12),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: _selectedRole == UserRole.teacher
-                                        ? AppColors.secondary
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.cast_for_education_rounded,
-                                        size: 18,
-                                        color: _selectedRole == UserRole.teacher
-                                            ? Colors.white
-                                            : AppColors.textSecondary,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Teacher',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: _selectedRole == UserRole.teacher
-                                            ? Colors.white
-                                            : AppColors.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
 
                       // Form Container
                       Container(
@@ -277,6 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       label: 'First Name',
                                       hint: 'John',
                                       prefixIcon: Icons.badge_outlined,
+                                      textInputAction: TextInputAction.next,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -285,6 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _lastNameController,
                                       label: 'Last Name',
                                       hint: 'Doe',
+                                      textInputAction: TextInputAction.next,
                                     ),
                                   ),
                                 ],
@@ -295,6 +258,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 label: 'Username',
                                 hint: 'johndoe',
                                 prefixIcon: Icons.person_outline_rounded,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.newUsername],
                                 validator: (val) {
                                   if (val == null || val.trim().isEmpty) {
                                     return 'Username is required';
@@ -315,6 +280,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hint: 'john@example.com',
                                 keyboardType: TextInputType.emailAddress,
                                 prefixIcon: Icons.mail_outline_rounded,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.email],
                                 validator: (val) {
                                   if (val == null || val.trim().isEmpty) {
                                     return 'Email address is required';
@@ -335,6 +302,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hint: '+1 (555) 000-0000',
                                 keyboardType: TextInputType.phone,
                                 prefixIcon: Icons.phone_outlined,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.telephoneNumber],
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
@@ -343,12 +312,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hint: '••••••••',
                                 obscureText: _obscurePassword,
                                 prefixIcon: Icons.lock_outline_rounded,
+                                textInputAction: TextInputAction.done,
+                                autofillHints: const [AutofillHints.newPassword],
+                                onFieldSubmitted: (_) => _onRegister(),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_off_outlined
                                         : Icons.visibility_outlined,
-                                    color: AppColors.outline,
+                                    color: _obscurePassword
+                                        ? AppColors.textMuted
+                                        : AppColors.primary,
+                                    size: 20,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -388,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       'I agree to the EduFlow Terms of Service and Privacy Policy.',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.onSurfaceVariant,
+                                        color: AppColors.textSecondary,
                                         height: 1.4,
                                       ),
                                     ),
@@ -398,10 +373,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: 24),
 
                               CustomButton(
-                                text: _selectedRole == UserRole.teacher
+                                text: isTeacher
                                     ? 'Register as Teacher'
                                     : 'Create Student Account',
-                                backgroundColor: _selectedRole == UserRole.teacher
+                                backgroundColor: isTeacher
                                     ? AppColors.secondary
                                     : AppColors.primary,
                                 isLoading: state.status.isLoading,
@@ -419,13 +394,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           const Text(
                             'Already have an account? ',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => context.go('/login'),
                             child: const Text(
                               'Sign In',
                               style: TextStyle(
+                                fontSize: 14,
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),

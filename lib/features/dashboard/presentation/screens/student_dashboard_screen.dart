@@ -114,7 +114,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -153,7 +153,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 TextButton(
@@ -176,7 +176,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
                     ),
                   );
                 }
@@ -186,13 +188,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     padding: const EdgeInsets.all(32.0),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: const Column(
                       children: [
-                        Icon(Icons.school_outlined, size: 40, color: AppColors.outline),
+                        Icon(Icons.school_outlined, size: 40, color: AppColors.textMuted),
                         SizedBox(height: 8),
                         Text(
                           'No courses available right now.',

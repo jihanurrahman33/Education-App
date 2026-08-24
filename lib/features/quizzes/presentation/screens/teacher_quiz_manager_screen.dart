@@ -133,16 +133,16 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Quiz Builder & Questions',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -163,7 +163,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
@@ -172,7 +172,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                 children: [
                   const Text(
                     'Quiz Settings',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(

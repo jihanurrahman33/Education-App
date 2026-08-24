@@ -28,7 +28,7 @@ class AppTheme {
         error: AppColors.error,
         onError: AppColors.onError,
         surface: AppColors.surface,
-        onSurface: AppColors.onSurface,
+        onSurface: AppColors.textPrimary,
         outline: AppColors.border,
       ),
       textTheme: baseTextTheme.copyWith(
@@ -68,14 +68,34 @@ class AppTheme {
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           side: const BorderSide(color: AppColors.border),
         ),
         color: AppColors.surface,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.border),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.divider,
+        thickness: 1,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -95,7 +115,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surfaceContainerHigh,
+        fillColor: AppColors.surfaceContainerLow,
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

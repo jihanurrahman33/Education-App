@@ -115,30 +115,33 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
           return Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                color: AppColors.surface,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      quiz.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                    Expanded(
+                      child: Text(
+                        quiz.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                     Text(
                       '${state.selectedAnswers.length}/${questions.length} Answered',
                       style: const TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.primary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
+              const Divider(height: 1, color: AppColors.divider),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(20.0),
@@ -164,7 +167,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               Container(
                 padding: const EdgeInsets.all(20.0),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   border: Border(top: BorderSide(color: AppColors.border)),
                 ),
                 child: CustomButton(

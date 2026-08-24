@@ -29,12 +29,10 @@ class AdminPendingTeacherCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: AppColors.outlineVariant.withValues(alpha: 0.4),
-        ),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -45,7 +43,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: AppColors.roleTeacher.withValues(alpha: 0.12),
+                  backgroundColor: AppColors.roleTeacher.withValues(alpha: 0.15),
                   child: Text(
                     fullName.isNotEmpty ? fullName[0].toUpperCase() : 'T',
                     style: const TextStyle(
@@ -65,7 +63,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: AppColors.onSurface,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
@@ -81,7 +79,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.1),
+                    color: AppColors.warning.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
@@ -101,6 +99,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border),
               ),
               child: Row(
                 children: [
@@ -109,7 +108,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Phone: $phone • Applied: $dateJoined',
-                      style: const TextStyle(fontSize: 12, color: AppColors.onSurface),
+                      style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
                     ),
                   ),
                 ],
@@ -123,7 +122,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   onPressed: onReject,
                   child: const Text('Reject'),
@@ -135,7 +134,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   onPressed: onApprove,
                 ),

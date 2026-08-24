@@ -153,7 +153,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),

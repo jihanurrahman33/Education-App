@@ -191,7 +191,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -203,9 +203,9 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                 padding: const EdgeInsets.all(28.0),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   children: [
@@ -219,6 +219,10 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     OutlinedButton.icon(
                       icon: const Icon(Icons.add_rounded),
                       label: const Text('Create Course'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                      ),
                       onPressed: () => context.push('/teacher/courses/create'),
                     ),
                   ],
@@ -236,11 +240,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     elevation: 0,
-                    color: Colors.white,
+                    color: AppColors.surface,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(
-                        color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(
+                        color: AppColors.border,
                       ),
                     ),
                     child: Padding(
@@ -271,7 +275,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                               Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit_outlined, size: 18),
+                                    icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textSecondary),
                                     tooltip: 'Edit Course',
                                     onPressed: () => context.push('/teacher/courses/${course.id}/edit'),
                                   ),
@@ -290,7 +294,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.onSurface,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 6),

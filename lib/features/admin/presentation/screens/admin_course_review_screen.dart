@@ -102,18 +102,18 @@ class _AdminCourseReviewScreenState extends State<AdminCourseReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Course Quality Review',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -128,10 +128,10 @@ class _AdminCourseReviewScreenState extends State<AdminCourseReviewScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                  color: AppColors.border,
                 ),
               ),
               child: Column(

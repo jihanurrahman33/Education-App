@@ -28,7 +28,7 @@ class QuizQuestionCardWidget extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
           ),
@@ -38,7 +38,7 @@ class QuizQuestionCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainer,
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
@@ -57,7 +57,7 @@ class QuizQuestionCardWidget extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
+                  color: AppColors.textPrimary,
                   height: 1.4,
                 ),
               ),
@@ -86,20 +86,20 @@ class QuizQuestionCardWidget extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12.0),
             child: InkWell(
               onTap: () => onSelectChoice(choiceId),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withValues(alpha: 0.08)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                      ? AppColors.primary.withValues(alpha: 0.12)
+                      : AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.primary
-                        : AppColors.outlineVariant.withValues(alpha: 0.4),
-                    width: isSelected ? 2 : 1,
+                        : AppColors.border,
+                    width: isSelected ? 1.8 : 1.2,
                   ),
                 ),
                 child: Row(
@@ -113,12 +113,12 @@ class QuizQuestionCardWidget extends StatelessWidget {
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : AppColors.outlineVariant,
+                              : AppColors.outline,
                           width: 2,
                         ),
                       ),
                       child: isSelected
-                          ? const Icon(Icons.check, size: 14, color: Colors.white)
+                          ? const Icon(Icons.check, size: 14, color: AppColors.onPrimary)
                           : null,
                     ),
                     const SizedBox(width: 14),
@@ -127,8 +127,8 @@ class QuizQuestionCardWidget extends StatelessWidget {
                         choice['text'] as String,
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected ? AppColors.primary : AppColors.onSurface,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
                           height: 1.3,
                         ),
                       ),

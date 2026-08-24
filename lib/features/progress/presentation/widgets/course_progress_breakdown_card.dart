@@ -27,9 +27,9 @@ class CourseProgressBreakdownCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +43,7 @@ class CourseProgressBreakdownCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -51,8 +51,8 @@ class CourseProgressBreakdownCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isDone
-                      ? AppColors.secondary.withValues(alpha: 0.12)
-                      : AppColors.primary.withValues(alpha: 0.1),
+                      ? AppColors.secondary.withValues(alpha: 0.15)
+                      : AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(

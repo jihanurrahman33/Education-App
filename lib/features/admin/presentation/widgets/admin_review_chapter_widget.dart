@@ -18,8 +18,8 @@ class AdminReviewChapterWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
@@ -27,7 +27,11 @@ class AdminReviewChapterWidget extends StatelessWidget {
         children: [
           Text(
             'Chapter $chapterNum: $title',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
           ...lessons.map(

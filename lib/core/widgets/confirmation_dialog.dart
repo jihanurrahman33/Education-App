@@ -44,10 +44,16 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveConfirmColor = confirmColor ?? AppColors.primary;
+    final buttonTextColor = effectiveConfirmColor == AppColors.primary
+        ? AppColors.onPrimary
+        : Colors.white;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.border),
+      ),
+      backgroundColor: AppColors.surface,
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
       actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -91,14 +97,14 @@ class ConfirmationDialog extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: effectiveConfirmColor,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            foregroundColor: buttonTextColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
           ),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(
             confirmText,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
       ],

@@ -23,12 +23,12 @@ class CertificateFrameWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD4AF37), width: 3), // Gold border
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFD4AF37), width: 2.5), // Gold border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -40,7 +40,7 @@ class CertificateFrameWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF9E6),
+              color: AppColors.primary.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
             ),
@@ -66,7 +66,7 @@ class CertificateFrameWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -104,7 +104,7 @@ class CertificateFrameWidget extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 24),
@@ -125,7 +125,11 @@ class CertificateFrameWidget extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     issueDate,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),

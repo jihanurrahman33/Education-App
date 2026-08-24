@@ -22,7 +22,7 @@ class FileUploadBoxWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -34,21 +34,23 @@ class FileUploadBoxWidget extends StatelessWidget {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
           InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             child: Container(
               height: 110,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.outlineVariant.withValues(alpha: 0.5),
+                  color: selectedFileName != null
+                      ? AppColors.roleTeacher.withValues(alpha: 0.6)
+                      : AppColors.border,
                 ),
               ),
               child: Column(

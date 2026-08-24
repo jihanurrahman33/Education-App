@@ -22,22 +22,19 @@ class AdminPendingCourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = courseEntity?.title ?? course?['title'] as String? ?? 'Untitled Course';
     final instructor = courseEntity?.teacherName ?? course?['instructor'] as String? ?? 'Instructor';
-    final category = course?['category'] as String? ?? 'GENERAL';
-    final date = courseEntity?.createdAt != null && courseEntity!.createdAt.length >= 10
-        ? courseEntity!.createdAt.substring(0, 10)
-        : (course?['submittedDate'] as String? ?? 'Recent');
-    final chapters = course?['chaptersCount']?.toString() ?? 'Pending';
-    final lessons = course?['lessonsCount']?.toString() ?? 'Review';
+    final category = course?['category'] as String? ?? 'CURRICULUM';
+    final rawDate = courseEntity?.createdAt ?? (course?['submittedDate'] as String?);
+    final date = (rawDate != null && rawDate.length >= 10) ? rawDate.substring(0, 10) : 'Recent';
+    final chapters = course?['chaptersCount']?.toString() ?? '1';
+    final lessons = course?['lessonsCount']?.toString() ?? 'Pending';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: AppColors.outlineVariant.withValues(alpha: 0.4),
-        ),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -50,7 +47,7 @@ class AdminPendingCourseCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -63,7 +60,7 @@ class AdminPendingCourseCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Submitted $date',
+                  'Submitted: $date',
                   style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),
               ],
@@ -74,22 +71,26 @@ class AdminPendingCourseCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Instructor: $instructor • $chapters • $lessons',
-              style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+              'By $instructor • $chapters Chapters • $lessons Lessons',
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton.icon(
-                  icon: const Icon(Icons.preview_rounded, size: 16),
-                  label: const Text('Review Curriculum'),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.remove_red_eye_outlined, size: 16),
+                  label: const Text('Review'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
                   onPressed: onReview,
                 ),
                 const SizedBox(width: 8),
@@ -97,21 +98,20 @@ class AdminPendingCourseCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   onPressed: onReject,
                   child: const Text('Reject'),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.check_rounded, size: 16),
-                  label: const Text('Approve'),
+                ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   onPressed: onApprove,
+                  child: const Text('Approve'),
                 ),
               ],
             ),

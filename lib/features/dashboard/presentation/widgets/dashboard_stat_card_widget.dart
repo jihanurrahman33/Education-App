@@ -22,22 +22,23 @@ class DashboardStatCardWidget extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
                 ),
                 child: Icon(icon, color: color, size: 18),
               ),
@@ -47,7 +48,7 @@ class DashboardStatCardWidget extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -55,7 +56,7 @@ class DashboardStatCardWidget extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 11,
-                  color: AppColors.onSurfaceVariant,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],

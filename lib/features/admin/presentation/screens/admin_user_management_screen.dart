@@ -165,7 +165,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -377,7 +377,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -600,7 +600,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -820,25 +820,25 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'User Management Directory',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
             tooltip: 'Refresh Users',
             onPressed: _fetchUsers,
           ),
@@ -846,16 +846,16 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.onPrimary,
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Add User'),
+        label: const Text('Add User', style: TextStyle(fontWeight: FontWeight.w700)),
         onPressed: _openCreateUserDialog,
       ),
       body: Column(
         children: [
           // Search & Filter Header
           Container(
-            color: Colors.white,
+            color: AppColors.background,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
               children: [

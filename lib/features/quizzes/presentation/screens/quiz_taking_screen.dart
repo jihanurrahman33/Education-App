@@ -129,10 +129,10 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
           onPressed: () async {
             final exit = await ConfirmationDialog.show(
               context,
@@ -217,10 +217,10 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
             // Bottom Navigation Footer
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
                 border: Border(
-                  top: BorderSide(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+                  top: BorderSide(color: AppColors.border),
                 ),
               ),
               child: Row(

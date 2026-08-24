@@ -46,7 +46,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully!'),
-          backgroundColor: AppColors.secondary,
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       context.pop();
@@ -58,16 +59,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
           'Edit Profile',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -83,8 +84,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
@@ -96,6 +97,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             controller: _firstNameController,
                             label: 'First Name',
                             hint: 'John',
+                            textInputAction: TextInputAction.next,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -104,6 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             controller: _lastNameController,
                             label: 'Last Name',
                             hint: 'Doe',
+                            textInputAction: TextInputAction.next,
                           ),
                         ),
                       ],
@@ -114,6 +117,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: 'Email Address',
                       hint: 'john@example.com',
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       validator: (val) =>
                           (val == null || !val.contains('@')) ? 'Valid email required' : null,
                     ),
@@ -123,6 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: 'Bio / Status',
                       hint: 'Tell others about yourself...',
                       maxLines: 3,
+                      textInputAction: TextInputAction.done,
                     ),
                   ],
                 ),
