@@ -10,7 +10,9 @@ import '../bloc/auth_state.dart';
 import '../widgets/profile_info_tile_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final bool isTab;
+
+  const ProfileScreen({super.key, this.isTab = false});
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +36,13 @@ class ProfileScreen extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: AppColors.background,
             elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-              onPressed: () => context.pop(),
-            ),
+            automaticallyImplyLeading: !isTab,
+            leading: isTab
+                ? null
+                : IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                    onPressed: () => context.pop(),
+                  ),
             title: const Text(
               'My Profile',
               style: TextStyle(

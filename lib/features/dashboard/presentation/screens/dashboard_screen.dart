@@ -4,9 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/bottom_nav_bar_widget.dart';
+import '../../../admin/presentation/screens/admin_analytics_screen.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/presentation/screens/profile_screen.dart';
+import '../../../courses/presentation/screens/course_list_screen.dart';
+import '../../../progress/presentation/screens/my_progress_screen.dart';
+import '../../../quizzes/presentation/screens/teacher_quiz_manager_screen.dart';
 import 'admin_dashboard_screen.dart';
 import 'student_dashboard_screen.dart';
 import 'teacher_dashboard_screen.dart';
@@ -44,100 +49,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.background,
-            elevation: 0,
-            title: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Image.asset(
-                      'assets/icon.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Icon(
-                        Icons.school_rounded,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  AppConstants.appName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                _buildRoleBadge(user.role),
-              ],
-            ),
-            actions: [
-              IconButton(
-                tooltip: 'Notifications',
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
-                onPressed: () => context.push('/notifications'),
-              ),
-              IconButton(
-                tooltip: 'Settings',
-                icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
-                onPressed: () => context.push('/settings'),
-              ),
-              InkWell(
-                onTap: () => context.push('/profile'),
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.primary,
-                    child: Text(
-                      user.fullName.isNotEmpty
-                          ? user.fullName[0].toUpperCase()
-                          : user.username[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: AppColors.onPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+          appBar: _currentNavIndex == 0 ? _buildHomeAppBar(user) : null,
+          body: IndexedStack(
+            index: _currentNavIndex,
+            children: [
+              _buildHomeTab(user),
+              const CourseListScreen(isTab: true),
+              _buildSecondaryTab(user),
+              const ProfileScreen(isTab: true),
             ],
           ),
-          body: _buildCurrentTab(user),
           bottomNavigationBar: EduFlowBottomNavBar(
             currentIndex: _currentNavIndex,
             onTap: (index) {
-              if (index == 1) {
-                context.push('/courses');
-              } else if (index == 2) {
-                if (user.role == UserRole.student) {
-                  context.push('/progress');
-                } else if (user.role == UserRole.teacher) {
-                  context.push('/teacher/quizzes');
-                } else {
-                  context.push('/admin/analytics');
-                }
-              } else if (index == 3) {
-                context.push('/profile');
-              } else {
-                setState(() => _currentNavIndex = index);
-              }
+              setState(() => _currentNavIndex = index);
             },
             items: [
               const BottomNavItem(
@@ -155,12 +80,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? Icons.insights_outlined
                     : user.role == UserRole.teacher
                         ? Icons.quiz_outlined
-                        : Icons.admin_panel_settings_outlined,
+                        : Icons.analytics_outlined,
                 selectedIcon: user.role == UserRole.student
                     ? Icons.insights_rounded
                     : user.role == UserRole.teacher
                         ? Icons.quiz_rounded
-                        : Icons.admin_panel_settings_rounded,
+                        : Icons.analytics_rounded,
                 label: user.role == UserRole.student
                     ? 'Progress'
                     : user.role == UserRole.teacher
@@ -179,11 +104,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCurrentTab(UserEntity user) {
+  PreferredSizeWidget _buildHomeAppBar(UserEntity user) {
+    return AppBar(
+      backgroundColor: AppColors.background,
+      elevation: 0,
+      title: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.asset(
+                'assets/icon.png',
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => const Icon(
+                  Icons.school_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            AppConstants.appName,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 20,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildRoleBadge(user.role),
+        ],
+      ),
+      actions: [
+        IconButton(
+          tooltip: 'Notifications',
+          icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+          onPressed: () => context.push('/notifications'),
+        ),
+        IconButton(
+          tooltip: 'Settings',
+          icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
+          onPressed: () => context.push('/settings'),
+        ),
+        InkWell(
+          onTap: () => setState(() => _currentNavIndex = 3),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: AppColors.primary,
+              child: Text(
+                user.fullName.isNotEmpty
+                    ? user.fullName[0].toUpperCase()
+                    : user.username[0].toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.onPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHomeTab(UserEntity user) {
     return switch (user.role) {
       UserRole.admin => AdminDashboardScreen(user: user),
       UserRole.teacher => TeacherDashboardScreen(user: user),
       UserRole.student => StudentDashboardScreen(user: user),
+    };
+  }
+
+  Widget _buildSecondaryTab(UserEntity user) {
+    return switch (user.role) {
+      UserRole.student => const MyProgressScreen(isTab: true),
+      UserRole.teacher => const TeacherQuizManagerScreen(isTab: true),
+      UserRole.admin => const AdminAnalyticsScreen(isTab: true),
     };
   }
 

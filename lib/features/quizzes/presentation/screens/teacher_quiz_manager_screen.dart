@@ -6,8 +6,9 @@ import '../../../../core/widgets/custom_text_field.dart';
 
 class TeacherQuizManagerScreen extends StatefulWidget {
   final int? quizId;
+  final bool isTab;
 
-  const TeacherQuizManagerScreen({super.key, this.quizId});
+  const TeacherQuizManagerScreen({super.key, this.quizId, this.isTab = false});
 
   @override
   State<TeacherQuizManagerScreen> createState() => _TeacherQuizManagerScreenState();
@@ -37,6 +38,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
     _passScoreController.dispose();
     super.dispose();
   }
+
 
   void _showAddQuestionDialog() {
     final qController = TextEditingController();
@@ -135,10 +137,13 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              ),
         title: const Text(
           'Quiz Builder & Questions',
           style: TextStyle(
@@ -314,7 +319,9 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                     backgroundColor: AppColors.secondary,
                   ),
                 );
-                context.pop();
+                if (!widget.isTab) {
+                  context.pop();
+                }
               },
             ),
           ],

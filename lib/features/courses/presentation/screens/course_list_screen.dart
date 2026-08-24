@@ -12,7 +12,9 @@ import '../widgets/course_category_filter_pills.dart';
 import '../widgets/course_search_filter_modal.dart';
 
 class CourseListScreen extends StatefulWidget {
-  const CourseListScreen({super.key});
+  final bool isTab;
+
+  const CourseListScreen({super.key, this.isTab = false});
 
   @override
   State<CourseListScreen> createState() => _CourseListScreenState();
@@ -69,10 +71,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              ),
         title: const Text(
           'Explore Courses',
           style: TextStyle(

@@ -13,7 +13,9 @@ import '../widgets/admin_health_status_row_widget.dart';
 import '../widgets/admin_stat_metric_card.dart';
 
 class AdminAnalyticsScreen extends StatefulWidget {
-  const AdminAnalyticsScreen({super.key});
+  final bool isTab;
+
+  const AdminAnalyticsScreen({super.key, this.isTab = false});
 
   @override
   State<AdminAnalyticsScreen> createState() => _AdminAnalyticsScreenState();
@@ -72,10 +74,13 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              ),
         title: const Text(
           'Platform Analytics & Metrics',
           style: TextStyle(
@@ -86,7 +91,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
             tooltip: 'Refresh Metrics',
             onPressed: _fetchData,
           ),

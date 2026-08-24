@@ -12,7 +12,9 @@ import '../widgets/course_progress_breakdown_card.dart';
 import '../widgets/progress_overview_card_widget.dart';
 
 class MyProgressScreen extends StatefulWidget {
-  const MyProgressScreen({super.key});
+  final bool isTab;
+
+  const MyProgressScreen({super.key, this.isTab = false});
 
   @override
   State<MyProgressScreen> createState() => _MyProgressScreenState();
@@ -116,10 +118,13 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              ),
         title: const Text(
           'My Learning Progress',
           style: TextStyle(
