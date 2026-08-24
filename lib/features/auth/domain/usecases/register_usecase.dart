@@ -11,6 +11,7 @@ class RegisterParams extends Equatable {
   final UserRole role;
   final String? firstName;
   final String? lastName;
+  final String? phone;
 
   const RegisterParams({
     required this.username,
@@ -19,10 +20,11 @@ class RegisterParams extends Equatable {
     required this.role,
     this.firstName,
     this.lastName,
+    this.phone,
   });
 
   @override
-  List<Object?> get props => [username, email, password, role, firstName, lastName];
+  List<Object?> get props => [username, email, password, role, firstName, lastName, phone];
 }
 
 class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
@@ -39,6 +41,7 @@ class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
       role: params.role,
       firstName: params.firstName,
       lastName: params.lastName,
+      phone: params.phone,
     );
   }
 }

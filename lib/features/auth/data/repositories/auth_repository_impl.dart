@@ -55,6 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required UserRole role,
     String? firstName,
     String? lastName,
+    String? phone,
   }) async {
     try {
       final registeredUser = await remoteDataSource.register(
@@ -64,6 +65,7 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
         firstName: firstName,
         lastName: lastName,
+        phone: phone,
       );
 
       // Automatically login right after registration to acquire JWT tokens
@@ -83,7 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
         return Right(loggedInUser);
       } catch (_) {
-        // If auto-login fails (e.g., teacher pending admin approval)
+        // If auto-login fails (e.g. teacher pending admin approval)
         return Right(registeredUser);
       }
     } on ServerException catch (e) {

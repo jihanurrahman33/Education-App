@@ -16,6 +16,7 @@ abstract class AuthRemoteDataSource {
     required UserRole role,
     String? firstName,
     String? lastName,
+    String? phone,
   });
 
   Future<UserModel> getCurrentUser();
@@ -67,17 +68,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required UserRole role,
     String? firstName,
     String? lastName,
+    String? phone,
   }) async {
+    final body = <String, dynamic>{
+      'username': username,
+      'email': email,
+      'password': password,
+      'role': role.toApiValue(),
+      'first_name': firstName ?? '',
+      'last_name': lastName ?? '',
+    };
+
+    if (phone != null && phone.trim().isNotEmpty) {
+      body['phone'] = phone.trim();
+    }
+
     final response = await apiClient.post(
       ApiEndpoints.register,
-      data: {
-        'username': username,
-        'email': email,
-        'password': password,
-        'role': role.toApiValue(),
-        'first_name': ?firstName,
-        'last_name': ?lastName,
-      },
+      data: body,
     );
 
     if (response is Map<String, dynamic>) {

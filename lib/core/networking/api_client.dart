@@ -157,14 +157,24 @@ class ApiClient {
 
     String errorMessage = 'A server error occurred.';
     if (responseData is Map<String, dynamic>) {
-      errorMessage = responseData['detail'] ??
-          responseData['message'] ??
-          responseData['error'] ??
-          (responseData.entries.isNotEmpty
-              ? '${responseData.entries.first.key}: ${responseData.entries.first.value}'
-              : null) ??
-          error.message ??
-          'Unknown server error';
+      if (responseData['detail'] != null) {
+        errorMessage = responseData['detail'].toString();
+      } else if (responseData['message'] != null) {
+        errorMessage = responseData['message'].toString();
+      } else if (responseData['error'] != null) {
+        errorMessage = responseData['error'].toString();
+      } else if (responseData.entries.isNotEmpty) {
+        final entry = responseData.entries.first;
+        final key = entry.key;
+        final val = entry.value;
+        if (val is List && val.isNotEmpty) {
+          errorMessage = '$key: ${val.first}';
+        } else {
+          errorMessage = '$key: $val';
+        }
+      } else if (error.message != null) {
+        errorMessage = error.message!;
+      }
     } else if (responseData is String && responseData.isNotEmpty) {
       errorMessage = responseData;
     } else if (error.message != null) {

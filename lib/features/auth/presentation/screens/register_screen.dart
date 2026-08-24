@@ -26,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   late UserRole _selectedRole;
   bool _obscurePassword = true;
@@ -48,6 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -74,6 +76,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   : null,
               lastName: _lastNameController.text.trim().isNotEmpty
                   ? _lastNameController.text.trim()
+                  : null,
+              phone: _phoneController.text.trim().isNotEmpty
+                  ? _phoneController.text.trim()
                   : null,
             ),
           );
@@ -111,6 +116,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             );
           } else if (state.status.isAuthenticated) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account created successfully! Welcome to EduFlow.'),
+                backgroundColor: AppColors.secondary,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
             context.go('/dashboard');
           }
         },
@@ -143,7 +155,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Reusable Role Selection Cards
+                      // Role Selection Cards
                       Row(
                         children: [
                           Expanded(
@@ -219,9 +231,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 label: 'Username',
                                 hint: 'johndoe',
                                 prefixIcon: Icons.person_outline_rounded,
-                                validator: (val) => (val == null || val.trim().isEmpty)
-                                    ? 'Username is required'
-                                    : null,
+                                validator: (val) {
+                                  if (val == null || val.trim().isEmpty) {
+                                    return 'Username is required';
+                                  }
+                                  if (!RegExp(r'^[\w.@+-]+$').hasMatch(val.trim())) {
+                                    return 'Letters, digits and @/./+/-/_ only';
+                                  }
+                                  if (val.trim().length > 150) {
+                                    return 'Username must be 150 characters or fewer';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
@@ -230,10 +251,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hint: 'john@example.com',
                                 keyboardType: TextInputType.emailAddress,
                                 prefixIcon: Icons.mail_outline_rounded,
-                                validator: (val) =>
-                                    (val == null || !val.contains('@') || !val.contains('.'))
-                                        ? 'Enter a valid email address'
-                                        : null,
+                                validator: (val) {
+                                  if (val == null || val.trim().isEmpty) {
+                                    return 'Email address is required';
+                                  }
+                                  if (!val.contains('@') || !val.contains('.')) {
+                                    return 'Enter a valid email address';
+                                  }
+                                  if (val.length > 254) {
+                                    return 'Email must be 254 characters or fewer';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _phoneController,
+                                label: 'Phone Number (Optional)',
+                                hint: '+1 (555) 000-0000',
+                                keyboardType: TextInputType.phone,
+                                prefixIcon: Icons.phone_outlined,
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(

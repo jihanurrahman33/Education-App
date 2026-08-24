@@ -32,6 +32,7 @@ class AuthRegisterSubmitted extends AuthEvent {
   final UserRole role;
   final String? firstName;
   final String? lastName;
+  final String? phone;
 
   const AuthRegisterSubmitted({
     required this.username,
@@ -40,10 +41,11 @@ class AuthRegisterSubmitted extends AuthEvent {
     required this.role,
     this.firstName,
     this.lastName,
+    this.phone,
   });
 
   @override
-  List<Object?> get props => [username, email, password, role, firstName, lastName];
+  List<Object?> get props => [username, email, password, role, firstName, lastName, phone];
 }
 
 class AuthLogoutRequested extends AuthEvent {

@@ -14,6 +14,7 @@ abstract class AuthRepository {
     required UserRole role,
     String? firstName,
     String? lastName,
+    String? phone,
   });
 
   ResultFuture<UserEntity> getCurrentUser();
