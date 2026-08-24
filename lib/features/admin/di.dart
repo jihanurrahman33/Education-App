@@ -5,6 +5,7 @@ import 'data/repositories/admin_repository_impl.dart';
 import 'domain/repositories/admin_repository.dart';
 import 'domain/usecases/approve_course_use_case.dart';
 import 'domain/usecases/approve_teacher_use_case.dart';
+import 'domain/usecases/create_user_use_case.dart';
 import 'domain/usecases/get_admin_stats_use_case.dart';
 import 'domain/usecases/get_pending_courses_use_case.dart';
 import 'domain/usecases/get_pending_teachers_use_case.dart';
@@ -19,6 +20,7 @@ void initAdminFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetPendingCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetPendingTeachersUseCase(sl()));
   sl.registerLazySingleton(() => GetUsersUseCase(sl()));
+  sl.registerLazySingleton(() => CreateUserUseCase(sl()));
   sl.registerLazySingleton(() => ApproveCourseUseCase(sl()));
   sl.registerLazySingleton(() => ApproveTeacherUseCase(sl()));
   sl.registerLazySingleton(() => RejectCourseUseCase(sl()));

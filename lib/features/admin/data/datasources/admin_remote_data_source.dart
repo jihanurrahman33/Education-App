@@ -11,6 +11,16 @@ abstract class AdminRemoteDataSource {
   Future<List<AdminCourseModel>> getPendingCourses({int? page});
   Future<List<AdminUserModel>> getPendingTeachers({int? page});
   Future<List<AdminUserModel>> getUsers({int? page, String? search});
+  Future<AdminUserModel> createUser({
+    required String username,
+    required String email,
+    required String role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool isActive = true,
+    bool isApprovedTeacher = false,
+  });
   Future<void> approveTeacher(int teacherId);
   Future<void> approveCourse(int courseId);
   Future<void> rejectCourse(int courseId);
@@ -131,6 +141,41 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     return [];
+  }
+
+  @override
+  Future<AdminUserModel> createUser({
+    required String username,
+    required String email,
+    required String role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool isActive = true,
+    bool isApprovedTeacher = false,
+  }) async {
+    final body = <String, dynamic>{
+      'username': username,
+      'email': email,
+      'role': role.toLowerCase(),
+      'is_active': isActive,
+      'is_approved_teacher': isApprovedTeacher,
+    };
+
+    if (firstName != null && firstName.isNotEmpty) body['first_name'] = firstName;
+    if (lastName != null && lastName.isNotEmpty) body['last_name'] = lastName;
+    if (phone != null && phone.isNotEmpty) body['phone'] = phone;
+
+    final response = await apiClient.post(
+      ApiEndpoints.adminUsers,
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return AdminUserModel.fromJson(response);
+    }
+
+    throw Exception('Invalid create user response structure');
   }
 
   @override

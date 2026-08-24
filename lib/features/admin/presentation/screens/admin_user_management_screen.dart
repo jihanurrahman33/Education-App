@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../domain/entities/admin_user_entity.dart';
+import '../../domain/usecases/create_user_use_case.dart';
 import '../../domain/usecases/get_users_use_case.dart';
 import '../widgets/admin_user_card_widget.dart';
 
@@ -18,6 +20,7 @@ class AdminUserManagementScreen extends StatefulWidget {
 
 class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   final GetUsersUseCase _getUsersUseCase = GetIt.I<GetUsersUseCase>();
+  final CreateUserUseCase _createUserUseCase = GetIt.I<CreateUserUseCase>();
   final TextEditingController _searchController = TextEditingController();
 
   List<AdminUserEntity> _users = [];
@@ -66,6 +69,228 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     );
   }
 
+  void _openCreateUserDialog() {
+    final formKey = GlobalKey<FormState>();
+    final usernameController = TextEditingController();
+    final emailController = TextEditingController();
+    final firstNameController = TextEditingController();
+    final lastNameController = TextEditingController();
+    final phoneController = TextEditingController();
+    String selectedRole = 'student';
+    bool isActive = true;
+    bool isApprovedTeacher = false;
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Create New User',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              controller: firstNameController,
+                              label: 'First Name',
+                              hint: 'Jane',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: CustomTextField(
+                              controller: lastNameController,
+                              label: 'Last Name',
+                              hint: 'Doe',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: usernameController,
+                        label: 'Username',
+                        hint: 'janedoe',
+                        prefixIcon: Icons.person_outline_rounded,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) return 'Username is required';
+                          if (!RegExp(r'^[\w.@+-]+$').hasMatch(val.trim())) return 'Valid characters: letters, digits, @/./+/-/_';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: emailController,
+                        label: 'Email Address',
+                        hint: 'jane@example.com',
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: Icons.mail_outline_rounded,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) return 'Email is required';
+                          if (!val.contains('@') || !val.contains('.')) return 'Enter a valid email address';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: phoneController,
+                        label: 'Phone (Optional)',
+                        hint: '+1234567890',
+                        keyboardType: TextInputType.phone,
+                        prefixIcon: Icons.phone_outlined,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Role selector
+                      const Text(
+                        'Account Role',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedRole,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'student', child: Text('Student')),
+                          DropdownMenuItem(value: 'teacher', child: Text('Teacher / Instructor')),
+                          DropdownMenuItem(value: 'admin', child: Text('Administrator')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() {
+                              selectedRole = val;
+                              if (selectedRole != 'teacher') {
+                                isApprovedTeacher = false;
+                              }
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Checkbox controls
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: isActive,
+                            activeColor: AppColors.primary,
+                            onChanged: (val) => setModalState(() => isActive = val ?? true),
+                          ),
+                          const Text('Active Account', style: TextStyle(fontSize: 13)),
+                        ],
+                      ),
+                      if (selectedRole == 'teacher')
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isApprovedTeacher,
+                              activeColor: AppColors.secondary,
+                              onChanged: (val) => setModalState(() => isApprovedTeacher = val ?? false),
+                            ),
+                            const Text('Pre-approved Teacher Status', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      const SizedBox(height: 20),
+
+                      CustomButton(
+                        text: 'Create User',
+                        isLoading: isSubmitting,
+                        onPressed: () async {
+                          if (formKey.currentState?.validate() ?? false) {
+                            setModalState(() => isSubmitting = true);
+                            final result = await _createUserUseCase(CreateUserParams(
+                              username: usernameController.text.trim(),
+                              email: emailController.text.trim(),
+                              role: selectedRole,
+                              firstName: firstNameController.text.trim().isNotEmpty
+                                  ? firstNameController.text.trim()
+                                  : null,
+                              lastName: lastNameController.text.trim().isNotEmpty
+                                  ? lastNameController.text.trim()
+                                  : null,
+                              phone: phoneController.text.trim().isNotEmpty
+                                  ? phoneController.text.trim()
+                                  : null,
+                              isActive: isActive,
+                              isApprovedTeacher: isApprovedTeacher,
+                            ));
+
+                            if (!mounted) return;
+                            setModalState(() => isSubmitting = false);
+
+                            result.fold(
+                              (failure) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to create user: ${failure.message}'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              },
+                              (created) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('User @${created.username} created successfully!'),
+                                    backgroundColor: AppColors.secondary,
+                                  ),
+                                );
+                                _fetchUsers();
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredUsers = _users.where((u) {
@@ -102,6 +327,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             onPressed: _fetchUsers,
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.person_add_rounded),
+        label: const Text('Add User'),
+        onPressed: _openCreateUserDialog,
       ),
       body: Column(
         children: [
