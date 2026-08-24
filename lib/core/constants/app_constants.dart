@@ -1,7 +1,7 @@
 class AppConstants {
   const AppConstants._();
 
-  static const String appName = 'iEducation';
+  static const String appName = 'EduFlow';
   static const String appTagline = 'Smart Learning for Future Leaders';
 
   // Storage keys
@@ -9,6 +9,7 @@ class AppConstants {
   static const String refreshTokenKey = 'refresh_token';
   static const String userDataKey = 'user_data';
   static const String userRoleKey = 'user_role';
+  static const String onboardingCompletedKey = 'onboarding_completed';
 
   // Timeouts
   static const Duration connectTimeout = Duration(seconds: 15);

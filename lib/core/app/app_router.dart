@@ -1,5 +1,8 @@
 import 'package:go_router/go_router.dart';
 
+// Onboarding
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+
 // Public & Auth Screens
 import '../../features/auth/presentation/screens/edit_profile_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
@@ -61,10 +64,14 @@ class AppRouter {
       message: 'The requested route "${state.uri.path}" does not exist.',
     ),
     routes: [
-      // 1. Splash & Welcome
+      // 1. Splash, Onboarding & Welcome
       GoRoute(
         path: '/',
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/welcome',

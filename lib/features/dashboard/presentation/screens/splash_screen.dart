@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../onboarding/domain/usecases/check_onboarding_status_use_case.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,11 +21,26 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 1200), () {
+    Future.delayed(const Duration(milliseconds: 1400), () {
       if (mounted) {
         context.read<AuthBloc>().add(const AuthCheckRequested());
       }
     });
+  }
+
+  Future<void> _handleUnauthenticatedNavigation() async {
+    final checkUseCase = GetIt.I<CheckOnboardingStatusUseCase>();
+    final result = await checkUseCase(const NoParams());
+
+    if (!mounted) return;
+
+    final isCompleted = result.fold((_) => false, (completed) => completed);
+
+    if (isCompleted) {
+      context.go('/welcome');
+    } else {
+      context.go('/onboarding');
+    }
   }
 
   @override
@@ -33,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
         if (state.status.isAuthenticated) {
           context.go('/dashboard');
         } else if (state.status.isUnauthenticated || state.status.isError) {
-          context.go('/welcome');
+          _handleUnauthenticatedNavigation();
         }
       },
       child: Scaffold(
@@ -74,14 +91,14 @@ class _SplashScreenState extends State<SplashScreen> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // App Icon / Logo
+                  // App Icon
                   Container(
-                    width: 110,
-                    height: 110,
-                    padding: const EdgeInsets.all(18),
+                    width: 120,
+                    height: 120,
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(30),
                       border: Border.all(
                         color: AppColors.primary.withValues(alpha: 0.4),
                         width: 2,
@@ -95,13 +112,16 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                       ],
                     ),
-                    child: SvgPicture.asset(
-                      'assets/icon.svg',
-                      fit: BoxFit.contain,
-                      placeholderBuilder: (_) => const Icon(
-                        Icons.auto_stories_rounded,
-                        size: 54,
-                        color: AppColors.primary,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/icon.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const Icon(
+                          Icons.school_rounded,
+                          size: 56,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),

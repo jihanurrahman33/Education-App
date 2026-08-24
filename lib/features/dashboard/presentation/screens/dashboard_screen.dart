@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -51,20 +50,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title: Row(
               children: [
                 Container(
-                  width: 32,
-                  height: 32,
-                  padding: const EdgeInsets.all(6),
+                  width: 36,
+                  height: 36,
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppColors.border),
                   ),
-                  child: SvgPicture.asset(
-                    'assets/icon.svg',
-                    placeholderBuilder: (_) => const Icon(
-                      Icons.school_rounded,
-                      color: AppColors.primary,
-                      size: 18,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.asset(
+                      'assets/icon.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const Icon(
+                        Icons.school_rounded,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),

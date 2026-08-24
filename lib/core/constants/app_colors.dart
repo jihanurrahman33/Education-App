@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens from the Stitch "Luminous Learning" iEducation Design System
+/// Design tokens for the EduFlow application design system
 class AppColors {
   const AppColors._();
 

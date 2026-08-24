@@ -7,6 +7,7 @@ import '../../features/certificates/di.dart';
 import '../../features/courses/di.dart';
 import '../../features/dashboard/di.dart';
 import '../../features/notifications/di.dart';
+import '../../features/onboarding/di.dart';
 import '../../features/progress/di.dart';
 import '../../features/quizzes/di.dart';
 import '../../features/settings/di.dart';
@@ -31,6 +32,7 @@ Future<void> initGlobalDependencies() async {
   );
 
   // 3. Feature modules
+  initOnboardingDependencies();
   initAuthFeature(sl);
   initCourseFeature(sl);
   initQuizFeature(sl);

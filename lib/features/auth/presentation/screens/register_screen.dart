@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
-                        'Start your journey with iEducation',
+                        'Start your journey with EduFlow',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,

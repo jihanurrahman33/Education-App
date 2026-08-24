@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -30,20 +29,24 @@ class WelcomeScreen extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          width: 42,
-                          height: 42,
-                          padding: const EdgeInsets.all(8),
+                          width: 44,
+                          height: 44,
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppColors.border),
                           ),
-                          child: SvgPicture.asset(
-                            'assets/icon.svg',
-                            placeholderBuilder: (_) => const Icon(
-                              Icons.school_rounded,
-                              color: AppColors.primary,
-                              size: 22,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              'assets/icon.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, _, _) => const Icon(
+                                Icons.school_rounded,
+                                color: AppColors.primary,
+                                size: 22,
+                              ),
                             ),
                           ),
                         ),
@@ -85,28 +88,37 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 36),
 
-                // Hero Illustration / Glow Badge
+                // Hero Logo Card / Glow Badge
                 Container(
-                  padding: const EdgeInsets.all(28),
+                  width: 140,
+                  height: 140,
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surface.withValues(alpha: 0.7),
+                    color: AppColors.surface.withValues(alpha: 0.8),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: AppColors.primary.withValues(alpha: 0.4),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        color: AppColors.primary.withValues(alpha: 0.25),
                         blurRadius: 36,
                         spreadRadius: 6,
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.rocket_launch_rounded,
-                    size: 72,
-                    color: AppColors.primary,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(70),
+                    child: Image.asset(
+                      'assets/icon.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const Icon(
+                        Icons.rocket_launch_rounded,
+                        size: 72,
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),

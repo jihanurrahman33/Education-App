@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 
@@ -12,7 +11,7 @@ class AuthBrandHeaderWidget extends StatelessWidget {
     super.key,
     this.title = AppConstants.appName,
     this.subtitle = 'Sign in to access your learning portal',
-    this.iconSize = 36,
+    this.iconSize = 48,
   });
 
   @override
@@ -21,14 +20,15 @@ class AuthBrandHeaderWidget extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: iconSize + 28,
-            height: iconSize + 28,
-            padding: const EdgeInsets.all(12),
+            width: iconSize + 32,
+            height: iconSize + 32,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: AppColors.primary.withValues(alpha: 0.35),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
@@ -38,13 +38,16 @@ class AuthBrandHeaderWidget extends StatelessWidget {
                 ),
               ],
             ),
-            child: SvgPicture.asset(
-              'assets/icon.svg',
-              fit: BoxFit.contain,
-              placeholderBuilder: (_) => Icon(
-                Icons.school_rounded,
-                size: iconSize,
-                color: AppColors.primary,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'assets/icon.png',
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => Icon(
+                  Icons.school_rounded,
+                  size: iconSize,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),
