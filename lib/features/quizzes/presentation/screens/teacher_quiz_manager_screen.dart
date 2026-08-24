@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class TeacherQuizManagerScreen extends StatefulWidget {
   final int? quizId;
@@ -132,6 +136,38 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthBloc>().state.user;
+    if (user != null && user.role == UserRole.teacher && !user.isApprovedTeacher) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          automaticallyImplyLeading: !widget.isTab,
+          leading: widget.isTab
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                  onPressed: () => context.pop(),
+                ),
+          title: const Text('Quiz Builder', style: TextStyle(color: AppColors.textPrimary)),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: EmptyStateWidget(
+              icon: Icons.hourglass_top_rounded,
+              title: 'Account Approval Required',
+              message:
+                  'Your instructor account is currently undergoing administrative review. Quiz creation and management is locked until an administrator approves your instructor registration.',
+              actionText: 'Check Application Status',
+              onAction: () => context.push('/teacher/pending'),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(

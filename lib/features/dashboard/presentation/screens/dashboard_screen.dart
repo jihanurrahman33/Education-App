@@ -15,6 +15,7 @@ import '../../../quizzes/presentation/screens/teacher_quiz_manager_screen.dart';
 import 'admin_dashboard_screen.dart';
 import 'student_dashboard_screen.dart';
 import 'teacher_dashboard_screen.dart';
+import 'teacher_pending_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -185,7 +186,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHomeTab(UserEntity user) {
     return switch (user.role) {
       UserRole.admin => AdminDashboardScreen(user: user),
-      UserRole.teacher => TeacherDashboardScreen(user: user),
+      UserRole.teacher => user.isApprovedTeacher
+          ? TeacherDashboardScreen(user: user)
+          : const TeacherPendingScreen(isTab: true),
       UserRole.student => StudentDashboardScreen(user: user),
     };
   }
@@ -193,7 +196,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildSecondaryTab(UserEntity user) {
     return switch (user.role) {
       UserRole.student => const MyProgressScreen(isTab: true),
-      UserRole.teacher => const TeacherQuizManagerScreen(isTab: true),
+      UserRole.teacher => user.isApprovedTeacher
+          ? const TeacherQuizManagerScreen(isTab: true)
+          : const TeacherPendingScreen(isTab: true),
       UserRole.admin => const AdminAnalyticsScreen(isTab: true),
     };
   }

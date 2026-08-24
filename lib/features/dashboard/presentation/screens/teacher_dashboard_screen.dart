@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../../auth/domain/entities/user_entity.dart';
@@ -60,6 +61,25 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       _teacherCourses = courses;
       _isLoading = false;
     });
+  }
+
+  void _checkApprovalAndNavigate(String route) async {
+    if (!widget.user.isApprovedTeacher) {
+      final check = await ConfirmationDialog.show(
+        context,
+        title: 'Instructor Approval Required',
+        message:
+            'Your instructor account is currently pending administrative review. Once approved by an administrator, course creation and quiz publishing will be automatically unlocked.',
+        confirmText: 'Check Review Status',
+        cancelText: 'Dismiss',
+        icon: Icons.hourglass_top_rounded,
+      );
+      if (check == true && mounted) {
+        context.push('/teacher/pending');
+      }
+      return;
+    }
+    context.push(route);
   }
 
   @override
@@ -168,7 +188,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     text: 'Create New Course',
                     icon: Icons.add_circle_outline_rounded,
                     backgroundColor: AppColors.roleTeacher,
-                    onPressed: () => context.push('/teacher/courses/create'),
+                    onPressed: () => _checkApprovalAndNavigate('/teacher/courses/create'),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -179,7 +199,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     isOutlined: true,
                     backgroundColor: AppColors.roleTeacher,
                     textColor: AppColors.roleTeacher,
-                    onPressed: () => context.push('/teacher/quizzes'),
+                    onPressed: () => _checkApprovalAndNavigate('/teacher/quizzes'),
                   ),
                 ),
               ],
@@ -223,7 +243,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                         foregroundColor: AppColors.primary,
                         side: const BorderSide(color: AppColors.primary),
                       ),
-                      onPressed: () => context.push('/teacher/courses/create'),
+                      onPressed: () => _checkApprovalAndNavigate('/teacher/courses/create'),
                     ),
                   ],
                 ),
@@ -277,12 +297,12 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textSecondary),
                                     tooltip: 'Edit Course',
-                                    onPressed: () => context.push('/teacher/courses/${course.id}/edit'),
+                                    onPressed: () => _checkApprovalAndNavigate('/teacher/courses/${course.id}/edit'),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.menu_book_rounded, size: 18, color: AppColors.primary),
                                     tooltip: 'Curriculum & Lessons',
-                                    onPressed: () => context.push('/teacher/courses/${course.id}/curriculum'),
+                                    onPressed: () => _checkApprovalAndNavigate('/teacher/courses/${course.id}/curriculum'),
                                   ),
                                 ],
                               ),

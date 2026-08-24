@@ -1,11 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 import '../widgets/teacher_onboarding_step_row_widget.dart';
 
-class TeacherPendingScreen extends StatelessWidget {
-  const TeacherPendingScreen({super.key});
+class TeacherPendingScreen extends StatefulWidget {
+  final bool isTab;
+
+  const TeacherPendingScreen({super.key, this.isTab = false});
+
+  @override
+  State<TeacherPendingScreen> createState() => _TeacherPendingScreenState();
+}
+
+class _TeacherPendingScreenState extends State<TeacherPendingScreen> {
+  bool _isChecking = false;
+
+  void _onRefreshStatus() async {
+    setState(() => _isChecking = true);
+    context.read<AuthBloc>().add(const AuthCheckRequested());
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!mounted) return;
+
+    setState(() => _isChecking = false);
+    final user = context.read<AuthBloc>().state.user;
+    if (user != null && user.isApprovedTeacher) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎉 Congratulations! Your instructor account has been approved by admin!'),
+          backgroundColor: AppColors.secondary,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your application is still undergoing administrative review. Please check back soon.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +51,13 @@ class TeacherPendingScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              ),
       ),
       body: SafeArea(
         child: Center(
@@ -63,7 +103,7 @@ class TeacherPendingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
 
-                  // Review steps card using TeacherOnboardingStepRowWidget
+                  // Review steps card
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -102,20 +142,17 @@ class TeacherPendingScreen extends StatelessWidget {
                   CustomButton(
                     text: 'Refresh Application Status',
                     icon: Icons.refresh_rounded,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Checking latest instructor authorization status...'),
-                        ),
-                      );
-                    },
+                    isLoading: _isChecking,
+                    onPressed: _onRefreshStatus,
                   ),
-                  const SizedBox(height: 12),
-                  CustomButton(
-                    text: 'Return to Dashboard',
-                    isOutlined: true,
-                    onPressed: () => context.go('/dashboard'),
-                  ),
+                  if (!widget.isTab) ...[
+                    const SizedBox(height: 12),
+                    CustomButton(
+                      text: 'Return to Dashboard',
+                      isOutlined: true,
+                      onPressed: () => context.go('/dashboard'),
+                    ),
+                  ],
                 ],
               ),
             ),

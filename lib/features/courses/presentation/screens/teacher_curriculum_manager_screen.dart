@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/create_chapter_usecase.dart';
 import '../../domain/usecases/delete_chapter_usecase.dart';
@@ -385,6 +389,35 @@ class _TeacherCurriculumManagerScreenState
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthBloc>().state.user;
+    if (user != null && user.role == UserRole.teacher && !user.isApprovedTeacher) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Curriculum Manager', style: TextStyle(color: AppColors.textPrimary)),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: EmptyStateWidget(
+              icon: Icons.hourglass_top_rounded,
+              title: 'Account Approval Required',
+              message:
+                  'Your instructor account is currently undergoing administrative review. Managing curriculum and lessons is locked until an administrator approves your instructor registration.',
+              actionText: 'Check Application Status',
+              onAction: () => context.push('/teacher/pending'),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
