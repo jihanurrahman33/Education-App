@@ -1,7 +1,8 @@
 class AppConstants {
   const AppConstants._();
 
-  static const String appName = 'Education App';
+  static const String appName = 'iEducation';
+  static const String appTagline = 'Smart Learning for Future Leaders';
 
   // Storage keys
   static const String tokenKey = 'auth_token';

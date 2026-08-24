@@ -11,6 +11,7 @@ class CustomButton extends StatelessWidget {
   final IconData? icon;
   final double? width;
   final double height;
+  final double borderRadius;
 
   const CustomButton({
     super.key,
@@ -22,13 +23,17 @@ class CustomButton extends StatelessWidget {
     this.textColor,
     this.icon,
     this.width,
-    this.height = 48,
+    this.height = 52,
+    this.borderRadius = 26,
   });
 
   @override
   Widget build(BuildContext context) {
     final effectiveBgColor = backgroundColor ?? AppColors.primary;
-    final effectiveTextColor = textColor ?? (isOutlined ? effectiveBgColor : Colors.white);
+    final effectiveTextColor = textColor ??
+        (isOutlined
+            ? (backgroundColor ?? AppColors.primary)
+            : (effectiveBgColor == AppColors.primary ? AppColors.onPrimary : Colors.white));
 
     if (isOutlined) {
       return SizedBox(
@@ -37,9 +42,9 @@ class CustomButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            side: BorderSide(color: effectiveBgColor),
+            side: BorderSide(color: effectiveBgColor, width: 1.5),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
           ),
           child: _buildChild(effectiveTextColor),
@@ -56,8 +61,12 @@ class CustomButton extends StatelessWidget {
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
           disabledBackgroundColor: effectiveBgColor.withValues(alpha: 0.6),
+          elevation: effectiveBgColor == AppColors.primary ? 2 : 0,
+          shadowColor: effectiveBgColor == AppColors.primary
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(borderRadius),
           ),
         ),
         child: _buildChild(effectiveTextColor),
@@ -68,10 +77,10 @@ class CustomButton extends StatelessWidget {
   Widget _buildChild(Color color) {
     if (isLoading) {
       return SizedBox(
-        height: 20,
-        width: 20,
+        height: 22,
+        width: 22,
         child: CircularProgressIndicator(
-          strokeWidth: 2,
+          strokeWidth: 2.5,
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
       );
@@ -82,13 +91,13 @@ class CustomButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 8),
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 10),
           Text(
             text,
             style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               color: color,
             ),
           ),
@@ -99,8 +108,8 @@ class CustomButton extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
         color: color,
       ),
     );

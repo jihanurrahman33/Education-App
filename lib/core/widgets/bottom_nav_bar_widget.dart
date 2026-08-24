@@ -18,13 +18,13 @@ class EduFlowBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.85),
-            border: Border(
+            color: AppColors.surface.withValues(alpha: 0.92),
+            border: const Border(
               top: BorderSide(
-                color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                color: AppColors.border,
                 width: 1,
               ),
             ),
@@ -40,7 +40,7 @@ class EduFlowBottomNavBar extends StatelessWidget {
 
                 return InkWell(
                   onTap: () => onTap(index),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     child: Column(
@@ -48,7 +48,7 @@ class EduFlowBottomNavBar extends StatelessWidget {
                       children: [
                         Icon(
                           isSelected ? item.selectedIcon : item.icon,
-                          color: isSelected ? AppColors.primary : AppColors.outline,
+                          color: isSelected ? AppColors.primary : AppColors.textSecondary,
                           size: 24,
                         ),
                         const SizedBox(height: 4),
@@ -56,22 +56,22 @@ class EduFlowBottomNavBar extends StatelessWidget {
                           item.label,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? AppColors.primary : AppColors.outline,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected ? AppColors.primary : AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 2),
                         if (isSelected)
                           Container(
-                            width: 4,
-                            height: 4,
+                            width: 5,
+                            height: 5,
                             decoration: const BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
                             ),
                           )
                         else
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 5),
                       ],
                     ),
                   ),

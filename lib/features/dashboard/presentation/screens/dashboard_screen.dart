@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/bottom_nav_bar_widget.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -33,32 +35,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         if (user == null) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+            ),
           );
         }
 
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.background,
             elevation: 0,
             title: Row(
               children: [
                 Container(
+                  width: 32,
+                  height: 32,
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryContainer,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.border),
                   ),
-                  child: const Icon(Icons.school_rounded, color: AppColors.onPrimary, size: 20),
+                  child: SvgPicture.asset(
+                    'assets/icon.svg',
+                    placeholderBuilder: (_) => const Icon(
+                      Icons.school_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 const Text(
-                  'EduFlow',
+                  AppConstants.appName,
                   style: TextStyle(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                     fontSize: 20,
-                    color: AppColors.primary,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -69,12 +85,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             actions: [
               IconButton(
                 tooltip: 'Notifications',
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.onSurface),
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
                 onPressed: () => context.push('/notifications'),
               ),
               IconButton(
                 tooltip: 'Settings',
-                icon: const Icon(Icons.settings_outlined, color: AppColors.onSurface),
+                icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
                 onPressed: () => context.push('/settings'),
               ),
               InkWell(
@@ -84,13 +100,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: CircleAvatar(
                     radius: 16,
-                    backgroundColor: AppColors.primaryContainer,
+                    backgroundColor: AppColors.primary,
                     child: Text(
                       user.fullName.isNotEmpty
                           ? user.fullName[0].toUpperCase()
                           : user.username[0].toUpperCase(),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
@@ -178,9 +194,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.12),
+        color: badgeColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.4)),
       ),
       child: Text(
         label,

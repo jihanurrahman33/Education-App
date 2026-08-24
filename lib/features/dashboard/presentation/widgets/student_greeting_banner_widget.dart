@@ -18,18 +18,24 @@ class StudentGreetingBannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(22.0),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryContainer],
+          colors: [
+            Color(0xFF3B126D), // Royal Deep Purple
+            Color(0xFF1E1338), // Dark Purple Canvas
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.secondary.withValues(alpha: 0.5),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
-            blurRadius: 16,
+            color: AppColors.secondary.withValues(alpha: 0.25),
+            blurRadius: 20,
             offset: const Offset(0, 6),
           ),
         ],
@@ -41,49 +47,51 @@ class StudentGreetingBannerWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.local_fire_department_rounded, size: 14, color: AppColors.accent),
-                    const SizedBox(width: 4),
+                    const Icon(Icons.local_fire_department_rounded, size: 16, color: AppColors.primary),
+                    const SizedBox(width: 6),
                     Text(
                       streakDays,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.notifications_none_rounded, color: Colors.white),
+                icon: const Icon(Icons.notifications_none_rounded, color: AppColors.textPrimary),
                 onPressed: onNotificationTap,
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
             'Welcome back, $studentName!',
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               fontSize: 22,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             taskSummary,
             style: const TextStyle(
-              color: AppColors.onPrimaryContainer,
+              color: AppColors.textSecondary,
               fontSize: 13,
+              height: 1.4,
             ),
           ),
         ],

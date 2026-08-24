@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/custom_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -9,275 +11,216 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Navigation / Brand Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: Row(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppColors.cosmicGradient,
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Top Brand Bar
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
                         Container(
+                          width: 42,
+                          height: 42,
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            borderRadius: BorderRadius.circular(10),
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
                           ),
-                          child: const Icon(
-                            Icons.school_rounded,
-                            color: AppColors.onPrimary,
-                            size: 22,
+                          child: SvgPicture.asset(
+                            'assets/icon.svg',
+                            placeholderBuilder: (_) => const Icon(
+                              Icons.school_rounded,
+                              color: AppColors.primary,
+                              size: 22,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
                         const Text(
-                          'EduFlow',
+                          AppConstants.appName,
                           style: TextStyle(
                             fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.primary,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
                             letterSpacing: -0.5,
                           ),
                         ),
                       ],
                     ),
-                    TextButton(
-                      onPressed: () => context.push('/login'),
-                      child: const Text(
-                        'Sign In',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Hero Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                child: Column(
-                  children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryFixed,
+                        color: AppColors.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: const Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.stars_rounded, size: 16, color: AppColors.primary),
+                          Icon(Icons.language_rounded, size: 16, color: AppColors.primary),
                           SizedBox(width: 6),
                           Text(
-                            'Academic Modernist Platform',
+                            'EN',
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Master New Skills with Certified Courses',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.onSurface,
-                        height: 1.2,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Explore industry-standard video lessons, interactive quizzes, and earn verifiable certificates backed by top educators.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: AppColors.onSurfaceVariant,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            text: 'Get Started Free',
-                            onPressed: () => context.push('/role-selection'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomButton(
-                            text: 'Explore Courses',
-                            isOutlined: true,
-                            onPressed: () => context.push('/courses'),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 36),
 
-              // Platform Value Pillars
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Why Learn with EduFlow?',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
+                // Hero Illustration / Glow Badge
+                Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface.withValues(alpha: 0.7),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        blurRadius: 36,
+                        spreadRadius: 6,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPillarCard(
-                      icon: Icons.video_collection_rounded,
-                      iconColor: AppColors.primary,
-                      title: 'Structured Modular Lessons',
-                      description:
-                          'Chapter-by-chapter progression with HD video lectures and downloadable PDF notes.',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPillarCard(
-                      icon: Icons.quiz_rounded,
-                      iconColor: AppColors.secondary,
-                      title: 'Interactive Assessments',
-                      description:
-                          'Test your retention with instant scoring quizzes created directly by course instructors.',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPillarCard(
-                      icon: Icons.workspace_premium_rounded,
-                      iconColor: AppColors.accent,
-                      title: 'Verifiable Certificates',
-                      description:
-                          'Achieve 100% course completion and unlock official, sharable credentials.',
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.rocket_launch_rounded,
+                    size: 72,
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 32),
 
-              // Instructor & Student Callouts
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                padding: const EdgeInsets.all(24.0),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
-                ),
-                child: Column(
+                // Feature Pill Badges
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
                   children: [
-                    const Icon(Icons.people_alt_rounded, size: 40, color: AppColors.primary),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Join Over 50,000+ Learners & Instructors',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Whether you are looking to learn cutting-edge tools or publish and monetize your own syllabus, EduFlow has you covered.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.onSurfaceVariant,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    CustomButton(
-                      text: 'Create Account Now',
-                      backgroundColor: AppColors.secondary,
-                      onPressed: () => context.push('/register'),
-                    ),
+                    _buildFeatureBadge(Icons.people_alt_rounded, '50K+ Learners'),
+                    _buildFeatureBadge(Icons.workspace_premium_rounded, 'Certified Courses'),
+                    _buildFeatureBadge(Icons.bolt_rounded, 'Interactive Quizzes'),
                   ],
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 28),
+
+                // Main Heading
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: const TextSpan(
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                      height: 1.25,
+                      letterSpacing: -0.5,
+                    ),
+                    children: [
+                      TextSpan(text: 'Empower Your Future with '),
+                      TextSpan(
+                        text: 'Smart Learning',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Access high-definition video curriculum, solve assessments, and receive verified certificates accredited by leading educators.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 36),
+
+                // Action Buttons
+                CustomButton(
+                  text: 'Get Started Free',
+                  onPressed: () => context.push('/role-selection'),
+                ),
+                const SizedBox(height: 14),
+                CustomButton(
+                  text: 'Sign In to Account',
+                  isOutlined: true,
+                  backgroundColor: AppColors.primary,
+                  textColor: AppColors.textPrimary,
+                  onPressed: () => context.push('/login'),
+                ),
+                const SizedBox(height: 14),
+                TextButton(
+                  onPressed: () => context.push('/courses'),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Browse Approved Courses',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPillarCard({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String description,
-  }) {
+  Widget _buildFeatureBadge(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.onSurfaceVariant,
-                    height: 1.4,
-                  ),
-                ),
-              ],
+          Icon(icon, size: 14, color: AppColors.primary),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
         ],

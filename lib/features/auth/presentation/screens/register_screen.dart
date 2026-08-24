@@ -88,18 +88,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.go('/login'),
         ),
         title: const Text(
           'Create Account',
           style: TextStyle(
-            color: AppColors.onSurface,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -118,8 +118,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           } else if (state.status.isAuthenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Account created successfully! Welcome to EduFlow.'),
-                backgroundColor: AppColors.secondary,
+                content: Text('Account created successfully! Welcome.'),
+                backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -137,11 +137,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
-                        'Start your journey with EduFlow',
+                        'Start your journey with iEducation',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.onSurface,
+                          color: AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -150,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'Choose your account type to personalize your experience.',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.onSurfaceVariant,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -187,14 +187,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Container(
                         padding: const EdgeInsets.all(24.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                            color: AppColors.border,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),

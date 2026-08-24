@@ -16,6 +16,10 @@ class CourseCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.border),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -25,12 +29,21 @@ class CourseCardWidget extends StatelessWidget {
             Container(
               height: 140,
               width: double.infinity,
-              color: AppColors.primaryLight.withValues(alpha: 0.2),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF3B126D),
+                    Color(0xFF241442),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
               child: Center(
                 child: Icon(
-                  Icons.menu_book_rounded,
-                  size: 56,
-                  color: AppColors.primary.withValues(alpha: 0.7),
+                  Icons.auto_stories_rounded,
+                  size: 54,
+                  color: AppColors.primary.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -41,21 +54,22 @@ class CourseCardWidget extends StatelessWidget {
                 children: [
                   if (course.category != null) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         course.category!,
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.primary,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                   ],
                   Text(
                     course.title,
@@ -63,7 +77,7 @@ class CourseCardWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -77,7 +91,7 @@ class CourseCardWidget extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -86,24 +100,25 @@ class CourseCardWidget extends StatelessWidget {
                           const Icon(
                             Icons.person_outline_rounded,
                             size: 16,
-                            color: AppColors.textMuted,
+                            color: AppColors.textSecondary,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 6),
                           Text(
                             course.instructorName ?? 'Instructor',
                             style: const TextStyle(
                               fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.textSecondary,
                             ),
                           ),
                         ],
                       ),
                       Text(
-                        course.price == 0 ? 'Free' : '\$${course.price.toStringAsFixed(2)}',
+                        course.price == 0 ? 'FREE' : '\$${course.price.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.secondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],

@@ -23,15 +23,15 @@ class ContinueLearningCardWidget extends StatelessWidget {
     final percent = (progressRatio * 100).toInt();
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -46,56 +46,56 @@ class ContinueLearningCardWidget extends StatelessWidget {
                 'CONTINUE LEARNING',
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.primary,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.8,
                 ),
               ),
               Text(
                 '$percent% Complete',
                 style: const TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             courseTitle,
             style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             lessonSubtitle,
             style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.onSurfaceVariant,
+              fontSize: 13,
+              color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: progressRatio,
               minHeight: 8,
-              backgroundColor: AppColors.surfaceContainerHigh,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+              backgroundColor: AppColors.surfaceContainerHighest,
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
                 child: CustomButton(
                   text: 'Resume Lesson',
                   icon: Icons.play_circle_filled_rounded,
-                  height: 40,
+                  height: 44,
                   onPressed: onResume,
                 ),
               ),
@@ -104,12 +104,15 @@ class ContinueLearningCardWidget extends StatelessWidget {
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primaryFixed),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                   onPressed: onTakeQuiz,
-                  child: const Text('Take Quiz'),
+                  child: const Text(
+                    'Take Quiz',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ],

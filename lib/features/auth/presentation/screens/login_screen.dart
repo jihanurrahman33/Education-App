@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: AppColors.background,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status.isError && state.errorMessage != null) {
@@ -79,14 +79,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(24.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                            color: AppColors.border,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 24,
                               offset: const Offset(0, 6),
                             ),
