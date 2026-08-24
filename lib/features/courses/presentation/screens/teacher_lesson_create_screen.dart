@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../domain/usecases/create_lesson_usecase.dart';
 import '../widgets/file_upload_box_widget.dart';
 
 class TeacherLessonCreateScreen extends StatefulWidget {
@@ -20,6 +22,8 @@ class TeacherLessonCreateScreen extends StatefulWidget {
 }
 
 class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
+  final CreateLessonUseCase _createLessonUseCase = GetIt.I<CreateLessonUseCase>();
+
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _durationController = TextEditingController();
@@ -27,6 +31,8 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
 
   String _lessonType = 'video'; // video or pdf
   String? _selectedFileName;
+  String? _selectedFilePath;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -38,7 +44,7 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
 
   void _onUploadFile() {
     setState(() {
-      _selectedFileName = _lessonType == 'video' ? 'lecture_module_03.mp4' : 'chapter_notes.pdf';
+      _selectedFileName = _lessonType == 'video' ? 'lecture_video.mp4' : 'lecture_notes.pdf';
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -48,15 +54,46 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
     );
   }
 
-  void _onSaveLesson() {
+  Future<void> _onSaveLesson() async {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lesson created and uploaded successfully!'),
-          backgroundColor: AppColors.secondary,
-        ),
+      setState(() => _isLoading = true);
+
+      final durationText = _durationController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final duration = int.tryParse(durationText) ?? 0;
+
+      final result = await _createLessonUseCase(CreateLessonParams(
+        chapterId: widget.chapterId,
+        title: _titleController.text.trim(),
+        lessonType: _lessonType,
+        textContent: _contentController.text.trim(),
+        durationMinutes: duration,
+        videoFilePath: _lessonType == 'video' ? _selectedFilePath : null,
+        pdfFilePath: _lessonType == 'pdf' ? _selectedFilePath : null,
+        order: 1,
+      ));
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create lesson: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (lesson) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Lesson "${lesson.title}" created successfully!'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+          context.pop();
+        },
       );
-      context.pop();
     }
   }
 
@@ -133,14 +170,16 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
                         setState(() {
                           _lessonType = set.first;
                           _selectedFileName = null;
+                          _selectedFilePath = null;
                         });
                       },
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
                       controller: _durationController,
-                      label: 'Duration / Reading Time',
-                      hint: 'e.g. 15 mins',
+                      label: 'Duration / Reading Time (Minutes)',
+                      hint: '15',
+                      keyboardType: TextInputType.number,
                       prefixIcon: Icons.timer_outlined,
                     ),
                     const SizedBox(height: 16),
@@ -168,6 +207,7 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
               CustomButton(
                 text: 'Save & Add to Chapter',
                 backgroundColor: AppColors.roleTeacher,
+                isLoading: _isLoading,
                 onPressed: _onSaveLesson,
               ),
             ],

@@ -74,6 +74,10 @@ abstract class CourseRemoteDataSource {
 
   Future<void> deleteChapter(int id);
 
+  Future<List<LessonModel>> getLessons({int? chapterId, int? page});
+
+  Future<LessonModel> getLessonById(int lessonId);
+
   Future<LessonModel> createLesson({
     required int chapterId,
     required String title,
@@ -85,8 +89,19 @@ abstract class CourseRemoteDataSource {
     int order = 0,
   });
 
+  Future<LessonModel> updateLesson({
+    required int id,
+    required int chapterId,
+    required String title,
+    String lessonType = 'video',
+    String? textContent,
+    int durationMinutes = 0,
+    int order = 0,
+  });
+
   Future<LessonModel> patchLesson({
     required int lessonId,
+    int? chapterId,
     String? title,
     String? lessonType,
     String? textContent,
@@ -95,6 +110,8 @@ abstract class CourseRemoteDataSource {
     int? durationMinutes,
     int? order,
   });
+
+  Future<void> deleteLesson(int lessonId);
 }
 
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
@@ -441,6 +458,43 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   }
 
   @override
+  Future<List<LessonModel>> getLessons({int? chapterId, int? page}) async {
+    final queryParams = <String, dynamic>{};
+    if (page != null) queryParams['page'] = page;
+    if (chapterId != null) queryParams['chapter'] = chapterId;
+
+    final response = await apiClient.get(
+      ApiEndpoints.lessons,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    if (response is List) {
+      return response
+          .whereType<Map<String, dynamic>>()
+          .map((json) => LessonModel.fromJson(json))
+          .toList();
+    } else if (response is Map<String, dynamic> && response['results'] is List) {
+      return (response['results'] as List)
+          .whereType<Map<String, dynamic>>()
+          .map((json) => LessonModel.fromJson(json))
+          .toList();
+    }
+
+    return [];
+  }
+
+  @override
+  Future<LessonModel> getLessonById(int lessonId) async {
+    final response = await apiClient.get(ApiEndpoints.lessonDetail(lessonId));
+
+    if (response is Map<String, dynamic>) {
+      return LessonModel.fromJson(response);
+    }
+
+    throw Exception('Invalid lesson details response format');
+  }
+
+  @override
   Future<LessonModel> createLesson({
     required int chapterId,
     required String title,
@@ -494,8 +548,40 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   }
 
   @override
+  Future<LessonModel> updateLesson({
+    required int id,
+    required int chapterId,
+    required String title,
+    String lessonType = 'video',
+    String? textContent,
+    int durationMinutes = 0,
+    int order = 0,
+  }) async {
+    final body = {
+      'chapter': chapterId,
+      'title': title,
+      'lesson_type': lessonType,
+      'text_content': textContent ?? '',
+      'duration_minutes': durationMinutes,
+      'order': order,
+    };
+
+    final response = await apiClient.put(
+      ApiEndpoints.lessonDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return LessonModel.fromJson(response);
+    }
+
+    throw Exception('Invalid update lesson response structure');
+  }
+
+  @override
   Future<LessonModel> patchLesson({
     required int lessonId,
+    int? chapterId,
     String? title,
     String? lessonType,
     String? textContent,
@@ -507,6 +593,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     dynamic payload;
     if (videoFilePath != null || pdfFilePath != null) {
       final formMap = <String, dynamic>{};
+      if (chapterId != null) formMap['chapter'] = chapterId;
       if (title != null) formMap['title'] = title;
       if (lessonType != null) formMap['lesson_type'] = lessonType;
       if (textContent != null) formMap['text_content'] = textContent;
@@ -523,6 +610,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       payload = FormData.fromMap(formMap);
     } else {
       final map = <String, dynamic>{};
+      if (chapterId != null) map['chapter'] = chapterId;
       if (title != null) map['title'] = title;
       if (lessonType != null) map['lesson_type'] = lessonType;
       if (textContent != null) map['text_content'] = textContent;
@@ -541,5 +629,10 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     }
 
     throw Exception('Invalid patch lesson response structure');
+  }
+
+  @override
+  Future<void> deleteLesson(int lessonId) async {
+    await apiClient.delete(ApiEndpoints.lessonDetail(lessonId));
   }
 }

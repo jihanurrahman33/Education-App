@@ -72,6 +72,10 @@ abstract class CourseRepository {
 
   ResultVoid deleteChapter(int id);
 
+  ResultFuture<List<LessonEntity>> getLessons({int? chapterId, int? page});
+
+  ResultFuture<LessonEntity> getLessonById(int lessonId);
+
   ResultFuture<LessonEntity> createLesson({
     required int chapterId,
     required String title,
@@ -83,8 +87,19 @@ abstract class CourseRepository {
     int order = 0,
   });
 
+  ResultFuture<LessonEntity> updateLesson({
+    required int id,
+    required int chapterId,
+    required String title,
+    String lessonType = 'video',
+    String? textContent,
+    int durationMinutes = 0,
+    int order = 0,
+  });
+
   ResultFuture<LessonEntity> patchLesson({
     required int lessonId,
+    int? chapterId,
     String? title,
     String? lessonType,
     String? textContent,
@@ -93,4 +108,6 @@ abstract class CourseRepository {
     int? durationMinutes,
     int? order,
   });
+
+  ResultVoid deleteLesson(int lessonId);
 }

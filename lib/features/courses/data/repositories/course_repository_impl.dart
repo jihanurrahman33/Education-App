@@ -368,6 +368,38 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
+  ResultFuture<List<LessonEntity>> getLessons({int? chapterId, int? page}) async {
+    try {
+      final lessons = await remoteDataSource.getLessons(chapterId: chapterId, page: page);
+      return Right(lessons);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<LessonEntity> getLessonById(int lessonId) async {
+    try {
+      final lesson = await remoteDataSource.getLessonById(lessonId);
+      return Right(lesson);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultFuture<LessonEntity> createLesson({
     required int chapterId,
     required String title,
@@ -402,8 +434,41 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
+  ResultFuture<LessonEntity> updateLesson({
+    required int id,
+    required int chapterId,
+    required String title,
+    String lessonType = 'video',
+    String? textContent,
+    int durationMinutes = 0,
+    int order = 0,
+  }) async {
+    try {
+      final lesson = await remoteDataSource.updateLesson(
+        id: id,
+        chapterId: chapterId,
+        title: title,
+        lessonType: lessonType,
+        textContent: textContent,
+        durationMinutes: durationMinutes,
+        order: order,
+      );
+      return Right(lesson);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultFuture<LessonEntity> patchLesson({
     required int lessonId,
+    int? chapterId,
     String? title,
     String? lessonType,
     String? textContent,
@@ -415,6 +480,7 @@ class CourseRepositoryImpl implements CourseRepository {
     try {
       final lesson = await remoteDataSource.patchLesson(
         lessonId: lessonId,
+        chapterId: chapterId,
         title: title,
         lessonType: lessonType,
         textContent: textContent,
@@ -424,6 +490,22 @@ class CourseRepositoryImpl implements CourseRepository {
         order: order,
       );
       return Right(lesson);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultVoid deleteLesson(int lessonId) async {
+    try {
+      await remoteDataSource.deleteLesson(lessonId);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, code: e.statusCode));
     } on NetworkException catch (e) {

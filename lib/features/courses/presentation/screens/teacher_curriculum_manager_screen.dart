@@ -8,9 +8,11 @@ import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/create_chapter_usecase.dart';
 import '../../domain/usecases/delete_chapter_usecase.dart';
+import '../../domain/usecases/delete_lesson_usecase.dart';
 import '../../domain/usecases/get_chapters_usecase.dart';
 import '../../domain/usecases/get_course_details_usecase.dart';
 import '../../domain/usecases/patch_chapter_usecase.dart';
+import '../../domain/usecases/patch_lesson_usecase.dart';
 import '../../domain/usecases/toggle_publish_course_usecase.dart';
 
 class TeacherCurriculumManagerScreen extends StatefulWidget {
@@ -31,6 +33,8 @@ class _TeacherCurriculumManagerScreenState
   final DeleteChapterUseCase _deleteChapterUseCase = GetIt.I<DeleteChapterUseCase>();
   final GetCourseDetailsUseCase _getCourseDetailsUseCase = GetIt.I<GetCourseDetailsUseCase>();
   final TogglePublishCourseUseCase _togglePublishCourseUseCase = GetIt.I<TogglePublishCourseUseCase>();
+  final PatchLessonUseCase _patchLessonUseCase = GetIt.I<PatchLessonUseCase>();
+  final DeleteLessonUseCase _deleteLessonUseCase = GetIt.I<DeleteLessonUseCase>();
 
   List<ChapterEntity> _chapters = [];
   bool _isLoading = true;
@@ -66,10 +70,6 @@ class _TeacherCurriculumManagerScreenState
     );
 
     setState(() => _isLoading = false);
-  }
-
-  Future<void> _loadChapters() async {
-    await _loadData();
   }
 
   void _showAddChapterDialog() {
@@ -121,7 +121,7 @@ class _TeacherCurriculumManagerScreenState
                         backgroundColor: AppColors.secondary,
                       ),
                     );
-                    _loadChapters();
+                    _loadData();
                   },
                 );
               }
@@ -181,7 +181,7 @@ class _TeacherCurriculumManagerScreenState
                         backgroundColor: AppColors.secondary,
                       ),
                     );
-                    _loadChapters();
+                    _loadData();
                   },
                 );
               }
@@ -227,6 +227,115 @@ class _TeacherCurriculumManagerScreenState
               backgroundColor: AppColors.secondary,
             ),
           );
+        },
+      );
+    }
+  }
+
+  void _showEditLessonDialog(LessonEntity lesson) {
+    final titleController = TextEditingController(text: lesson.title);
+    final durationController = TextEditingController(text: lesson.durationMinutes.toString());
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Edit Lesson', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'Lesson Title'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: durationController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Duration (Minutes)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.roleTeacher),
+            onPressed: () async {
+              final text = titleController.text.trim();
+              if (text.isNotEmpty) {
+                Navigator.of(ctx).pop();
+                final duration = int.tryParse(durationController.text.trim()) ?? 0;
+                final result = await _patchLessonUseCase(PatchLessonParams(
+                  lessonId: lesson.id,
+                  title: text,
+                  durationMinutes: duration,
+                ));
+
+                if (!mounted) return;
+
+                result.fold(
+                  (failure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update lesson: ${failure.message}'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  },
+                  (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Lesson updated to "${updated.title}"!'),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                    _loadData();
+                  },
+                );
+              }
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteLesson(LessonEntity lesson) async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Delete Lesson',
+      message: 'Are you sure you want to delete lesson "${lesson.title}"?',
+      confirmText: 'Delete Lesson',
+      confirmColor: AppColors.error,
+      icon: Icons.delete_outline_rounded,
+    );
+
+    if (confirmed == true && mounted) {
+      final result = await _deleteLessonUseCase(lesson.id);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete lesson: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Lesson "${lesson.title}" deleted.'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+          _loadData();
         },
       );
     }
@@ -297,7 +406,7 @@ class _TeacherCurriculumManagerScreenState
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
             tooltip: 'Refresh Curriculum',
-            onPressed: _loadChapters,
+            onPressed: _loadData,
           ),
           TextButton.icon(
             icon: Icon(
@@ -317,7 +426,7 @@ class _TeacherCurriculumManagerScreenState
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadChapters,
+        onRefresh: _loadData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(20.0),
@@ -423,10 +532,11 @@ class _TeacherCurriculumManagerScreenState
                                 icon: const Icon(Icons.add_circle_outline_rounded,
                                     color: AppColors.roleTeacher, size: 20),
                                 tooltip: 'Add Lesson to Chapter',
-                                onPressed: () {
-                                  context.push(
+                                onPressed: () async {
+                                  await context.push(
                                     '/teacher/courses/${widget.courseId}/chapters/$chapterId/lessons/create',
                                   );
+                                  _loadData();
                                 },
                               ),
                             ],
@@ -467,7 +577,13 @@ class _TeacherCurriculumManagerScreenState
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.edit_outlined, size: 16),
-                                      onPressed: () {},
+                                      tooltip: 'Edit Lesson',
+                                      onPressed: () => _showEditLessonDialog(lesson),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.error),
+                                      tooltip: 'Delete Lesson',
+                                      onPressed: () => _deleteLesson(lesson),
                                     ),
                                   ],
                                 ),
