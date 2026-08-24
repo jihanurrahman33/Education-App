@@ -52,18 +52,18 @@ class NotificationItemCardWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
-      color: isRead ? Colors.white : AppColors.primary.withValues(alpha: 0.04),
+      color: isRead ? AppColors.surface : AppColors.primary.withValues(alpha: 0.10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: isRead
-              ? AppColors.outlineVariant.withValues(alpha: 0.3)
-              : AppColors.primary.withValues(alpha: 0.3),
+              ? AppColors.border
+              : AppColors.primary.withValues(alpha: 0.4),
         ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -72,8 +72,8 @@ class NotificationItemCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(_getIcon(), size: 20, color: color),
               ),
@@ -85,12 +85,14 @@ class NotificationItemCardWidget extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
-                            color: AppColors.onSurface,
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
                         if (!isRead)

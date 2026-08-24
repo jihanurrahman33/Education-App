@@ -129,15 +129,21 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
 
           return Column(
             children: [
-              // Hero Video Preview / Header Banner
+              // Hero Preview Banner
               Container(
                 height: 180,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primaryDark, AppColors.primary],
+                    colors: [
+                      AppColors.secondary.withValues(alpha: 0.8),
+                      AppColors.surface,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
+                  ),
+                  border: const Border(
+                    bottom: BorderSide(color: AppColors.border),
                   ),
                 ),
                 child: Stack(
@@ -147,44 +153,50 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: AppColors.primary.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.5),
+                              width: 2,
+                            ),
                           ),
                           child: const Icon(
                             Icons.play_arrow_rounded,
-                            size: 40,
-                            color: Colors.white,
+                            size: 38,
+                            color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         const Text(
                           'Preview Intro Video',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
                     Positioned(
-                      top: 12,
-                      right: 12,
+                      top: 14,
+                      right: 14,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
+                          color: course.isEnrolled
+                              ? AppColors.secondary
+                              : AppColors.primary,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          course.isEnrolled ? 'ENROLLED' : 'FREE PREVIEW',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          course.isEnrolled ? 'ENROLLED' : 'FREE ACCESS',
+                          style: TextStyle(
+                            color: course.isEnrolled ? Colors.white : AppColors.onPrimary,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
                           ),
                         ),
                       ),
@@ -195,14 +207,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
 
               // Tab Selector
               Container(
-                color: Colors.white,
+                color: AppColors.background,
                 child: TabBar(
                   controller: _tabController,
                   labelColor: AppColors.primary,
                   unselectedLabelColor: AppColors.textSecondary,
                   indicatorColor: AppColors.primary,
                   indicatorWeight: 3,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  dividerColor: AppColors.divider,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
                   tabs: const [
                     Tab(text: 'Overview'),
                     Tab(text: 'Curriculum'),
@@ -218,7 +232,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                   children: [
                     // Tab 1: Overview
                     _buildOverviewTab(course),
-                    // Tab 2: Curriculum using CurriculumAccordionWidget
+                    // Tab 2: Curriculum
                     CurriculumAccordionWidget(
                       chapters: course.chapters,
                       isEnrolled: course.isEnrolled,
@@ -236,15 +250,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                 ),
               ),
 
-              // Bottom Enrollment Bar
+              // Bottom Enrollment Action Bar
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
                   border: Border(
-                    top: BorderSide(
-                      color: AppColors.outlineVariant.withValues(alpha: 0.3),
-                    ),
+                    top: BorderSide(color: AppColors.border),
                   ),
                 ),
                 child: SafeArea(
@@ -256,13 +268,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Access Type',
+                            'Status',
                             style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                           ),
+                          const SizedBox(height: 2),
                           Text(
-                            course.isEnrolled ? 'Active Student' : 'Free Access',
+                            course.isEnrolled ? 'Enrolled Student' : 'Free Access',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: course.isEnrolled ? AppColors.secondary : AppColors.primary,
                             ),
@@ -272,7 +285,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                       const SizedBox(width: 20),
                       Expanded(
                         child: CustomButton(
-                          text: course.isEnrolled ? 'Continue Learning' : 'Enroll Now',
+                          text: course.isEnrolled ? 'Continue Course' : 'Enroll in Course',
                           icon: course.isEnrolled
                               ? Icons.play_circle_filled_rounded
                               : Icons.school_rounded,
@@ -306,24 +319,46 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            course.title,
+            course.title as String,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
+
+          // Rating & Stats Row
           Row(
             children: [
-              const Icon(Icons.star_rounded, size: 18, color: AppColors.accent),
-              const SizedBox(width: 4),
-              const Text(
-                '4.9 (128 reviews)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.star_rounded, size: 16, color: AppColors.primary),
+                    SizedBox(width: 4),
+                    Text(
+                      '4.9',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 16),
-              const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              const Text(
+                '(128 student reviews)',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const Spacer(),
+              Icon(Icons.menu_book_rounded, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               Text(
                 '${course.chapters.length} Chapters',
@@ -332,25 +367,64 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
             ],
           ),
           const SizedBox(height: 20),
-          const Divider(),
+          const Divider(color: AppColors.divider),
           const SizedBox(height: 16),
+
+          // Course Highlights
+          const Text(
+            'What You\'ll Get',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildHighlightItem(Icons.all_inclusive_rounded, 'Full lifetime access to curriculum'),
+          _buildHighlightItem(Icons.workspace_premium_rounded, 'Official verified certificate of completion'),
+          _buildHighlightItem(Icons.quiz_rounded, 'Interactive quizzes & knowledge checks'),
+          _buildHighlightItem(Icons.devices_rounded, 'Access on mobile and tablet'),
+
+          const SizedBox(height: 20),
+          const Divider(color: AppColors.divider),
+          const SizedBox(height: 16),
+
+          // About Description
           const Text(
             'About this Course',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            course.description.isNotEmpty
-                ? course.description
-                : 'No course description available for this course syllabus.',
+            (course.description as String).isNotEmpty
+                ? course.description as String
+                : 'Master concepts with hands-on examples, step-by-step modular lessons, and comprehensive assessment quizzes.',
             style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
-              height: 1.5,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHighlightItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -359,6 +433,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
   }
 
   Widget _buildInstructorTab(dynamic course) {
+    final instructorName = course.instructorName as String? ?? 'Lead Instructor';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Container(
@@ -372,21 +448,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
           children: [
             CircleAvatar(
               radius: 36,
-              backgroundColor: AppColors.primary,
+              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
               child: Text(
-                (course.instructorName != null && course.instructorName!.isNotEmpty)
-                    ? course.instructorName![0].toUpperCase()
-                    : 'I',
+                instructorName.isNotEmpty ? instructorName[0].toUpperCase() : 'I',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onPrimary,
+                  color: AppColors.primary,
                 ),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              course.instructorName ?? 'Lead Instructor',
+              instructorName,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -409,7 +483,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
               style: TextStyle(
                 fontSize: 13,
                 color: AppColors.textSecondary,
-                height: 1.4,
+                height: 1.5,
               ),
             ),
           ],

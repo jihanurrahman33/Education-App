@@ -15,7 +15,7 @@ class SettingsGroupCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -27,10 +27,10 @@ class SettingsGroupCardWidget extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
                 color: AppColors.primary,
-                letterSpacing: 0.5,
+                letterSpacing: 0.8,
               ),
             ),
           ),

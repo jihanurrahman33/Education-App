@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle: 'Update your name, bio, and avatar',
                         onTap: () => context.push('/profile/edit'),
                       ),
-                      const Divider(height: 1),
+                      const Divider(height: 1, color: AppColors.divider),
                       SettingsTileItemWidget(
                         icon: Icons.lock_outline_rounded,
                         title: 'Password & Security',
@@ -120,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                       ),
-                      const Divider(height: 1),
+                      const Divider(height: 1, color: AppColors.divider),
                       SettingsTileItemWidget(
                         icon: Icons.mail_outline_rounded,
                         title: 'Email Digest',
@@ -157,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                       ),
-                      const Divider(height: 1),
+                      const Divider(height: 1, color: AppColors.divider),
                       SettingsTileItemWidget(
                         icon: Icons.wifi_rounded,
                         title: 'Download via Wi-Fi Only',
@@ -172,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                       ),
-                      const Divider(height: 1),
+                      const Divider(height: 1, color: AppColors.divider),
                       SettingsTileItemWidget(
                         icon: Icons.info_outline_rounded,
                         title: 'App Version',

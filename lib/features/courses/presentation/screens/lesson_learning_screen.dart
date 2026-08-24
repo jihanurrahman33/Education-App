@@ -219,7 +219,7 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.onSurface,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -228,7 +228,7 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                             textContent,
                             style: const TextStyle(
                               fontSize: 13,
-                              color: AppColors.onSurfaceVariant,
+                              color: AppColors.textSecondary,
                               height: 1.4,
                             ),
                           )
@@ -237,7 +237,7 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                             'Watch the lecture or review the study materials carefully to complete this lesson.',
                             style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.onSurfaceVariant,
+                              color: AppColors.textSecondary,
                               height: 1.4,
                             ),
                           ),
@@ -259,7 +259,7 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                             IconButton.filled(
                               style: IconButton.styleFrom(
                                 backgroundColor: AppColors.surfaceContainerHigh,
-                                foregroundColor: AppColors.onSurface,
+                                foregroundColor: AppColors.textPrimary,
                               ),
                               icon: const Icon(Icons.arrow_forward_rounded),
                               tooltip: 'Next Lesson',

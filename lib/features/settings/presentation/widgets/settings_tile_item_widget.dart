@@ -20,12 +20,25 @@ class SettingsTileItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.textPrimary, size: 22),
-      title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      leading: Icon(icon, color: AppColors.primary, size: 22),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
       subtitle: subtitle != null
-          ? Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary))
+          ? Text(
+              subtitle!,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            )
           : null,
-      trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.outline),
+      trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
       onTap: onTap,
     );
   }
