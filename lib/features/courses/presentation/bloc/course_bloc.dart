@@ -69,7 +69,10 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     FetchCoursesRequested event,
     Emitter<CourseState> emit,
   ) async {
-    emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
+    emit(state.copyWith(
+      status: CourseStatus.loading,
+      clearMessages: true,
+    ));
 
     final result = await getCoursesUseCase(
       GetCoursesParams(
@@ -87,7 +90,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
       (courses) => emit(state.copyWith(
         status: CourseStatus.loaded,
         courses: courses,
-        errorMessage: null,
+        clearMessages: true,
       )),
     );
   }
@@ -96,7 +99,10 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     FetchApprovedCoursesRequested event,
     Emitter<CourseState> emit,
   ) async {
-    emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
+    emit(state.copyWith(
+      status: CourseStatus.loading,
+      clearMessages: true,
+    ));
 
     final result = await getApprovedCoursesUseCase(event.page);
 
@@ -108,7 +114,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
       (courses) => emit(state.copyWith(
         status: CourseStatus.loaded,
         approvedCourses: courses,
-        errorMessage: null,
+        clearMessages: true,
       )),
     );
   }
@@ -117,7 +123,10 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     FetchTeacherCoursesRequested event,
     Emitter<CourseState> emit,
   ) async {
-    emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
+    emit(state.copyWith(
+      status: CourseStatus.loading,
+      clearMessages: true,
+    ));
 
     final result = await getTeacherCoursesUseCase(event.page);
 
@@ -129,7 +138,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
       (courses) => emit(state.copyWith(
         status: CourseStatus.loaded,
         teacherCourses: courses,
-        errorMessage: null,
+        clearMessages: true,
       )),
     );
   }

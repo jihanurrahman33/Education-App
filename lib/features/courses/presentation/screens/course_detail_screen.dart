@@ -28,6 +28,7 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetailScreenState extends State<CourseDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isEnrollingCourse = false;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     );
 
     if (confirmed == true && mounted) {
+      setState(() => _isEnrollingCourse = true);
       context.read<CourseBloc>().add(EnrollCourseRequested(courseId));
     }
   }
@@ -110,14 +112,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
       ),
       body: BlocConsumer<CourseBloc, CourseState>(
         listener: (context, state) {
-          if (state.errorMessage != null) {
-            AppToast.showError(context, state.errorMessage!);
-          }
-          if (state.successMessage != null) {
-            AppToast.showSuccess(context, state.successMessage!);
-            // Refresh student progress overview
-            context.read<ProgressBloc>().add(const LoadMyProgressEvent());
-            context.read<ProgressBloc>().add(const LoadEnrollmentsEvent());
+          if (_isEnrollingCourse) {
+            if (state.errorMessage != null) {
+              setState(() => _isEnrollingCourse = false);
+              AppToast.showError(context, state.errorMessage!);
+            } else if (state.successMessage != null) {
+              setState(() => _isEnrollingCourse = false);
+              AppToast.showSuccess(context, state.successMessage!);
+              // Refresh student progress overview
+              context.read<ProgressBloc>().add(const LoadMyProgressEvent());
+              context.read<ProgressBloc>().add(const LoadEnrollmentsEvent());
+            }
           }
         },
         builder: (context, state) {
