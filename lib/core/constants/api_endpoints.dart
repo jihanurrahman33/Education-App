@@ -45,4 +45,5 @@ class ApiEndpoints {
   static String adminApproveCourse(int id) => '/api/admin-panel/courses/$id/approve/';
   static String adminRejectCourse(int id) => '/api/admin-panel/courses/$id/reject/';
   static const String adminStats = '/api/admin-panel/dashboard/';
+  static const String adminTopCourses = '/api/admin-panel/top-courses/';
 }

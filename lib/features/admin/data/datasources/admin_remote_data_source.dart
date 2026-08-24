@@ -2,10 +2,12 @@ import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/networking/api_client.dart';
 import '../models/admin_course_model.dart';
 import '../models/admin_stats_model.dart';
+import '../models/admin_top_course_model.dart';
 import '../models/admin_user_model.dart';
 
 abstract class AdminRemoteDataSource {
   Future<AdminStatsModel> getAdminStats();
+  Future<List<AdminTopCourseModel>> getTopCourses();
   Future<List<AdminCourseModel>> getPendingCourses({int? page});
   Future<List<AdminUserModel>> getPendingTeachers({int? page});
   Future<void> approveTeacher(int teacherId);
@@ -27,6 +29,20 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     throw Exception('Invalid admin stats response format');
+  }
+
+  @override
+  Future<List<AdminTopCourseModel>> getTopCourses() async {
+    final response = await apiClient.get(ApiEndpoints.adminTopCourses);
+
+    if (response is List) {
+      return response
+          .whereType<Map<String, dynamic>>()
+          .map((json) => AdminTopCourseModel.fromJson(json))
+          .toList();
+    }
+
+    return [];
   }
 
   @override

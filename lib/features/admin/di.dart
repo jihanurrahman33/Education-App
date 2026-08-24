@@ -8,11 +8,13 @@ import 'domain/usecases/approve_teacher_use_case.dart';
 import 'domain/usecases/get_admin_stats_use_case.dart';
 import 'domain/usecases/get_pending_courses_use_case.dart';
 import 'domain/usecases/get_pending_teachers_use_case.dart';
+import 'domain/usecases/get_top_courses_use_case.dart';
 import 'domain/usecases/reject_course_use_case.dart';
 
 void initAdminFeature(GetIt sl) {
   // Use cases
   sl.registerLazySingleton(() => GetAdminStatsUseCase(sl()));
+  sl.registerLazySingleton(() => GetTopCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetPendingCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetPendingTeachersUseCase(sl()));
   sl.registerLazySingleton(() => ApproveCourseUseCase(sl()));

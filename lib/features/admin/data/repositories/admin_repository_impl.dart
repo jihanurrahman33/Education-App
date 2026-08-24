@@ -3,6 +3,7 @@ import '../../../../core/utils/either.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../domain/entities/admin_course_entity.dart';
 import '../../domain/entities/admin_stats_entity.dart';
+import '../../domain/entities/admin_top_course_entity.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/repositories/admin_repository.dart';
 import '../datasources/admin_remote_data_source.dart';
@@ -17,6 +18,16 @@ class AdminRepositoryImpl implements AdminRepository {
     try {
       final stats = await remoteDataSource.getAdminStats();
       return Right(stats);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<List<AdminTopCourseEntity>> getTopCourses() async {
+    try {
+      final courses = await remoteDataSource.getTopCourses();
+      return Right(courses);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
