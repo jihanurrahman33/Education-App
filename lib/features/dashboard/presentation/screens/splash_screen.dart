@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final isCompleted = result.fold((_) => false, (completed) => completed);
 
     if (isCompleted) {
-      context.go('/welcome');
+      context.go('/login');
     } else {
       context.go('/onboarding');
     }

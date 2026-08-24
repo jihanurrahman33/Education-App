@@ -8,7 +8,6 @@ import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../widgets/role_selection_card_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String? initialRole;
@@ -155,33 +154,98 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Role Selection Cards
-                      Row(
-                        children: [
-                          Expanded(
-                            child: RoleSelectionCardWidget(
-                              isSelected: _selectedRole == UserRole.student,
-                              title: 'Student',
-                              subtitle: 'Learn & earn certificates',
-                              icon: Icons.school_rounded,
-                              color: AppColors.primary,
-                              onTap: () => setState(() => _selectedRole = UserRole.student),
+                      // Sleek Segmented Role Selector
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setState(() => _selectedRole = UserRole.student),
+                                borderRadius: BorderRadius.circular(12),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: _selectedRole == UserRole.student
+                                        ? AppColors.primary
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.school_rounded,
+                                        size: 18,
+                                        color: _selectedRole == UserRole.student
+                                            ? AppColors.onPrimary
+                                            : AppColors.textSecondary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Student',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: _selectedRole == UserRole.student
+                                            ? AppColors.onPrimary
+                                            : AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: RoleSelectionCardWidget(
-                              isSelected: _selectedRole == UserRole.teacher,
-                              title: 'Teacher',
-                              subtitle: 'Create & publish courses',
-                              icon: Icons.cast_for_education_rounded,
-                              color: AppColors.secondary,
-                              onTap: () => setState(() => _selectedRole = UserRole.teacher),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setState(() => _selectedRole = UserRole.teacher),
+                                borderRadius: BorderRadius.circular(12),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: _selectedRole == UserRole.teacher
+                                        ? AppColors.secondary
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.cast_for_education_rounded,
+                                        size: 18,
+                                        color: _selectedRole == UserRole.teacher
+                                            ? Colors.white
+                                            : AppColors.textSecondary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Teacher',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: _selectedRole == UserRole.teacher
+                                            ? Colors.white
+                                            : AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
                       // Form Container
                       Container(

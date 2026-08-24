@@ -8,7 +8,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_brand_header_widget.dart';
-import '../widgets/social_login_buttons_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -71,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Reusable Brand Header Widget
+                      // Brand Header Widget
                       const AuthBrandHeaderWidget(),
                       const SizedBox(height: 32),
 
@@ -99,26 +98,37 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               CustomTextField(
                                 controller: _usernameController,
-                                label: 'Email address or Username',
-                                hint: 'you@example.com or username',
-                                prefixIcon: Icons.mail_outline_rounded,
+                                label: 'Email or Username',
+                                hint: 'e.g. alex@eduflow.com or student1',
+                                prefixIcon: Icons.alternate_email_rounded,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [
+                                  AutofillHints.username,
+                                  AutofillHints.email,
+                                ],
                                 validator: (val) => (val == null || val.trim().isEmpty)
                                     ? 'Please enter your email or username'
                                     : null,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 18),
                               CustomTextField(
                                 controller: _passwordController,
                                 label: 'Password',
-                                hint: '••••••••',
+                                hint: 'Enter your password',
                                 obscureText: _obscurePassword,
                                 prefixIcon: Icons.lock_outline_rounded,
+                                textInputAction: TextInputAction.done,
+                                autofillHints: const [AutofillHints.password],
+                                onFieldSubmitted: (_) => _onLogin(),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_off_outlined
                                         : Icons.visibility_outlined,
-                                    color: AppColors.outline,
+                                    color: _obscurePassword
+                                        ? AppColors.textMuted
+                                        : AppColors.primary,
+                                    size: 20,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -159,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         'Remember me',
                                         style: TextStyle(
                                           fontSize: 13,
-                                          color: AppColors.onSurfaceVariant,
+                                          color: AppColors.textSecondary,
                                         ),
                                       ),
                                     ],
@@ -177,22 +187,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
 
+                              // Sole Primary CTA inside form card
                               CustomButton(
-                                text: 'Sign in to Account',
+                                text: 'Sign In',
                                 isLoading: state.status.isLoading,
                                 onPressed: _onLogin,
-                              ),
-                              const SizedBox(height: 20),
-
-                              // Reusable Social Login Buttons Widget
-                              SocialLoginButtonsWidget(
-                                onGoogleTap: () {
-                                  _usernameController.text = 'admin';
-                                  _passwordController.text = 'admin12345';
-                                },
-                                onAppleTap: () {},
                               ),
                             ],
                           ),
@@ -200,58 +201,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Registration Callout Container
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.3),
+                      // Separate section below the card with a text action
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account? ",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'New to EduFlow?',
+                          GestureDetector(
+                            onTap: () => context.push('/role-selection'),
+                            child: const Text(
+                              'Create New Account',
                               style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: () => context.push('/register?role=student'),
-                                  child: const Text(
-                                    'Register as Student',
-                                    style: TextStyle(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                                const Text('•', style: TextStyle(color: AppColors.outlineVariant)),
-                                TextButton(
-                                  onPressed: () => context.push('/register?role=teacher'),
-                                  child: const Text(
-                                    'Register as Teacher',
-                                    style: TextStyle(
-                                      color: AppColors.secondary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
