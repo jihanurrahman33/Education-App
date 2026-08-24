@@ -1,6 +1,7 @@
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/networking/api_client.dart';
 import '../../domain/entities/user_entity.dart';
+import '../models/token_refresh_model.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -21,7 +22,7 @@ abstract class AuthRemoteDataSource {
 
   Future<UserModel> getCurrentUser();
 
-  Future<String> refreshToken(String refreshToken);
+  Future<TokenRefreshModel> refreshToken(String refreshToken);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -111,16 +112,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<String> refreshToken(String refreshToken) async {
+  Future<TokenRefreshModel> refreshToken(String refreshToken) async {
     final response = await apiClient.post(
       ApiEndpoints.refreshToken,
       data: {'refresh': refreshToken},
     );
 
-    if (response is Map<String, dynamic> && response['access'] != null) {
-      return response['access'].toString();
+    if (response is Map<String, dynamic>) {
+      return TokenRefreshModel.fromJson(response, defaultRefresh: refreshToken);
     }
 
-    throw Exception('Failed to refresh token');
+    throw Exception('Failed to refresh token: Invalid response structure');
   }
 }

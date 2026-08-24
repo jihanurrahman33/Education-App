@@ -31,7 +31,48 @@ class ApiClient {
           }
           return handler.next(options);
         },
-        onError: (DioException e, handler) {
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401 &&
+              !e.requestOptions.path.contains('/auth/login') &&
+              !e.requestOptions.path.contains('/auth/refresh') &&
+              !e.requestOptions.path.contains('/auth/token/refresh')) {
+            final refreshToken = prefs.getString(AppConstants.refreshTokenKey);
+            if (refreshToken != null && refreshToken.isNotEmpty) {
+              try {
+                final refreshDio = Dio(
+                  BaseOptions(
+                    baseUrl: ApiEndpoints.baseUrl,
+                    headers: {'Content-Type': 'application/json'},
+                  ),
+                );
+                final res = await refreshDio.post(
+                  ApiEndpoints.refreshToken,
+                  data: {'refresh': refreshToken},
+                );
+
+                if (res.data is Map<String, dynamic> && res.data['access'] != null) {
+                  final newAccess = res.data['access'].toString();
+                  await prefs.setString(AppConstants.tokenKey, newAccess);
+
+                  if (res.data['refresh'] != null) {
+                    await prefs.setString(
+                      AppConstants.refreshTokenKey,
+                      res.data['refresh'].toString(),
+                    );
+                  }
+
+                  // Retry the original request with new access token
+                  e.requestOptions.headers['Authorization'] = 'Bearer $newAccess';
+                  final retryRes = await dio.fetch(e.requestOptions);
+                  return handler.resolve(retryRes);
+                }
+              } catch (_) {
+                // If refresh token has expired, purge invalid tokens
+                await prefs.remove(AppConstants.tokenKey);
+                await prefs.remove(AppConstants.refreshTokenKey);
+              }
+            }
+          }
           return handler.next(e);
         },
       ),

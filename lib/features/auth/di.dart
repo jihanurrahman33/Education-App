@@ -8,6 +8,7 @@ import 'domain/repositories/auth_repository.dart';
 import 'domain/usecases/get_current_user_usecase.dart';
 import 'domain/usecases/login_usecase.dart';
 import 'domain/usecases/logout_usecase.dart';
+import 'domain/usecases/refresh_token_usecase.dart';
 import 'domain/usecases/register_usecase.dart';
 import 'presentation/bloc/auth_bloc.dart';
 
@@ -38,6 +39,9 @@ void initAuthFeature(GetIt sl) {
   );
   sl.registerLazySingleton<GetCurrentUserUseCase>(
     () => GetCurrentUserUseCase(sl<AuthRepository>()),
+  );
+  sl.registerLazySingleton<RefreshTokenUseCase>(
+    () => RefreshTokenUseCase(sl<AuthRepository>()),
   );
   sl.registerLazySingleton<LogoutUseCase>(
     () => LogoutUseCase(sl<AuthRepository>()),

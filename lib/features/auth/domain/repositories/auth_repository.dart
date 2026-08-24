@@ -1,4 +1,5 @@
 import '../../../../core/utils/typedefs.dart';
+import '../entities/token_refresh_entity.dart';
 import '../entities/user_entity.dart';
 
 abstract class AuthRepository {
@@ -18,6 +19,8 @@ abstract class AuthRepository {
   });
 
   ResultFuture<UserEntity> getCurrentUser();
+
+  ResultFuture<TokenRefreshEntity> refreshToken();
 
   ResultVoid logout();
 }

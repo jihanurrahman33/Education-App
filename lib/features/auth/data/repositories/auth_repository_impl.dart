@@ -2,6 +2,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/either.dart';
 import '../../../../core/utils/typedefs.dart';
+import '../../domain/entities/token_refresh_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
@@ -117,6 +118,35 @@ class AuthRepositoryImpl implements AuthRepository {
         }
         rethrow;
       }
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      await localDataSource.clearSession();
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<TokenRefreshEntity> refreshToken() async {
+    try {
+      final currentRefresh = await localDataSource.getRefreshToken();
+      if (currentRefresh == null || currentRefresh.isEmpty) {
+        return const Left(AuthenticationFailure(message: 'No refresh token available'));
+      }
+
+      final refreshed = await remoteDataSource.refreshToken(currentRefresh);
+      if (refreshed.access.isNotEmpty) {
+        await localDataSource.cacheAuthToken(refreshed.access);
+      }
+      if (refreshed.refresh.isNotEmpty) {
+        await localDataSource.cacheRefreshToken(refreshed.refresh);
+      }
+
+      return Right(refreshed);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, code: e.statusCode));
     } on NetworkException catch (e) {
