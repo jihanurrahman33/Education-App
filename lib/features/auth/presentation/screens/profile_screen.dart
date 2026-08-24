@@ -5,10 +5,15 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../admin/presentation/bloc/admin_bloc.dart';
+import '../../../admin/presentation/bloc/admin_event.dart';
 import '../../../certificates/presentation/bloc/certificate_bloc.dart';
+import '../../../certificates/presentation/bloc/certificate_event.dart';
 import '../../../courses/presentation/bloc/course_bloc.dart';
+import '../../../courses/presentation/bloc/course_event.dart';
 import '../../../progress/presentation/bloc/progress_bloc.dart';
+import '../../../progress/presentation/bloc/progress_event.dart';
 import '../../../quizzes/presentation/bloc/quiz_bloc.dart';
+import '../../../quizzes/presentation/bloc/quiz_event.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -18,10 +23,29 @@ import '../widgets/profile_header_card_widget.dart';
 import '../widgets/profile_info_tile_widget.dart';
 import '../widgets/profile_stat_item_widget.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final bool isTab;
 
   const ProfileScreen({super.key, this.isTab = false});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  void _loadProfileData() {
+    context.read<CertificateBloc>().add(const LoadCertificatesEvent());
+    context.read<ProgressBloc>().add(const LoadMyProgressEvent());
+    context.read<QuizBloc>().add(const FetchMyQuizResultsRequested());
+    context.read<CourseBloc>().add(const FetchTeacherCoursesRequested());
+    context.read<AdminBloc>().add(const LoadAdminDashboardEvent());
+  }
 
   Future<void> _handleSignOut(BuildContext context) async {
     final confirmed = await ConfirmationDialog.show(
@@ -62,13 +86,17 @@ class ProfileScreen extends StatelessWidget {
         final courseState = context.watch<CourseBloc>().state;
         final adminState = context.watch<AdminBloc>().state;
 
+        final certsCount = certState.certificates.isNotEmpty
+            ? certState.certificates.length
+            : progressState.certificates.length;
+
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: AppColors.background,
             elevation: 0,
-            automaticallyImplyLeading: !isTab,
-            leading: isTab
+            automaticallyImplyLeading: !widget.isTab,
+            leading: widget.isTab
                 ? null
                 : IconButton(
                     icon: const Icon(Icons.arrow_back_rounded,
@@ -137,7 +165,7 @@ class ProfileScreen extends StatelessWidget {
                               Expanded(
                                 child: ProfileStatItemWidget(
                                   label: 'Certificates',
-                                  value: '${certState.certificates.length}',
+                                  value: '$certsCount',
                                   icon: Icons.workspace_premium_rounded,
                                   color: AppColors.secondary,
                                   onTap: () => context.push('/certificates'),
@@ -151,7 +179,7 @@ class ProfileScreen extends StatelessWidget {
                                   icon: Icons.quiz_rounded,
                                   color: AppColors.tertiary,
                                   onTap: () =>
-                                      context.push('/quizzes/results'),
+                                      context.push('/quizzes/my-results'),
                                 ),
                               ),
                             ],
@@ -292,7 +320,7 @@ class ProfileScreen extends StatelessWidget {
                                   icon: Icons.history_edu_rounded,
                                   iconColor: AppColors.tertiary,
                                   onTap: () =>
-                                      context.push('/quizzes/results'),
+                                      context.push('/quizzes/my-results'),
                                 ),
                                 const Divider(
                                     height: 1, color: AppColors.divider),

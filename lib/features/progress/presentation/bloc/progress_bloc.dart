@@ -78,10 +78,12 @@ class ProgressBloc extends Bloc<ProgressEvent, ProgressState> {
     final results = await Future.wait([
       getMyProgressUseCase(),
       getCertificatesUseCase(),
+      getCompletedLessonsUseCase(),
     ]);
 
     final progressRes = results[0];
     final certsRes = results[1];
+    final completedRes = results[2];
 
     progressRes.fold(
       (failure) => emit(state.copyWith(
@@ -89,17 +91,21 @@ class ProgressBloc extends Bloc<ProgressEvent, ProgressState> {
         errorMessage: failure.message,
       )),
       (progressList) {
-        certsRes.fold(
-          (_) => emit(state.copyWith(
-            status: ProgressStatus.success,
-            myProgress: progressList as dynamic,
-          )),
-          (certs) => emit(state.copyWith(
-            status: ProgressStatus.success,
-            myProgress: progressList as dynamic,
-            certificates: certs as dynamic,
-          )),
+        final certsList = certsRes.fold(
+          (_) => <CertificateEntity>[],
+          (certs) => certs as List<CertificateEntity>,
         );
+        final completedList = completedRes.fold(
+          (_) => <CompletedLessonEntity>[],
+          (lessons) => lessons as List<CompletedLessonEntity>,
+        );
+
+        emit(state.copyWith(
+          status: ProgressStatus.success,
+          myProgress: progressList as dynamic,
+          certificates: certsList,
+          completedLessons: completedList,
+        ));
       },
     );
   }

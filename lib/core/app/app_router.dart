@@ -152,6 +152,10 @@ class AppRouter {
             builder: (context, state) => const MyQuizResultsScreen(),
           ),
           GoRoute(
+            path: 'results',
+            builder: (context, state) => const MyQuizResultsScreen(),
+          ),
+          GoRoute(
             path: ':id/take',
             builder: (context, state) {
               final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;

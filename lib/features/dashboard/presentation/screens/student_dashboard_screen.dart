@@ -3,10 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/domain/entities/user_entity.dart';
+import '../../../certificates/presentation/bloc/certificate_bloc.dart';
+import '../../../certificates/presentation/bloc/certificate_event.dart';
 import '../../../courses/presentation/bloc/course_bloc.dart';
 import '../../../courses/presentation/bloc/course_event.dart';
 import '../../../courses/presentation/bloc/course_state.dart';
 import '../../../courses/presentation/widgets/course_card_widget.dart';
+import '../../../progress/presentation/bloc/progress_bloc.dart';
+import '../../../progress/presentation/bloc/progress_event.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -28,8 +32,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _loadDashboardData();
+  }
+
+  void _loadDashboardData() {
     context.read<DashboardBloc>().add(const LoadStudentDashboardEvent());
-    context.read<CourseBloc>().add(const FetchCoursesRequested());
+    context.read<CourseBloc>().add(const FetchApprovedCoursesRequested());
+    context.read<ProgressBloc>().add(const LoadMyProgressEvent());
+    context.read<CertificateBloc>().add(const LoadCertificatesEvent());
   }
 
   @override
@@ -37,11 +47,27 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, dashState) {
         final dashboardData = dashState.studentData;
+        final certState = context.watch<CertificateBloc>().state;
+        final progressState = context.watch<ProgressBloc>().state;
+
+        final enrolledCount = (dashboardData?.enrolledCoursesCount ?? 0) > 0
+            ? dashboardData!.enrolledCoursesCount
+            : progressState.myProgress.length;
+
+        final completedLessonsCount = (dashboardData?.completedLessonsCount ?? 0) > 0
+            ? dashboardData!.completedLessonsCount
+            : progressState.myProgress.fold<int>(
+                0, (sum, c) => sum + c.completedLessons);
+
+        final certsEarnedCount = (dashboardData?.certificatesEarnedCount ?? 0) > 0
+            ? dashboardData!.certificatesEarnedCount
+            : (certState.certificates.isNotEmpty
+                ? certState.certificates.length
+                : progressState.certificates.length);
 
         return RefreshIndicator(
           onRefresh: () async {
-            context.read<DashboardBloc>().add(const LoadStudentDashboardEvent());
-            context.read<CourseBloc>().add(const FetchCoursesRequested());
+            _loadDashboardData();
           },
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -72,7 +98,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             courseTitle: dashboardData.lastCourseTitle,
                             lessonSubtitle: dashboardData.lastLessonSubtitle,
                             progressRatio: dashboardData.progressRatio,
-                            onResume: () => context.push('/courses'),
+                            onResume: () {
+                              if (dashboardData.lastCourseId != null &&
+                                  dashboardData.lastCourseId! > 0) {
+                                context.push(
+                                    '/courses/${dashboardData.lastCourseId}');
+                              } else {
+                                context.push('/courses');
+                              }
+                            },
                             onTakeQuiz: () => context.push('/quizzes'),
                           ),
                         const SizedBox(height: 20),
@@ -82,7 +116,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           children: [
                             DashboardStatCardWidget(
                               title: 'Enrolled',
-                              count: '${dashboardData?.enrolledCoursesCount ?? 0} Courses',
+                              count: '$enrolledCount Courses',
                               icon: Icons.bookmark_added_rounded,
                               color: AppColors.primary,
                               onTap: () => context.push('/my-courses'),
@@ -90,7 +124,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             const SizedBox(width: 10),
                             DashboardStatCardWidget(
                               title: 'Completed',
-                              count: '${dashboardData?.completedLessonsCount ?? 0} Lessons',
+                              count: '$completedLessonsCount Lessons',
                               icon: Icons.check_circle_rounded,
                               color: AppColors.secondary,
                               onTap: () => context.push('/progress'),
@@ -98,7 +132,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             const SizedBox(width: 10),
                             DashboardStatCardWidget(
                               title: 'Certificates',
-                              count: '${dashboardData?.certificatesEarnedCount ?? 0} Earned',
+                              count: '$certsEarnedCount Earned',
                               icon: Icons.workspace_premium_rounded,
                               color: AppColors.accent,
                               onTap: () => context.push('/certificates'),

@@ -3,6 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 
 class ProgressOverviewCardWidget extends StatelessWidget {
   final String completionRate;
+  final String completedCourses;
   final String completedLessons;
   final String enrolledCourses;
   final String certificatesCount;
@@ -10,6 +11,7 @@ class ProgressOverviewCardWidget extends StatelessWidget {
   const ProgressOverviewCardWidget({
     super.key,
     required this.completionRate,
+    this.completedCourses = '0',
     required this.completedLessons,
     required this.enrolledCourses,
     required this.certificatesCount,
@@ -26,12 +28,23 @@ class ProgressOverviewCardWidget extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           const Text(
             'Total Completion Rate',
-            style: TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -42,15 +55,17 @@ class ProgressOverviewCardWidget extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMetricCol(completedLessons, 'Completed Lessons'),
-              Container(height: 24, width: 1, color: Colors.white24),
-              _buildMetricCol(enrolledCourses, 'Enrolled Courses'),
-              Container(height: 24, width: 1, color: Colors.white24),
-              _buildMetricCol(certificatesCount, 'Certificates'),
+              _buildMetricCol(completedCourses, 'Completed\nCourses'),
+              Container(height: 28, width: 1, color: Colors.white24),
+              _buildMetricCol(completedLessons, 'Completed\nLessons'),
+              Container(height: 28, width: 1, color: Colors.white24),
+              _buildMetricCol(enrolledCourses, 'Enrolled\nCourses'),
+              Container(height: 28, width: 1, color: Colors.white24),
+              _buildMetricCol(certificatesCount, 'Certificates\nEarned'),
             ],
           ),
         ],
@@ -59,18 +74,29 @@ class ProgressOverviewCardWidget extends StatelessWidget {
   }
 
   Widget _buildMetricCol(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 11),
-        ),
-      ],
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 10,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

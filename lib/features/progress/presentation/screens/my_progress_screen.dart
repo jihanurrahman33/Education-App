@@ -43,11 +43,16 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
         final certificates = state.certificates;
 
         int completedLessons = 0;
+        int completedCourses = 0;
         double totalPercent = 0.0;
 
         for (final c in courses) {
           completedLessons += c.completedLessons;
           totalPercent += c.percentage;
+          if (c.percentage >= 100.0 ||
+              (c.totalLessons > 0 && c.completedLessons >= c.totalLessons)) {
+            completedCourses++;
+          }
         }
 
         final avgCompletion = courses.isNotEmpty
@@ -107,6 +112,7 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
                           else
                             ProgressOverviewCardWidget(
                               completionRate: '$avgCompletion%',
+                              completedCourses: '$completedCourses',
                               completedLessons: '$completedLessons',
                               enrolledCourses: '${courses.length}',
                               certificatesCount: '${certificates.length}',

@@ -43,6 +43,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     context
         .read<CourseBloc>()
         .add(FetchCourseDetailsRequested(widget.courseId));
+    context.read<ProgressBloc>().add(const LoadMyProgressEvent());
+    context.read<ProgressBloc>().add(LoadCourseProgressEvent(widget.courseId));
   }
 
   @override
@@ -315,9 +317,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                             // Tab 2: Curriculum
                             CurriculumAccordionWidget(
                               chapters: course.chapters,
-                              isEnrolled: hasDirectAccess,
+                              isEnrolled: hasDirectAccess || course.isEnrolled,
+                              isTeacherOrAdmin: isAdmin || isTeacher,
+                              courseId: course.id,
                               onLessonTap: (lesson) {
-                                if (hasDirectAccess) {
+                                if (hasDirectAccess || course.isEnrolled) {
                                   context.push(
                                       '/learning/${course.id}/lesson/${lesson.id}');
                                 } else {
