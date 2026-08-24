@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/status_badge.dart';
+import '../../domain/entities/admin_user_entity.dart';
 
 class AdminUserCardWidget extends StatelessWidget {
-  final Map<String, dynamic> user;
+  final Map<String, dynamic>? user;
+  final AdminUserEntity? userEntity;
 
-  const AdminUserCardWidget({super.key, required this.user});
+  const AdminUserCardWidget({super.key, this.user, this.userEntity});
 
   @override
   Widget build(BuildContext context) {
-    final role = user['role'] as String;
+    final fullName = userEntity?.fullName ?? user?['fullName'] as String? ?? 'User';
+    final username = userEntity?.username ?? user?['username'] as String? ?? '';
+    final email = userEntity?.email ?? user?['email'] as String? ?? '';
+    final role = userEntity?.role ?? user?['role'] as String? ?? 'student';
+    final isApproved = userEntity?.isApprovedTeacher ?? user?['isApproved'] as bool? ?? false;
+    final dateJoined = userEntity?.dateJoined != null && userEntity!.dateJoined!.length >= 10
+        ? userEntity!.dateJoined!.substring(0, 10)
+        : (user?['joined'] as String? ?? 'Recent');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: AppColors.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -21,7 +37,7 @@ class AdminUserCardWidget extends StatelessWidget {
             CircleAvatar(
               backgroundColor: AppColors.surfaceContainer,
               child: Text(
-                (user['fullName'] as String)[0],
+                fullName.isNotEmpty ? fullName[0].toUpperCase() : 'U',
                 style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
             ),
@@ -31,16 +47,16 @@ class AdminUserCardWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    user['fullName'] as String,
+                    fullName,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   Text(
-                    '@${user['username']} • ${user['email']}',
+                    '@$username • $email',
                     style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Joined: ${user['joined']}',
+                    'Joined: $dateJoined',
                     style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
                   ),
                 ],
@@ -52,7 +68,7 @@ class AdminUserCardWidget extends StatelessWidget {
                 StatusBadge.role(role),
                 if (role == 'teacher') ...[
                   const SizedBox(height: 4),
-                  StatusBadge.approval(user['isApproved'] == true),
+                  StatusBadge.approval(isApproved),
                 ],
               ],
             ),

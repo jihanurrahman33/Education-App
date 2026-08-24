@@ -9,6 +9,7 @@ abstract class AdminRepository {
   ResultFuture<List<AdminTopCourseEntity>> getTopCourses();
   ResultFuture<List<AdminCourseEntity>> getPendingCourses({int? page});
   ResultFuture<List<AdminUserEntity>> getPendingTeachers({int? page});
+  ResultFuture<List<AdminUserEntity>> getUsers({int? page, String? search});
   ResultVoid approveTeacher(int teacherId);
   ResultVoid approveCourse(int courseId);
   ResultVoid rejectCourse(int courseId);

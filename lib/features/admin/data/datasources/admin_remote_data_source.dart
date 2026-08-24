@@ -10,6 +10,7 @@ abstract class AdminRemoteDataSource {
   Future<List<AdminTopCourseModel>> getTopCourses();
   Future<List<AdminCourseModel>> getPendingCourses({int? page});
   Future<List<AdminUserModel>> getPendingTeachers({int? page});
+  Future<List<AdminUserModel>> getUsers({int? page, String? search});
   Future<void> approveTeacher(int teacherId);
   Future<void> approveCourse(int courseId);
   Future<void> rejectCourse(int courseId);
@@ -82,6 +83,37 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
 
     final response = await apiClient.get(
       ApiEndpoints.adminPendingTeachers,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    if (response is Map<String, dynamic> && response['results'] is List) {
+      final results = response['results'] as List<dynamic>;
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map((json) => AdminUserModel.fromJson(json))
+          .toList();
+    } else if (response is List) {
+      return response
+          .whereType<Map<String, dynamic>>()
+          .map((json) => AdminUserModel.fromJson(json))
+          .toList();
+    }
+
+    return [];
+  }
+
+  @override
+  Future<List<AdminUserModel>> getUsers({int? page, String? search}) async {
+    final queryParams = <String, dynamic>{};
+    if (page != null) {
+      queryParams['page'] = page;
+    }
+    if (search != null && search.trim().isNotEmpty) {
+      queryParams['search'] = search.trim();
+    }
+
+    final response = await apiClient.get(
+      ApiEndpoints.adminUsers,
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
 

@@ -54,6 +54,16 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  ResultFuture<List<AdminUserEntity>> getUsers({int? page, String? search}) async {
+    try {
+      final users = await remoteDataSource.getUsers(page: page, search: search);
+      return Right(users);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultVoid approveTeacher(int teacherId) async {
     try {
       await remoteDataSource.approveTeacher(teacherId);
