@@ -1,23 +1,41 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../domain/entities/admin_user_entity.dart';
 
 class AdminPendingTeacherCard extends StatelessWidget {
-  final Map<String, dynamic> teacher;
+  final Map<String, dynamic>? teacher;
+  final AdminUserEntity? teacherEntity;
   final VoidCallback onApprove;
   final VoidCallback onReject;
 
   const AdminPendingTeacherCard({
     super.key,
-    required this.teacher,
+    this.teacher,
+    this.teacherEntity,
     required this.onApprove,
     required this.onReject,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fullName = teacherEntity?.fullName ?? teacher?['fullName'] as String? ?? 'Teacher Applicant';
+    final username = teacherEntity?.username ?? teacher?['username'] as String? ?? '';
+    final email = teacherEntity?.email ?? teacher?['email'] as String? ?? '';
+    final phone = teacherEntity?.phone ?? teacher?['phone'] as String? ?? 'No phone provided';
+    final dateJoined = teacherEntity?.dateJoined != null && teacherEntity!.dateJoined!.length >= 10
+        ? teacherEntity!.dateJoined!.substring(0, 10)
+        : (teacher?['appliedDate'] as String? ?? 'Recent');
+
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: AppColors.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -29,7 +47,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                   radius: 22,
                   backgroundColor: AppColors.roleTeacher.withValues(alpha: 0.12),
                   child: Text(
-                    (teacher['fullName'] as String)[0],
+                    fullName.isNotEmpty ? fullName[0].toUpperCase() : 'T',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.roleTeacher,
@@ -43,7 +61,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        teacher['fullName'] as String,
+                        fullName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -51,7 +69,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '@${teacher['username']} • ${teacher['email']}',
+                        '@$username • $email',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -86,11 +104,11 @@ class AdminPendingTeacherCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.school_outlined, size: 16, color: AppColors.textSecondary),
+                  const Icon(Icons.phone_outlined, size: 16, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Specialty: ${teacher['specialty']}',
+                      'Phone: $phone • Applied: $dateJoined',
                       style: const TextStyle(fontSize: 12, color: AppColors.onSurface),
                     ),
                   ),

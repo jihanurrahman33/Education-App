@@ -3,6 +3,7 @@ import '../../../../core/utils/either.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../domain/entities/admin_course_entity.dart';
 import '../../domain/entities/admin_stats_entity.dart';
+import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/repositories/admin_repository.dart';
 import '../datasources/admin_remote_data_source.dart';
 
@@ -26,6 +27,16 @@ class AdminRepositoryImpl implements AdminRepository {
     try {
       final courses = await remoteDataSource.getPendingCourses(page: page);
       return Right(courses);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<List<AdminUserEntity>> getPendingTeachers({int? page}) async {
+    try {
+      final teachers = await remoteDataSource.getPendingTeachers(page: page);
+      return Right(teachers);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
