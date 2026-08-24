@@ -16,6 +16,7 @@ class ApiEndpoints {
   static String courseDetail(int id) => '/api/courses/courses/$id/';
   static String togglePublish(int id) => '/api/courses/courses/$id/toggle-publish/';
   static const String chapters = '/api/courses/chapters/';
+  static String chapterDetail(int id) => '/api/courses/chapters/$id/';
   static const String lessons = '/api/courses/lessons/';
   static String lessonDetail(int id) => '/api/courses/lessons/$id/';
 
