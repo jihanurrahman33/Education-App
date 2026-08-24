@@ -7,7 +7,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../courses/domain/entities/course_entity.dart';
-import '../../../courses/domain/usecases/get_courses_usecase.dart';
+import '../../../courses/domain/usecases/get_teacher_courses_usecase.dart';
 import '../../domain/entities/teacher_dashboard_entity.dart';
 import '../../domain/usecases/get_teacher_dashboard_use_case.dart';
 import '../widgets/dashboard_stat_card_widget.dart';
@@ -24,7 +24,7 @@ class TeacherDashboardScreen extends StatefulWidget {
 
 class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   final GetTeacherDashboardUseCase _getTeacherDashboardUseCase = GetIt.I<GetTeacherDashboardUseCase>();
-  final GetCoursesUseCase _getCoursesUseCase = GetIt.I<GetCoursesUseCase>();
+  final GetTeacherCoursesUseCase _getTeacherCoursesUseCase = GetIt.I<GetTeacherCoursesUseCase>();
 
   TeacherDashboardEntity _dashboardData = const TeacherDashboardEntity();
   List<CourseEntity> _teacherCourses = [];
@@ -41,7 +41,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
     final results = await Future.wait([
       _getTeacherDashboardUseCase(const NoParams()),
-      _getCoursesUseCase(const GetCoursesParams()),
+      _getTeacherCoursesUseCase(),
     ]);
 
     if (!mounted) return;
@@ -53,11 +53,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     List<CourseEntity> courses = [];
 
     dashRes.fold((_) => null, (data) => dashboardData = data as TeacherDashboardEntity);
-    coursesRes.fold((_) => null, (data) => courses = (data as List<CourseEntity>).where((c) {
-      final teacherName = c.teacherName ?? '';
-      return teacherName.toLowerCase() == widget.user.username.toLowerCase() ||
-          teacherName.toLowerCase() == widget.user.fullName.toLowerCase();
-    }).toList());
+    coursesRes.fold((_) => null, (data) => courses = data as List<CourseEntity>);
 
     setState(() {
       _dashboardData = dashboardData;

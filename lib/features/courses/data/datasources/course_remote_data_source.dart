@@ -12,6 +12,8 @@ abstract class CourseRemoteDataSource {
 
   Future<List<CourseModel>> getApprovedCourses({int? page});
 
+  Future<List<CourseModel>> getTeacherCourses({int? page});
+
   Future<CourseModel> getCourseDetails(int courseId);
 
   Future<List<ChapterModel>> getCourseCurriculum(int courseId);
@@ -27,6 +29,22 @@ abstract class CourseRemoteDataSource {
     String? category,
     double? price,
   });
+
+  Future<CourseModel> updateCourse({
+    required int id,
+    required String title,
+    String? description,
+    bool? isPublished,
+  });
+
+  Future<CourseModel> patchCourse({
+    required int id,
+    String? title,
+    String? description,
+    bool? isPublished,
+  });
+
+  Future<void> deleteCourse(int id);
 
   Future<CourseModel> togglePublish(int courseId);
 
@@ -147,6 +165,31 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   }
 
   @override
+  Future<List<CourseModel>> getTeacherCourses({int? page}) async {
+    final queryParams = <String, dynamic>{};
+    if (page != null) queryParams['page'] = page;
+
+    final response = await apiClient.get(
+      ApiEndpoints.teacherMyCourses,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    if (response is List) {
+      return response
+          .whereType<Map<String, dynamic>>()
+          .map((json) => CourseModel.fromJson(json))
+          .toList();
+    } else if (response is Map<String, dynamic> && response['results'] is List) {
+      return (response['results'] as List)
+          .whereType<Map<String, dynamic>>()
+          .map((json) => CourseModel.fromJson(json))
+          .toList();
+    }
+
+    return [];
+  }
+
+  @override
   Future<CourseModel> getCourseDetails(int courseId) async {
     final response = await apiClient.get(ApiEndpoints.courseDetail(courseId));
 
@@ -215,6 +258,60 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     }
 
     throw Exception('Invalid create course response structure');
+  }
+
+  @override
+  Future<CourseModel> updateCourse({
+    required int id,
+    required String title,
+    String? description,
+    bool? isPublished,
+  }) async {
+    final body = <String, dynamic>{
+      'title': title,
+    };
+    if (description != null) body['description'] = description;
+    if (isPublished != null) body['is_published'] = isPublished;
+
+    final response = await apiClient.put(
+      ApiEndpoints.courseDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return CourseModel.fromJson(response);
+    }
+
+    throw Exception('Invalid update course response structure');
+  }
+
+  @override
+  Future<CourseModel> patchCourse({
+    required int id,
+    String? title,
+    String? description,
+    bool? isPublished,
+  }) async {
+    final body = <String, dynamic>{};
+    if (title != null) body['title'] = title;
+    if (description != null) body['description'] = description;
+    if (isPublished != null) body['is_published'] = isPublished;
+
+    final response = await apiClient.patch(
+      ApiEndpoints.courseDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return CourseModel.fromJson(response);
+    }
+
+    throw Exception('Invalid patch course response structure');
+  }
+
+  @override
+  Future<void> deleteCourse(int id) async {
+    await apiClient.delete(ApiEndpoints.courseDetail(id));
   }
 
   @override

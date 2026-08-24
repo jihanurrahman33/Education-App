@@ -10,6 +10,8 @@ abstract class CourseRepository {
 
   ResultFuture<List<CourseEntity>> getApprovedCourses({int? page});
 
+  ResultFuture<List<CourseEntity>> getTeacherCourses({int? page});
+
   ResultFuture<CourseEntity> getCourseDetails(int courseId);
 
   ResultFuture<List<ChapterEntity>> getCourseCurriculum(int courseId);
@@ -25,6 +27,22 @@ abstract class CourseRepository {
     String? category,
     double? price,
   });
+
+  ResultFuture<CourseEntity> updateCourse({
+    required int id,
+    required String title,
+    String? description,
+    bool? isPublished,
+  });
+
+  ResultFuture<CourseEntity> patchCourse({
+    required int id,
+    String? title,
+    String? description,
+    bool? isPublished,
+  });
+
+  ResultVoid deleteCourse(int id);
 
   ResultFuture<CourseEntity> togglePublish(int courseId);
 

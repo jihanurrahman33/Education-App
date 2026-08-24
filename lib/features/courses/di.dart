@@ -6,13 +6,19 @@ import 'domain/repositories/course_repository.dart';
 import 'domain/usecases/create_chapter_usecase.dart';
 import 'domain/usecases/create_course_usecase.dart';
 import 'domain/usecases/delete_chapter_usecase.dart';
+import 'domain/usecases/delete_course_usecase.dart';
 import 'domain/usecases/enroll_course_usecase.dart';
+import 'domain/usecases/get_approved_courses_usecase.dart';
 import 'domain/usecases/get_chapter_by_id_usecase.dart';
 import 'domain/usecases/get_chapters_usecase.dart';
 import 'domain/usecases/get_course_details_usecase.dart';
 import 'domain/usecases/get_courses_usecase.dart';
+import 'domain/usecases/get_teacher_courses_usecase.dart';
 import 'domain/usecases/patch_chapter_usecase.dart';
+import 'domain/usecases/patch_course_usecase.dart';
+import 'domain/usecases/toggle_publish_course_usecase.dart';
 import 'domain/usecases/update_chapter_usecase.dart';
+import 'domain/usecases/update_course_usecase.dart';
 import 'presentation/bloc/course_bloc.dart';
 
 void initCourseFeature(GetIt sl) {
@@ -30,6 +36,12 @@ void initCourseFeature(GetIt sl) {
   sl.registerLazySingleton<GetCoursesUseCase>(
     () => GetCoursesUseCase(sl<CourseRepository>()),
   );
+  sl.registerLazySingleton<GetApprovedCoursesUseCase>(
+    () => GetApprovedCoursesUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<GetTeacherCoursesUseCase>(
+    () => GetTeacherCoursesUseCase(sl<CourseRepository>()),
+  );
   sl.registerLazySingleton<GetCourseDetailsUseCase>(
     () => GetCourseDetailsUseCase(sl<CourseRepository>()),
   );
@@ -38,6 +50,18 @@ void initCourseFeature(GetIt sl) {
   );
   sl.registerLazySingleton<CreateCourseUseCase>(
     () => CreateCourseUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<UpdateCourseUseCase>(
+    () => UpdateCourseUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<PatchCourseUseCase>(
+    () => PatchCourseUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<DeleteCourseUseCase>(
+    () => DeleteCourseUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<TogglePublishCourseUseCase>(
+    () => TogglePublishCourseUseCase(sl<CourseRepository>()),
   );
   sl.registerLazySingleton<GetChaptersUseCase>(
     () => GetChaptersUseCase(sl<CourseRepository>()),

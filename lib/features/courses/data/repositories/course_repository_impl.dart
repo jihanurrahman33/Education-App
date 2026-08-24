@@ -52,6 +52,22 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
+  ResultFuture<List<CourseEntity>> getTeacherCourses({int? page}) async {
+    try {
+      final courses = await remoteDataSource.getTeacherCourses(page: page);
+      return Right(courses);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultFuture<CourseEntity> getCourseDetails(int courseId) async {
     try {
       final course = await remoteDataSource.getCourseDetails(courseId);
@@ -132,6 +148,74 @@ class CourseRepositoryImpl implements CourseRepository {
         price: price,
       );
       return Right(course);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<CourseEntity> updateCourse({
+    required int id,
+    required String title,
+    String? description,
+    bool? isPublished,
+  }) async {
+    try {
+      final course = await remoteDataSource.updateCourse(
+        id: id,
+        title: title,
+        description: description,
+        isPublished: isPublished,
+      );
+      return Right(course);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<CourseEntity> patchCourse({
+    required int id,
+    String? title,
+    String? description,
+    bool? isPublished,
+  }) async {
+    try {
+      final course = await remoteDataSource.patchCourse(
+        id: id,
+        title: title,
+        description: description,
+        isPublished: isPublished,
+      );
+      return Right(course);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultVoid deleteCourse(int id) async {
+    try {
+      await remoteDataSource.deleteCourse(id);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, code: e.statusCode));
     } on NetworkException catch (e) {

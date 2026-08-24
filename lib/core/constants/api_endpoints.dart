@@ -12,6 +12,7 @@ class ApiEndpoints {
   // 2. Course endpoints
   static const String courses = '/api/courses/courses/';
   static const String approvedCourses = '/api/courses/courses/approved/';
+  static const String teacherMyCourses = '/api/courses/courses/my-courses/';
   static const String myEnrollments = '/api/courses/courses/approved/';
   static String courseDetail(int id) => '/api/courses/courses/$id/';
   static String togglePublish(int id) => '/api/courses/courses/$id/toggle-publish/';

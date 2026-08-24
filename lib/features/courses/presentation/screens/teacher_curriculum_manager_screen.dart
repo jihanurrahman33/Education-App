@@ -9,7 +9,9 @@ import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/create_chapter_usecase.dart';
 import '../../domain/usecases/delete_chapter_usecase.dart';
 import '../../domain/usecases/get_chapters_usecase.dart';
+import '../../domain/usecases/get_course_details_usecase.dart';
 import '../../domain/usecases/patch_chapter_usecase.dart';
+import '../../domain/usecases/toggle_publish_course_usecase.dart';
 
 class TeacherCurriculumManagerScreen extends StatefulWidget {
   final int courseId;
@@ -27,6 +29,8 @@ class _TeacherCurriculumManagerScreenState
   final CreateChapterUseCase _createChapterUseCase = GetIt.I<CreateChapterUseCase>();
   final PatchChapterUseCase _patchChapterUseCase = GetIt.I<PatchChapterUseCase>();
   final DeleteChapterUseCase _deleteChapterUseCase = GetIt.I<DeleteChapterUseCase>();
+  final GetCourseDetailsUseCase _getCourseDetailsUseCase = GetIt.I<GetCourseDetailsUseCase>();
+  final TogglePublishCourseUseCase _togglePublishCourseUseCase = GetIt.I<TogglePublishCourseUseCase>();
 
   List<ChapterEntity> _chapters = [];
   bool _isLoading = true;
@@ -35,33 +39,37 @@ class _TeacherCurriculumManagerScreenState
   @override
   void initState() {
     super.initState();
-    _loadChapters();
+    _loadData();
   }
 
-  Future<void> _loadChapters() async {
+  Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    final result = await _getChaptersUseCase(GetChaptersParams(courseId: widget.courseId));
+    final results = await Future.wait([
+      _getChaptersUseCase(GetChaptersParams(courseId: widget.courseId)),
+      _getCourseDetailsUseCase(GetCourseDetailsParams(courseId: widget.courseId)),
+    ]);
 
     if (!mounted) return;
 
-    result.fold(
-      (failure) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load chapters: ${failure.message}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      },
-      (chapters) {
-        setState(() {
-          _chapters = chapters;
-          _isLoading = false;
-        });
-      },
+    final chapResult = results[0];
+    final courseResult = results[1];
+
+    chapResult.fold(
+      (failure) => null,
+      (chapters) => _chapters = chapters as List<ChapterEntity>,
     );
+
+    courseResult.fold(
+      (failure) => null,
+      (course) => _isPublished = (course as CourseEntity).isPublished,
+    );
+
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadChapters() async {
+    await _loadData();
   }
 
   void _showAddChapterDialog() {
@@ -236,16 +244,32 @@ class _TeacherCurriculumManagerScreenState
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _isPublished = nextState;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(nextState
-              ? 'Course submitted for admin approval!'
-              : 'Course has been unpublished.'),
-          backgroundColor: AppColors.secondary,
-        ),
+      final result = await _togglePublishCourseUseCase(widget.courseId);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to update publish status: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (course) {
+          setState(() {
+            _isPublished = course.isPublished;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(course.isPublished
+                  ? 'Course published / submitted for approval!'
+                  : 'Course unpublished.'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+        },
       );
     }
   }
