@@ -1,4 +1,4 @@
-# EduFlow - AI Agent & Engineering Standards Guide
+# EduFlow — AI Agent & Engineering Standards Guide
 
 Welcome to the **EduFlow** codebase. This document establishes the architectural standards, API contracts, workflow procedures, and contribution rules for AI coding agents and software engineers working on this application.
 
@@ -9,7 +9,7 @@ Welcome to the **EduFlow** codebase. This document establishes the architectural
 EduFlow strictly follows **Flutter Clean Architecture** with **Feature-First modularization**.
 
 ### Feature Folder Directory Convention
-Every feature located under `lib/features/<feature_name>/` must maintain the following separation:
+Every feature located under [`lib/features/<feature_name>/`](file:///c:/Users/jihan/Documents/projects/education_app/lib/features/) must maintain the following separation:
 ```
 lib/features/<feature_name>/
 ├── domain/
@@ -21,7 +21,7 @@ lib/features/<feature_name>/
 │   ├── datasources/    # Remote HTTP (Dio) & local persistence (SharedPreferences) datasources
 │   └── repositories/   # Concrete repository implementations handling exceptions -> failures
 ├── presentation/
-│   ├── bloc/ or cubit/ # State management controllers
+│   ├── bloc/ or cubit/ # State management controllers (Events, States, BLoCs)
 │   ├── screens/        # Full-page UI views
 │   └── widgets/        # Feature-specific reusable UI components
 └── di.dart             # GetIt dependency injection initialization function for the feature
@@ -113,42 +113,7 @@ The backend server is hosted at `http://144.79.133.208:8000`. All endpoints MUST
 
 ---
 
-## 3. End-to-End User Workflows
-
-### Student Journey:
-1. **Register** (`POST /api/auth/register/`) with role `student`.
-2. **Login** (`POST /api/auth/login/`) → save JWT tokens in `SharedPreferences`.
-3. **Browse Approved Courses** (`GET /api/courses/courses/approved/`).
-4. **Enroll** (`POST /api/progress/enroll/` with `course_id`).
-5. **View Lessons** (`GET /api/courses/courses/{id}/` and `GET /api/courses/lessons/{id}/`).
-6. **Complete Lessons** (`POST /api/progress/complete/` with `lesson`).
-7. **Take & Submit Quiz** (`GET /api/quizzes/quizzes/{id}/take/` → `POST /api/quizzes/quizzes/{id}/submit/`).
-8. **Track Progress** (`GET /api/progress/my-progress/`).
-9. **Claim Certificate** (`POST /api/progress/certificate/{course_id}/` when progress = 100%).
-10. **View Certificates** (`GET /api/progress/certificates/`).
-
-### Teacher Journey:
-1. **Register** (`POST /api/auth/register/`) with role `teacher`.
-2. **Wait for Admin Approval** (`teacher_pending_screen`).
-3. **Login** once approved.
-4. **View Authored Courses** (`GET /api/courses/courses/my-courses/`).
-5. **Create Course** (`POST /api/courses/courses/`).
-6. **Add Chapters** (`POST /api/courses/chapters/`).
-7. **Add Lessons & Upload Media** (`POST /api/courses/lessons/` with multipart/form-data for MP4/PDF).
-8. **Create Quiz & Questions** (`POST /api/quizzes/quizzes/` & `POST /api/quizzes/questions/`).
-9. **Submit for Publication** (`POST /api/courses/courses/{id}/toggle-publish/`).
-10. **Track Student Progress** (`GET /api/progress/teacher/course/{course_id}/students/`).
-
-### Admin Journey:
-1. **Login** with admin credentials.
-2. **Review Dashboard Statistics & Leaderboard** (`GET /api/admin-panel/dashboard/` & `GET /api/admin-panel/top-courses/`).
-3. **Approve Pending Teachers** (`GET /api/admin-panel/teachers/pending/` → `POST /api/admin-panel/teachers/{id}/approve/`).
-4. **Moderate Courses** (`GET /api/admin-panel/courses/pending/` → `POST /api/admin-panel/courses/{id}/approve/` or `/reject/`).
-5. **Manage Users Directory** (Full CRUD on `/api/admin-panel/users/`).
-
----
-
-## 4. Role-Based Permissions Matrix
+## 3. Role-Based Permissions Matrix
 
 | Feature / Action | Student | Teacher | Admin |
 | :--- | :---: | :---: | :---: |
@@ -167,11 +132,12 @@ The backend server is hosted at `http://144.79.133.208:8000`. All endpoints MUST
 
 ---
 
-## 5. Coding & Contribution Rules for Agents
+## 4. Coding & Contribution Rules for Agents
 
-1. **Clean Architecture Enforcement**: Never call APIs directly from presentation screens or widgets. Always route through `UseCase` -> `Repository` -> `DataSource` -> `ApiClient`.
-2. **Static Analysis & Diagnostics**: Always run `analyze_files` via `dart-mcp-server` to maintain **0 errors and 0 warnings**.
-3. **Dependency Injection**: Every new use case, repository, or datasource MUST be registered in its feature `di.dart` and initialized in `initGlobalDependencies()` inside [`lib/core/app/injection_container.dart`](file:///c:/Users/jihan/Documents/projects/education_app/lib/core/app/injection_container.dart).
-4. **Error Handling**: Use `dartz`/`Either<Failure, T>` return types across repository and use case layers. Catch all `DioException` in datasources and map to `ServerException`, `NetworkException`, or `UnauthorizedException`.
-5. **Multipart Uploads**: When uploading videos or PDF files, use `FormData` and `MultipartFile.fromFile` rather than JSON payloads.
-6. **No Ad-Hoc Styling**: Use predefined tokens from [`AppColors`](file:///c:/Users/jihan/Documents/projects/education_app/lib/core/constants/app_colors.dart) and global custom widgets.
+1. **Clean Architecture Enforcement:** Never call APIs directly from presentation screens or widgets. Always route through `UseCase` -> `Repository` -> `DataSource` -> `ApiClient`.
+2. **Static Analysis & Diagnostics:** Always run `analyze_files` via `dart-mcp-server` to maintain **0 errors and 0 warnings**.
+3. **Dependency Injection:** Every new use case, repository, or datasource MUST be registered in its feature `di.dart` and initialized in `initGlobalDependencies()` inside [`lib/core/app/injection_container.dart`](file:///c:/Users/jihan/Documents/projects/education_app/lib/core/app/injection_container.dart).
+4. **Error Handling:** Use `dartz`/`Either<Failure, T>` return types across repository and use case layers. Catch all `DioException` in datasources and map to `ServerException`, `NetworkException`, or `UnauthorizedException`.
+5. **Multipart Uploads:** When uploading videos or PDF files, use `FormData` and `MultipartFile.fromFile` rather than JSON payloads.
+6. **No Ad-Hoc Styling:** Use predefined tokens from [`AppColors`](file:///c:/Users/jihan/Documents/projects/education_app/lib/core/constants/app_colors.dart) and global custom widgets.
+7. **Documentation Reference:** Check [`docs/README.md`](file:///c:/Users/jihan/Documents/projects/education_app/docs/README.md) for detailed architecture, API, and design system contracts.

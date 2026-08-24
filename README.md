@@ -1,93 +1,77 @@
-# EduFlow - Modern Flutter Learning & Course Management Platform
+# EduFlow — Modern Clean Architecture Education App
 
-**EduFlow** is an enterprise-grade, full-featured online education and learning management platform built with **Flutter** following strict **Clean Architecture** and **Feature-First modularization**.
-
----
-
-## 🌟 Key Features
-
-### 🎓 For Students
-- **Course Discovery**: Browse approved and published courses with search and category filtering.
-- **Interactive Learning**: Stream high-definition video lectures and review integrated PDF study documents.
-- **Progress Tracking**: Real-time progress monitoring per enrolled course and across all active enrollments.
-- **Assessments & Quizzes**: Take course-associated quizzes with timer support, instant grading, and answer breakdowns.
-- **Verifiable Certificates**: Earn and download official certificates upon achieving 100% course curriculum completion.
-
-### 👨‍🏫 For Teachers & Instructors
-- **Course Authoring**: Create, update, and manage courses with pricing, categories, and custom cover thumbnails.
-- **Curriculum Builder**: Organize syllabus into structured chapters and upload multimedia lessons (MP4/WebM video lectures, PDF notes).
-- **Quiz Creator**: Design interactive multi-choice quizzes and link them to chapters or full courses.
-- **Student Progress Analytics**: Monitor real-time student completion rates and curriculum engagement for all authored courses.
-- **Publication Workflow**: Submit courses for administrative moderation and approval.
-
-### 🛡️ For Administrators
-- **Platform Analytics**: High-level dashboard statistics (active users, course catalog volume, total quizzes, system-wide average scores).
-- **Teacher Moderation**: Review pending instructor registration applications and grant teaching privileges.
-- **Course Moderation**: Review curriculum submissions and approve/reject course publication.
-- **User Directory Management**: Complete CRUD operations for platform users (search, role filtering, activating/deactivating, editing, and deleting accounts).
+EduFlow is an enterprise-grade learning management application built with **Flutter**, **Clean Architecture**, and **BLoC (Business Logic Component)**. It features role-based access control for **Students**, **Teachers**, and **Administrators**, comprehensive course curriculum authoring, video/PDF lecture playback, interactive assessments, real-time progress tracking, and digital certificate generation.
 
 ---
 
-## 🏗️ Architecture & Project Structure
+## 📸 Key Features & Capabilities
 
-EduFlow adheres strictly to **Clean Architecture** with **Feature-First modularization**. Every domain entity is pure and decoupled from data transfer objects and UI frameworks.
+### 🎓 1. Student Learning Journey
+* **Course Discovery:** Browse approved courses with category filtering, search, and detailed syllabus previews.
+* **Instant Course Enrollment:** One-tap course enrollment synchronized with personal progress tracking.
+* **Rich Media Player:** Seamless playback of video lectures (MP4), reading PDF study guides, and text lessons.
+* **Progress Tracking:** Automatic lesson completion updates, course percentage counters, and progress overview.
+* **Assessment Quizzes:** Timed single-choice modular quizzes with instant scoring and answer breakdowns.
+* **Verified Certificates:** Automatically unlock and download official completion certificates when reaching 100% course progress.
+
+### 👨‍🏫 2. Teacher Course & Curriculum Studio
+* **Course Builder:** Draft and configure course metadata, category tags, descriptions, and pricing.
+* **Curriculum Management:** Organize content into structured chapters/modules with reordering support.
+* **Media Uploads:** Upload high-definition video lectures and PDF lecture notes via `multipart/form-data`.
+* **Quiz Creator:** Create course quizzes, question banks, and define passing score thresholds.
+* **Moderation Pipeline:** Submit completed drafts for administrative quality approval.
+
+### 🛡️ 3. Administrator Moderation & Analytics Hub
+* **Dashboard Analytics:** Live statistics on registered learners, published courses, quiz results, and top enrollments.
+* **Teacher Account Moderation:** Review instructor credentials and grant platform teaching privileges.
+* **Course Quality Moderation:** Review submitted curriculum drafts, inspect lessons, and approve or reject submissions.
+* **User Management Directory:** Full CRUD operations across all user accounts with role assignments and activation toggles.
+
+---
+
+## 🏗️ Technical Stack & Architecture
+
+* **Framework:** [Flutter](https://flutter.dev) (Dart 3.13+)
+* **Architecture:** Clean Architecture with Feature-First Modularization
+* **State Management:** [flutter_bloc](https://pub.dev/packages/flutter_bloc) (BLoC / Cubit)
+* **Dependency Injection:** [get_it](https://pub.dev/packages/get_it)
+* **Networking:** [dio](https://pub.dev/packages/dio) with JWT Auth Interceptor
+* **Routing:** [go_router](https://pub.dev/packages/go_router) with role-based auth guards
+* **Functional Programming:** [dartz](https://pub.dev/packages/dartz) (`Either<Failure, T>`)
+* **Styling & Theme:** Custom Dark Theme (`#121414` Canvas, `#F59E0B` Gold, `#10B981` Emerald)
+
+---
+
+## 📂 Project Directory Structure
 
 ```
 lib/
 ├── core/
-│   ├── app/                      # Global app initialization & dependency container
-│   ├── constants/                # App colors, typography, and API endpoints
-│   ├── error/                    # Custom failure and exception definitions
-│   ├── networking/               # Dio HTTP client, JWT auth interceptor, token refresh
-│   ├── router/                   # GoRouter configuration & role-based navigation guards
-│   ├── theme/                    # Light & dark theme palettes
-│   ├── usecases/                 # Base UseCase contract interfaces
-│   ├── utils/                    # Either functional error handling & typedefs
-│   └── widgets/                  # Application-wide reusable UI components (Buttons, Inputs, Dialogs, Cards)
-│
+│   ├── app/                # Application entrypoint & global dependency injection
+│   ├── constants/          # AppColors, ApiEndpoints, AppTheme tokens
+│   ├── errors/             # Failure models and Server/Network Exceptions
+│   ├── network/            # Dio ApiClient & JWT Bearer Interceptors
+│   ├── routes/             # GoRouter configuration & role guards
+│   ├── usecases/           # Generic UseCase<Type, Params> interface
+│   ├── utils/              # Token manager & storage helpers
+│   └── widgets/            # Application-wide reusable UI components
 └── features/
-    ├── admin/                    # Admin dashboard, teacher approvals, course moderation, user CRUD
-    ├── auth/                     # Authentication, JWT login, registration, splash & auth state
-    ├── certificates/             # Certificate view, verification, download & claim
-    ├── courses/                  # Course catalog, details, teacher curriculum builder, lesson player
-    ├── dashboard/                # Role-tailored dashboards (Student, Teacher, Admin)
-    ├── notifications/            # In-app notifications & announcement center
-    ├── progress/                 # Course progress tracking, lesson completion, enrollment records
-    ├── quizzes/                  # Quiz taking, question authoring, student scores & answer review
-    └── settings/                 # App preferences, dark mode, offline cache, notifications
+    ├── admin/              # Admin dashboard, moderation hub & user directory
+    ├── auth/               # Registration, Login, Profile & JWT session state
+    ├── certificates/       # Digital certificate viewer & PDF generator
+    ├── courses/            # Catalog, curriculum manager, lesson player & builder
+    ├── dashboard/          # Role-tailored home dashboards
+    ├── progress/           # Lesson completion & progress percentage tracking
+    └── quizzes/            # Quiz taking, question authoring & score evaluations
 ```
-
-### Feature Module Separation
-Each feature under `lib/features/<feature_name>/` contains:
-- **`domain/`**: Pure entities, repository interfaces, single-responsibility use cases.
-- **`data/`**: Data models (`fromJson`/`toJson`), remote HTTP/Dio datasources, local persistence, concrete repository implementations.
-- **`presentation/`**: BLoC / Cubit state management, full-page screen views, and feature-specific `widgets/`.
-- **`di.dart`**: Feature dependency injection registration function.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer / Concern | Technology |
-| :--- | :--- |
-| **Framework** | Flutter 3.x (Dart 3.x) |
-| **Architecture** | Flutter Clean Architecture (Feature-First) |
-| **State Management** | `flutter_bloc` / BLoC pattern |
-| **Dependency Injection** | `get_it` |
-| **Networking** | `dio` with JWT bearer interceptor & auto token refresh |
-| **Navigation** | `go_router` with declarative routing & role guards |
-| **Functional Error Handling** | `dartz` / Custom `Either<Failure, T>` |
-| **Typography & UI** | Google Fonts (Outfit, Plus Jakarta Sans), Material 3 |
-| **Local Storage** | `shared_preferences` for JWT tokens and app settings |
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (version >= 3.3.0)
-- [Dart SDK](https://dart.dev/get-dart) (version >= 3.0.0)
-- Android Studio / Xcode / VS Code with Flutter extensions
+* [Flutter SDK](https://flutter.dev/docs/get-started/install) (v3.13 or higher)
+* [Dart SDK](https://dart.dev/get-dart) (v3.0 or higher)
 
 ### 2. Installation
 ```bash
@@ -95,26 +79,35 @@ Each feature under `lib/features/<feature_name>/` contains:
 git clone https://github.com/jihanurrahman33/Education-App.git
 cd Education-App
 
-# Fetch dependencies
+# Install dependencies
 flutter pub get
+
+# Generate launcher icons & native splash screen
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create
 ```
 
 ### 3. Running the Application
 ```bash
-# Run on connected device or emulator
+# Run on connected device or simulator
 flutter run
-```
 
-### 4. Running Static Analysis
-```bash
-# Verify code health and architecture compliance
-flutter analyze
+# Run on specific platform
+flutter run -d chrome
+flutter run -d windows
 ```
 
 ---
 
-## 📡 Backend API Integration
+## 📚 Detailed Documentation
 
-The app connects to the EduFlow REST backend hosted at `http://144.79.133.208:8000`. All requests route through `/api/...` endpoints with JWT Bearer authentication.
+Detailed technical documentation is available in the [`docs/`](file:///c:/Users/jihan/Documents/projects/education_app/docs/) directory:
+* **[API Specification](file:///c:/Users/jihan/Documents/projects/education_app/docs/API_DOCUMENTATION.md)** — Complete endpoint catalog, request payloads, and response models.
+* **[Architecture Guide](file:///c:/Users/jihan/Documents/projects/education_app/docs/ARCHITECTURE.md)** — Clean Architecture layer responsibilities and GetIt wiring.
+* **[User Workflows](file:///c:/Users/jihan/Documents/projects/education_app/docs/WORKFLOWS.md)** — Step-by-step user journeys and sequence diagrams.
+* **[Design System](file:///c:/Users/jihan/Documents/projects/education_app/docs/DESIGN_SYSTEM.md)** — Color palette tokens, typography rules, and custom widgets.
 
-For detailed endpoint contracts and agent procedures, refer to [`AGENTS.md`](file:///c:/Users/jihan/Documents/projects/education_app/AGENTS.md).
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
