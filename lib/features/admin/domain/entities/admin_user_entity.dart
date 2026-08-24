@@ -37,6 +37,10 @@ class AdminUserEntity extends Equatable {
     return username;
   }
 
+  bool get isTeacher => role.toLowerCase() == 'teacher';
+  bool get isStudent => role.toLowerCase() == 'student';
+  bool get isAdmin => role.toLowerCase() == 'admin';
+
   @override
   List<Object?> get props => [
         id,

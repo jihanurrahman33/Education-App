@@ -6,9 +6,12 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/usecases/create_user_use_case.dart';
+import '../../domain/usecases/get_user_by_id_use_case.dart';
 import '../../domain/usecases/get_users_use_case.dart';
+import '../../domain/usecases/update_user_use_case.dart';
 import '../widgets/admin_user_card_widget.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
@@ -20,7 +23,9 @@ class AdminUserManagementScreen extends StatefulWidget {
 
 class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   final GetUsersUseCase _getUsersUseCase = GetIt.I<GetUsersUseCase>();
+  final GetUserByIdUseCase _getUserByIdUseCase = GetIt.I<GetUserByIdUseCase>();
   final CreateUserUseCase _createUserUseCase = GetIt.I<CreateUserUseCase>();
+  final UpdateUserUseCase _updateUserUseCase = GetIt.I<UpdateUserUseCase>();
   final TextEditingController _searchController = TextEditingController();
 
   List<AdminUserEntity> _users = [];
@@ -65,6 +70,402 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
           _isLoading = false;
           _users = users;
         });
+      },
+    );
+  }
+
+  void _showUserDetailsModal(int userId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return FutureBuilder(
+          future: _getUserByIdUseCase(userId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (!snapshot.hasData || snapshot.data!.isLeft) {
+              return Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
+                    const SizedBox(height: 12),
+                    const Text('Unable to load user profile details.'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final user = snapshot.data!.right;
+
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                        child: Text(
+                          user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.fullName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.onSurface,
+                              ),
+                            ),
+                            Text(
+                              '@${user.username}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      StatusBadge.role(user.role),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 12),
+
+                  _buildDetailRow(Icons.email_outlined, 'Email Address', user.email),
+                  _buildDetailRow(Icons.phone_outlined, 'Phone Number',
+                      user.phone?.isNotEmpty == true ? user.phone! : 'Not specified'),
+                  _buildDetailRow(Icons.calendar_today_outlined, 'Member Since',
+                      user.dateJoined?.substring(0, 10) ?? 'N/A'),
+                  _buildDetailRow(Icons.toggle_on_outlined, 'Account Status',
+                      user.isActive ? 'Active' : 'Inactive'),
+                  if (user.isTeacher)
+                    _buildDetailRow(
+                      Icons.verified_outlined,
+                      'Teacher Approval',
+                      user.isApprovedTeacher
+                          ? 'Approved (${user.approvedAt?.substring(0, 10) ?? 'Verified'})'
+                          : 'Pending Approval',
+                    ),
+
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          label: const Text('Edit User'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _openEditUserDialog(user);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Close',
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: AppColors.textSecondary),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openEditUserDialog(AdminUserEntity user) {
+    final formKey = GlobalKey<FormState>();
+    final usernameController = TextEditingController(text: user.username);
+    final emailController = TextEditingController(text: user.email);
+    final firstNameController = TextEditingController(text: user.firstName ?? '');
+    final lastNameController = TextEditingController(text: user.lastName ?? '');
+    final phoneController = TextEditingController(text: user.phone ?? '');
+    String selectedRole = user.role.toLowerCase();
+    bool isActive = user.isActive;
+    bool isApprovedTeacher = user.isApprovedTeacher;
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Edit @${user.username}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              controller: firstNameController,
+                              label: 'First Name',
+                              hint: 'Jane',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: CustomTextField(
+                              controller: lastNameController,
+                              label: 'Last Name',
+                              hint: 'Doe',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: usernameController,
+                        label: 'Username',
+                        hint: 'janedoe',
+                        prefixIcon: Icons.person_outline_rounded,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) return 'Username is required';
+                          if (!RegExp(r'^[\w.@+-]+$').hasMatch(val.trim())) return 'Valid characters: letters, digits, @/./+/-/_';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: emailController,
+                        label: 'Email Address',
+                        hint: 'jane@example.com',
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: Icons.mail_outline_rounded,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) return 'Email is required';
+                          if (!val.contains('@') || !val.contains('.')) return 'Enter a valid email address';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: phoneController,
+                        label: 'Phone (Optional)',
+                        hint: '+1234567890',
+                        keyboardType: TextInputType.phone,
+                        prefixIcon: Icons.phone_outlined,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Role selector
+                      const Text(
+                        'Account Role',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedRole,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'student', child: Text('Student')),
+                          DropdownMenuItem(value: 'teacher', child: Text('Teacher / Instructor')),
+                          DropdownMenuItem(value: 'admin', child: Text('Administrator')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() {
+                              selectedRole = val;
+                              if (selectedRole != 'teacher') {
+                                isApprovedTeacher = false;
+                              }
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Checkbox controls
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: isActive,
+                            activeColor: AppColors.primary,
+                            onChanged: (val) => setModalState(() => isActive = val ?? true),
+                          ),
+                          const Text('Active Account', style: TextStyle(fontSize: 13)),
+                        ],
+                      ),
+                      if (selectedRole == 'teacher')
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isApprovedTeacher,
+                              activeColor: AppColors.secondary,
+                              onChanged: (val) => setModalState(() => isApprovedTeacher = val ?? false),
+                            ),
+                            const Text('Pre-approved Teacher Status', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      const SizedBox(height: 20),
+
+                      CustomButton(
+                        text: 'Save Changes',
+                        isLoading: isSubmitting,
+                        onPressed: () async {
+                          if (formKey.currentState?.validate() ?? false) {
+                            setModalState(() => isSubmitting = true);
+                            final result = await _updateUserUseCase(UpdateUserParams(
+                              id: user.id,
+                              username: usernameController.text.trim(),
+                              email: emailController.text.trim(),
+                              role: selectedRole,
+                              firstName: firstNameController.text.trim().isNotEmpty
+                                  ? firstNameController.text.trim()
+                                  : null,
+                              lastName: lastNameController.text.trim().isNotEmpty
+                                  ? lastNameController.text.trim()
+                                  : null,
+                              phone: phoneController.text.trim().isNotEmpty
+                                  ? phoneController.text.trim()
+                                  : null,
+                              isActive: isActive,
+                              isApprovedTeacher: isApprovedTeacher,
+                            ));
+
+                            if (!mounted) return;
+                            setModalState(() => isSubmitting = false);
+
+                            result.fold(
+                              (failure) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to update user: ${failure.message}'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              },
+                              (updated) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('User @${updated.username} updated successfully!'),
+                                    backgroundColor: AppColors.secondary,
+                                  ),
+                                );
+                                _fetchUsers();
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -470,7 +871,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         itemCount: filteredUsers.length,
         itemBuilder: (context, index) {
           final user = filteredUsers[index];
-          return AdminUserCardWidget(userEntity: user);
+          return AdminUserCardWidget(
+            userEntity: user,
+            onTap: () => _showUserDetailsModal(user.id),
+          );
         },
       ),
     );

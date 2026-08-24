@@ -39,6 +39,7 @@ class ApiEndpoints {
 
   // 5. Admin Panel endpoints
   static const String adminUsers = '/api/admin-panel/users/';
+  static String adminUserDetail(int id) => '/api/admin-panel/users/$id/';
   static const String adminPendingTeachers = '/api/admin-panel/teachers/pending/';
   static String adminApproveTeacher(int id) => '/api/admin-panel/teachers/$id/approve/';
   static const String adminPendingCourses = '/api/admin-panel/courses/pending/';

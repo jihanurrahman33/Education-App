@@ -10,7 +10,19 @@ abstract class AdminRepository {
   ResultFuture<List<AdminCourseEntity>> getPendingCourses({int? page});
   ResultFuture<List<AdminUserEntity>> getPendingTeachers({int? page});
   ResultFuture<List<AdminUserEntity>> getUsers({int? page, String? search});
+  ResultFuture<AdminUserEntity> getUserById(int userId);
   ResultFuture<AdminUserEntity> createUser({
+    required String username,
+    required String email,
+    required String role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool isActive = true,
+    bool isApprovedTeacher = false,
+  });
+  ResultFuture<AdminUserEntity> updateUser({
+    required int id,
     required String username,
     required String email,
     required String role,

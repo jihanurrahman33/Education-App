@@ -6,8 +6,14 @@ import '../../domain/entities/admin_user_entity.dart';
 class AdminUserCardWidget extends StatelessWidget {
   final Map<String, dynamic>? user;
   final AdminUserEntity? userEntity;
+  final VoidCallback? onTap;
 
-  const AdminUserCardWidget({super.key, this.user, this.userEntity});
+  const AdminUserCardWidget({
+    super.key,
+    this.user,
+    this.userEntity,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,49 +36,53 @@ class AdminUserCardWidget extends StatelessWidget {
           color: AppColors.outlineVariant.withValues(alpha: 0.4),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: AppColors.surfaceContainer,
-              child: Text(
-                fullName.isNotEmpty ? fullName[0].toUpperCase() : 'U',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: AppColors.surfaceContainer,
+                child: Text(
+                  fullName.isNotEmpty ? fullName[0].toUpperCase() : 'U',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      fullName,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                    Text(
+                      '@$username • $email',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Joined: $dateJoined',
+                      style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    fullName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  Text(
-                    '@$username • $email',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Joined: $dateJoined',
-                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
-                  ),
+                  StatusBadge.role(role),
+                  if (role == 'teacher') ...[
+                    const SizedBox(height: 4),
+                    StatusBadge.approval(isApproved),
+                  ],
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                StatusBadge.role(role),
-                if (role == 'teacher') ...[
-                  const SizedBox(height: 4),
-                  StatusBadge.approval(isApproved),
-                ],
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

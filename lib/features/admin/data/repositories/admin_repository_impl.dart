@@ -64,6 +64,16 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  ResultFuture<AdminUserEntity> getUserById(int userId) async {
+    try {
+      final user = await remoteDataSource.getUserById(userId);
+      return Right(user);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultFuture<AdminUserEntity> createUser({
     required String username,
     required String email,
@@ -86,6 +96,36 @@ class AdminRepositoryImpl implements AdminRepository {
         isApprovedTeacher: isApprovedTeacher,
       );
       return Right(createdUser);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<AdminUserEntity> updateUser({
+    required int id,
+    required String username,
+    required String email,
+    required String role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool isActive = true,
+    bool isApprovedTeacher = false,
+  }) async {
+    try {
+      final updatedUser = await remoteDataSource.updateUser(
+        id: id,
+        username: username,
+        email: email,
+        role: role,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        isActive: isActive,
+        isApprovedTeacher: isApprovedTeacher,
+      );
+      return Right(updatedUser);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
