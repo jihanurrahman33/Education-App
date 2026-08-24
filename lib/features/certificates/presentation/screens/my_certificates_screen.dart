@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../bloc/certificate_bloc.dart';
 import '../bloc/certificate_event.dart';
@@ -20,7 +21,19 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCertificates();
+  }
+
+  void _loadCertificates() {
     context.read<CertificateBloc>().add(const LoadCertificatesEvent());
+  }
+
+  void _handleBack() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/dashboard');
+    }
   }
 
   @override
@@ -31,8 +44,9 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
+          icon:
+              const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          onPressed: _handleBack,
         ),
         title: const Text(
           'My Earned Certificates',
@@ -44,10 +58,10 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
+            icon:
+                const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
             tooltip: 'Refresh Certificates',
-            onPressed: () =>
-                context.read<CertificateBloc>().add(const LoadCertificatesEvent()),
+            onPressed: _loadCertificates,
           ),
         ],
       ),
@@ -70,11 +84,20 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
             );
           }
 
+          if (state.status == CertificateStatus.failure &&
+              state.certificates.isEmpty) {
+            return Center(
+              child: ErrorView(
+                message: state.errorMessage ??
+                    'Failed to load certificates. Please try again.',
+                onRetry: _loadCertificates,
+              ),
+            );
+          }
+
           if (state.certificates.isEmpty) {
             return RefreshIndicator(
-              onRefresh: () async {
-                context.read<CertificateBloc>().add(const LoadCertificatesEvent());
-              },
+              onRefresh: () async => _loadCertificates(),
               child: ListView(
                 children: [
                   SizedBox(
@@ -101,11 +124,7 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: RefreshIndicator(
-                    onRefresh: () async {
-                      context
-                          .read<CertificateBloc>()
-                          .add(const LoadCertificatesEvent());
-                    },
+                    onRefresh: () async => _loadCertificates(),
                     child: ListView.builder(
                       padding: EdgeInsets.symmetric(
                         horizontal: isWide ? 24.0 : 16.0,

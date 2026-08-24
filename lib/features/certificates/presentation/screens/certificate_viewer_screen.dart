@@ -13,6 +13,14 @@ class CertificateViewerScreen extends StatelessWidget {
 
   const CertificateViewerScreen({super.key, required this.certificateId});
 
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/certificates');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthBloc>().state.user;
@@ -25,7 +33,7 @@ class CertificateViewerScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-          onPressed: () => context.pop(),
+          onPressed: () => _handleBack(context),
         ),
         title: const Text(
           'Certificate of Completion',
@@ -52,10 +60,14 @@ class CertificateViewerScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<CertificateBloc, CertificateState>(
           builder: (context, state) {
-            final cert = state.certificates.where((c) => c.id == certificateId).firstOrNull;
-            final courseTitle = cert?.courseTitle ?? 'Mastering Clean Architecture & Flutter';
+            final cert = state.certificates
+                .where((c) => c.id == certificateId)
+                .firstOrNull;
+            final courseTitle = cert?.courseTitle ??
+                'Mastering Clean Architecture & Flutter';
             final issueDate = cert?.issuedAt ?? 'August 2026';
-            final credentialCode = cert?.certificateId ?? 'EDU-CERT-8849-$certificateId';
+            final credentialCode =
+                cert?.certificateId ?? 'EDU-CERT-8849-$certificateId';
 
             return LayoutBuilder(
               builder: (context, constraints) {
@@ -89,7 +101,8 @@ class CertificateViewerScreen extends StatelessWidget {
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Downloading official certificate PDF...'),
+                                  content: Text(
+                                      'Downloading official certificate PDF...'),
                                   backgroundColor: AppColors.secondary,
                                 ),
                               );
@@ -100,7 +113,7 @@ class CertificateViewerScreen extends StatelessWidget {
                             text: 'Back to Certificates Gallery',
                             isOutlined: true,
                             textColor: Colors.white,
-                            onPressed: () => context.go('/certificates'),
+                            onPressed: () => _handleBack(context),
                           ),
                         ],
                       ),
