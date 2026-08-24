@@ -15,11 +15,13 @@ class CourseRepositoryImpl implements CourseRepository {
   ResultFuture<List<CourseEntity>> getCourses({
     String? category,
     String? searchQuery,
+    int? page,
   }) async {
     try {
       final courses = await remoteDataSource.getCourses(
         category: category,
         searchQuery: searchQuery,
+        page: page,
       );
       return Right(courses);
     } on ServerException catch (e) {
@@ -117,6 +119,7 @@ class CourseRepositoryImpl implements CourseRepository {
   ResultFuture<CourseEntity> createCourse({
     required String title,
     required String description,
+    bool isPublished = false,
     String? category,
     double? price,
   }) async {
@@ -124,6 +127,7 @@ class CourseRepositoryImpl implements CourseRepository {
       final course = await remoteDataSource.createCourse(
         title: title,
         description: description,
+        isPublished: isPublished,
         category: category,
         price: price,
       );
@@ -200,6 +204,74 @@ class CourseRepositoryImpl implements CourseRepository {
         order: order,
       );
       return Right(chapter);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<ChapterEntity> updateChapter({
+    required int id,
+    required int courseId,
+    required String title,
+    int order = 0,
+  }) async {
+    try {
+      final chapter = await remoteDataSource.updateChapter(
+        id: id,
+        courseId: courseId,
+        title: title,
+        order: order,
+      );
+      return Right(chapter);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultFuture<ChapterEntity> patchChapter({
+    required int id,
+    int? courseId,
+    String? title,
+    int? order,
+  }) async {
+    try {
+      final chapter = await remoteDataSource.patchChapter(
+        id: id,
+        courseId: courseId,
+        title: title,
+        order: order,
+      );
+      return Right(chapter);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, code: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  ResultVoid deleteChapter(int id) async {
+    try {
+      await remoteDataSource.deleteChapter(id);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, code: e.statusCode));
     } on NetworkException catch (e) {

@@ -4,11 +4,15 @@ import 'data/datasources/course_remote_data_source.dart';
 import 'data/repositories/course_repository_impl.dart';
 import 'domain/repositories/course_repository.dart';
 import 'domain/usecases/create_chapter_usecase.dart';
+import 'domain/usecases/create_course_usecase.dart';
+import 'domain/usecases/delete_chapter_usecase.dart';
 import 'domain/usecases/enroll_course_usecase.dart';
 import 'domain/usecases/get_chapter_by_id_usecase.dart';
 import 'domain/usecases/get_chapters_usecase.dart';
 import 'domain/usecases/get_course_details_usecase.dart';
 import 'domain/usecases/get_courses_usecase.dart';
+import 'domain/usecases/patch_chapter_usecase.dart';
+import 'domain/usecases/update_chapter_usecase.dart';
 import 'presentation/bloc/course_bloc.dart';
 
 void initCourseFeature(GetIt sl) {
@@ -32,6 +36,9 @@ void initCourseFeature(GetIt sl) {
   sl.registerLazySingleton<EnrollCourseUseCase>(
     () => EnrollCourseUseCase(sl<CourseRepository>()),
   );
+  sl.registerLazySingleton<CreateCourseUseCase>(
+    () => CreateCourseUseCase(sl<CourseRepository>()),
+  );
   sl.registerLazySingleton<GetChaptersUseCase>(
     () => GetChaptersUseCase(sl<CourseRepository>()),
   );
@@ -40,6 +47,15 @@ void initCourseFeature(GetIt sl) {
   );
   sl.registerLazySingleton<CreateChapterUseCase>(
     () => CreateChapterUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<UpdateChapterUseCase>(
+    () => UpdateChapterUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<PatchChapterUseCase>(
+    () => PatchChapterUseCase(sl<CourseRepository>()),
+  );
+  sl.registerLazySingleton<DeleteChapterUseCase>(
+    () => DeleteChapterUseCase(sl<CourseRepository>()),
   );
 
   // Presentation (Bloc)

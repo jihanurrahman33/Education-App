@@ -7,7 +7,9 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/create_chapter_usecase.dart';
+import '../../domain/usecases/delete_chapter_usecase.dart';
 import '../../domain/usecases/get_chapters_usecase.dart';
+import '../../domain/usecases/patch_chapter_usecase.dart';
 
 class TeacherCurriculumManagerScreen extends StatefulWidget {
   final int courseId;
@@ -23,6 +25,8 @@ class _TeacherCurriculumManagerScreenState
     extends State<TeacherCurriculumManagerScreen> {
   final GetChaptersUseCase _getChaptersUseCase = GetIt.I<GetChaptersUseCase>();
   final CreateChapterUseCase _createChapterUseCase = GetIt.I<CreateChapterUseCase>();
+  final PatchChapterUseCase _patchChapterUseCase = GetIt.I<PatchChapterUseCase>();
+  final DeleteChapterUseCase _deleteChapterUseCase = GetIt.I<DeleteChapterUseCase>();
 
   List<ChapterEntity> _chapters = [];
   bool _isLoading = true;
@@ -119,6 +123,105 @@ class _TeacherCurriculumManagerScreenState
         ],
       ),
     );
+  }
+
+  void _showEditChapterDialog(ChapterEntity chapter) {
+    final titleController = TextEditingController(text: chapter.title);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Edit Chapter', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(
+            labelText: 'Chapter Title',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.roleTeacher),
+            onPressed: () async {
+              final text = titleController.text.trim();
+              if (text.isNotEmpty) {
+                Navigator.of(ctx).pop();
+                final result = await _patchChapterUseCase(PatchChapterParams(
+                  id: chapter.id,
+                  title: text,
+                ));
+
+                if (!mounted) return;
+
+                result.fold(
+                  (failure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update chapter: ${failure.message}'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  },
+                  (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Chapter updated to "${updated.title}"!'),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                    _loadChapters();
+                  },
+                );
+              }
+            },
+            child: const Text('Save Changes', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteChapter(ChapterEntity chapter) async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Delete Chapter',
+      message: 'Are you sure you want to delete "${chapter.title}"? All associated lessons will also be removed.',
+      confirmText: 'Delete Chapter',
+      confirmColor: AppColors.error,
+      icon: Icons.delete_forever_rounded,
+    );
+
+    if (confirmed == true && mounted) {
+      final result = await _deleteChapterUseCase(chapter.id);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete chapter: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          setState(() {
+            _chapters.removeWhere((c) => c.id == chapter.id);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Chapter "${chapter.title}" deleted.'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+        },
+      );
+    }
   }
 
   void _togglePublish() async {
@@ -271,7 +374,6 @@ class _TeacherCurriculumManagerScreenState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
@@ -282,6 +384,16 @@ class _TeacherCurriculumManagerScreenState
                                     color: AppColors.onSurface,
                                   ),
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textSecondary),
+                                tooltip: 'Edit Chapter',
+                                onPressed: () => _showEditChapterDialog(chapter),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
+                                tooltip: 'Delete Chapter',
+                                onPressed: () => _deleteChapter(chapter),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.add_circle_outline_rounded,

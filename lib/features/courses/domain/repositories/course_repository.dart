@@ -5,6 +5,7 @@ abstract class CourseRepository {
   ResultFuture<List<CourseEntity>> getCourses({
     String? category,
     String? searchQuery,
+    int? page,
   });
 
   ResultFuture<List<CourseEntity>> getApprovedCourses({int? page});
@@ -20,6 +21,7 @@ abstract class CourseRepository {
   ResultFuture<CourseEntity> createCourse({
     required String title,
     required String description,
+    bool isPublished = false,
     String? category,
     double? price,
   });
@@ -35,6 +37,22 @@ abstract class CourseRepository {
     required String title,
     int order = 0,
   });
+
+  ResultFuture<ChapterEntity> updateChapter({
+    required int id,
+    required int courseId,
+    required String title,
+    int order = 0,
+  });
+
+  ResultFuture<ChapterEntity> patchChapter({
+    required int id,
+    int? courseId,
+    String? title,
+    int? order,
+  });
+
+  ResultVoid deleteChapter(int id);
 
   ResultFuture<LessonEntity> createLesson({
     required int chapterId,

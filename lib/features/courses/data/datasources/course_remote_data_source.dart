@@ -7,6 +7,7 @@ abstract class CourseRemoteDataSource {
   Future<List<CourseModel>> getCourses({
     String? category,
     String? searchQuery,
+    int? page,
   });
 
   Future<List<CourseModel>> getApprovedCourses({int? page});
@@ -22,6 +23,7 @@ abstract class CourseRemoteDataSource {
   Future<CourseModel> createCourse({
     required String title,
     required String description,
+    bool isPublished = false,
     String? category,
     double? price,
   });
@@ -37,6 +39,22 @@ abstract class CourseRemoteDataSource {
     required String title,
     int order = 0,
   });
+
+  Future<ChapterModel> updateChapter({
+    required int id,
+    required int courseId,
+    required String title,
+    int order = 0,
+  });
+
+  Future<ChapterModel> patchChapter({
+    required int id,
+    int? courseId,
+    String? title,
+    int? order,
+  });
+
+  Future<void> deleteChapter(int id);
 
   Future<LessonModel> createLesson({
     required int chapterId,
@@ -62,14 +80,15 @@ abstract class CourseRemoteDataSource {
 }
 
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
-  final ApiClient _apiClient;
+  final ApiClient apiClient;
 
-  const CourseRemoteDataSourceImpl({required this._apiClient});
+  const CourseRemoteDataSourceImpl({required this.apiClient});
 
   @override
   Future<List<CourseModel>> getCourses({
     String? category,
     String? searchQuery,
+    int? page,
   }) async {
     final queryParams = <String, dynamic>{};
     if (category != null && category.isNotEmpty) {
@@ -78,8 +97,11 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     if (searchQuery != null && searchQuery.isNotEmpty) {
       queryParams['search'] = searchQuery;
     }
+    if (page != null) {
+      queryParams['page'] = page;
+    }
 
-    final response = await _apiClient.get(
+    final response = await apiClient.get(
       ApiEndpoints.courses,
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
@@ -104,7 +126,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     final queryParams = <String, dynamic>{};
     if (page != null) queryParams['page'] = page;
 
-    final response = await _apiClient.get(
+    final response = await apiClient.get(
       ApiEndpoints.approvedCourses,
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
@@ -126,7 +148,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<CourseModel> getCourseDetails(int courseId) async {
-    final response = await _apiClient.get(ApiEndpoints.courseDetail(courseId));
+    final response = await apiClient.get(ApiEndpoints.courseDetail(courseId));
 
     if (response is Map<String, dynamic>) {
       return CourseModel.fromJson(response);
@@ -142,7 +164,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<void> enrollInCourse(int courseId) async {
-    await _apiClient.post(
+    await apiClient.post(
       ApiEndpoints.enroll,
       data: {'course_id': courseId},
     );
@@ -150,7 +172,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<List<CourseModel>> getMyEnrolledCourses() async {
-    final response = await _apiClient.get(ApiEndpoints.myEnrollments);
+    final response = await apiClient.get(ApiEndpoints.myEnrollments);
 
     if (response is List) {
       return response
@@ -171,17 +193,19 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   Future<CourseModel> createCourse({
     required String title,
     required String description,
+    bool isPublished = false,
     String? category,
     double? price,
   }) async {
     final body = <String, dynamic>{
       'title': title,
       'description': description,
+      'is_published': isPublished,
     };
     if (category != null) body['category'] = category;
     if (price != null) body['price'] = price;
 
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.courses,
       data: body,
     );
@@ -195,7 +219,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<CourseModel> togglePublish(int courseId) async {
-    final response = await _apiClient.post(ApiEndpoints.togglePublish(courseId));
+    final response = await apiClient.post(ApiEndpoints.togglePublish(courseId));
 
     if (response is Map<String, dynamic>) {
       return CourseModel.fromJson(response);
@@ -210,7 +234,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     if (page != null) queryParams['page'] = page;
     if (courseId != null) queryParams['course'] = courseId;
 
-    final response = await _apiClient.get(
+    final response = await apiClient.get(
       ApiEndpoints.chapters,
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
@@ -232,7 +256,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<ChapterModel> getChapterById(int chapterId) async {
-    final response = await _apiClient.get(ApiEndpoints.chapterDetail(chapterId));
+    final response = await apiClient.get(ApiEndpoints.chapterDetail(chapterId));
 
     if (response is Map<String, dynamic>) {
       return ChapterModel.fromJson(response);
@@ -253,7 +277,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       'order': order,
     };
 
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.chapters,
       data: body,
     );
@@ -263,6 +287,60 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     }
 
     throw Exception('Invalid create chapter response structure');
+  }
+
+  @override
+  Future<ChapterModel> updateChapter({
+    required int id,
+    required int courseId,
+    required String title,
+    int order = 0,
+  }) async {
+    final body = {
+      'course': courseId,
+      'title': title,
+      'order': order,
+    };
+
+    final response = await apiClient.put(
+      ApiEndpoints.chapterDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return ChapterModel.fromJson(response);
+    }
+
+    throw Exception('Invalid update chapter response structure');
+  }
+
+  @override
+  Future<ChapterModel> patchChapter({
+    required int id,
+    int? courseId,
+    String? title,
+    int? order,
+  }) async {
+    final body = <String, dynamic>{};
+    if (courseId != null) body['course'] = courseId;
+    if (title != null) body['title'] = title;
+    if (order != null) body['order'] = order;
+
+    final response = await apiClient.patch(
+      ApiEndpoints.chapterDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return ChapterModel.fromJson(response);
+    }
+
+    throw Exception('Invalid patch chapter response structure');
+  }
+
+  @override
+  Future<void> deleteChapter(int id) async {
+    await apiClient.delete(ApiEndpoints.chapterDetail(id));
   }
 
   @override
@@ -306,7 +384,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       };
     }
 
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.lessons,
       data: payload,
     );
@@ -356,7 +434,7 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       payload = map;
     }
 
-    final response = await _apiClient.patch(
+    final response = await apiClient.patch(
       ApiEndpoints.lessonDetail(lessonId),
       data: payload,
     );

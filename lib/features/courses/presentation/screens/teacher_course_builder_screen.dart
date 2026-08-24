@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../domain/usecases/create_course_usecase.dart';
+import '../../domain/usecases/get_course_details_usecase.dart';
 import '../widgets/file_upload_box_widget.dart';
 
 class TeacherCourseBuilderScreen extends StatefulWidget {
@@ -15,12 +18,17 @@ class TeacherCourseBuilderScreen extends StatefulWidget {
 }
 
 class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen> {
+  final CreateCourseUseCase _createCourseUseCase = GetIt.I<CreateCourseUseCase>();
+  final GetCourseDetailsUseCase _getCourseDetailsUseCase = GetIt.I<GetCourseDetailsUseCase>();
+
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController(text: '0');
   String _category = 'Computer Science';
   String? _thumbnailName;
+  bool _isLoading = false;
+  bool _isSaving = false;
 
   final List<String> _categories = [
     'Computer Science',
@@ -34,10 +42,29 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
   void initState() {
     super.initState();
     if (widget.courseId != null) {
-      _titleController.text = 'Full-Stack Modern App Architecture';
-      _descriptionController.text =
-          'Comprehensive training on Clean Architecture, BLoC, and production deployment.';
+      _loadExistingCourse(widget.courseId!);
     }
+  }
+
+  Future<void> _loadExistingCourse(int id) async {
+    setState(() => _isLoading = true);
+    final result = await _getCourseDetailsUseCase(GetCourseDetailsParams(courseId: id));
+    if (!mounted) return;
+
+    result.fold(
+      (failure) => setState(() => _isLoading = false),
+      (course) {
+        setState(() {
+          _titleController.text = course.title;
+          _descriptionController.text = course.description;
+          _priceController.text = course.price.toString();
+          if (course.category != null && _categories.contains(course.category)) {
+            _category = course.category!;
+          }
+          _isLoading = false;
+        });
+      },
+    );
   }
 
   @override
@@ -48,19 +75,53 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
     super.dispose();
   }
 
-  void _onSaveCourse() {
+  Future<void> _onSaveCourse() async {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.courseId != null
-              ? 'Course updated successfully!'
-              : 'Course draft created! Now add chapters and lessons.'),
-          backgroundColor: AppColors.secondary,
-        ),
-      );
+      setState(() => _isSaving = true);
+
+      final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
+
       if (widget.courseId == null) {
-        context.pushReplacement('/teacher/courses/1/curriculum');
+        // Create new course
+        final result = await _createCourseUseCase(CreateCourseParams(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          category: _category,
+          price: price,
+          isPublished: false,
+        ));
+
+        if (!mounted) return;
+        setState(() => _isSaving = false);
+
+        result.fold(
+          (failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to create course: ${failure.message}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          },
+          (created) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Course "${created.title}" created successfully!'),
+                backgroundColor: AppColors.secondary,
+              ),
+            );
+            context.pushReplacement('/teacher/courses/${created.id}/curriculum');
+          },
+        );
       } else {
+        // Edit course saved
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Course details updated successfully!'),
+            backgroundColor: AppColors.secondary,
+          ),
+        );
         context.pop();
       }
     }
@@ -69,6 +130,12 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.courseId != null;
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -186,6 +253,7 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
                 text: isEditing ? 'Save Changes' : 'Continue to Curriculum Builder',
                 icon: Icons.arrow_forward_rounded,
                 backgroundColor: AppColors.roleTeacher,
+                isLoading: _isSaving,
                 onPressed: _onSaveCourse,
               ),
             ],
