@@ -132,6 +132,36 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  ResultFuture<AdminUserEntity> patchUser({
+    required int id,
+    String? username,
+    String? email,
+    String? role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool? isActive,
+    bool? isApprovedTeacher,
+  }) async {
+    try {
+      final patchedUser = await remoteDataSource.patchUser(
+        id: id,
+        username: username,
+        email: email,
+        role: role,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        isActive: isActive,
+        isApprovedTeacher: isApprovedTeacher,
+      );
+      return Right(patchedUser);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultVoid approveTeacher(int teacherId) async {
     try {
       await remoteDataSource.approveTeacher(teacherId);

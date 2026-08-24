@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -11,6 +12,7 @@ import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/usecases/create_user_use_case.dart';
 import '../../domain/usecases/get_user_by_id_use_case.dart';
 import '../../domain/usecases/get_users_use_case.dart';
+import '../../domain/usecases/patch_user_use_case.dart';
 import '../../domain/usecases/update_user_use_case.dart';
 import '../widgets/admin_user_card_widget.dart';
 
@@ -26,6 +28,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   final GetUserByIdUseCase _getUserByIdUseCase = GetIt.I<GetUserByIdUseCase>();
   final CreateUserUseCase _createUserUseCase = GetIt.I<CreateUserUseCase>();
   final UpdateUserUseCase _updateUserUseCase = GetIt.I<UpdateUserUseCase>();
+  final PatchUserUseCase _patchUserUseCase = GetIt.I<PatchUserUseCase>();
   final TextEditingController _searchController = TextEditingController();
 
   List<AdminUserEntity> _users = [];
@@ -72,6 +75,49 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         });
       },
     );
+  }
+
+  Future<void> _toggleUserActiveStatus(AdminUserEntity user) async {
+    final newStatus = !user.isActive;
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: newStatus ? 'Activate User Account' : 'Deactivate User Account',
+      message: newStatus
+          ? 'Are you sure you want to reactivate @${user.username}\'s account?'
+          : 'Are you sure you want to deactivate @${user.username}\'s account?',
+      confirmText: newStatus ? 'Activate' : 'Deactivate',
+      confirmColor: newStatus ? AppColors.secondary : AppColors.error,
+      icon: newStatus ? Icons.check_circle_outline_rounded : Icons.block_rounded,
+    );
+
+    if (confirmed == true && mounted) {
+      final result = await _patchUserUseCase(PatchUserParams(
+        id: user.id,
+        isActive: newStatus,
+      ));
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to update status: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (updated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('User @${updated.username} is now ${updated.isActive ? 'Active' : 'Inactive'}'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+          _fetchUsers();
+        },
+      );
+    }
   }
 
   void _showUserDetailsModal(int userId) {
@@ -180,16 +226,38 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                           : 'Pending Approval',
                     ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+                  // Quick Actions Row
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          icon: Icon(
+                            user.isActive ? Icons.block_rounded : Icons.check_circle_outline_rounded,
+                            size: 16,
+                            color: user.isActive ? AppColors.error : AppColors.secondary,
+                          ),
+                          label: Text(user.isActive ? 'Deactivate' : 'Activate'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: user.isActive ? AppColors.error : AppColors.secondary,
+                            side: BorderSide(
+                              color: user.isActive ? AppColors.error : AppColors.secondary,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _toggleUserActiveStatus(user);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.edit_outlined, size: 16),
                           label: const Text('Edit User'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
                             side: const BorderSide(color: AppColors.primary),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
@@ -197,13 +265,6 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             Navigator.pop(context);
                             _openEditUserDialog(user);
                           },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Close',
-                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
                     ],

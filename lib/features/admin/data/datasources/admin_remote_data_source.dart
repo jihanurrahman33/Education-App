@@ -33,6 +33,17 @@ abstract class AdminRemoteDataSource {
     bool isActive = true,
     bool isApprovedTeacher = false,
   });
+  Future<AdminUserModel> patchUser({
+    required int id,
+    String? username,
+    String? email,
+    String? role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool? isActive,
+    bool? isApprovedTeacher,
+  });
   Future<void> approveTeacher(int teacherId);
   Future<void> approveCourse(int courseId);
   Future<void> rejectCourse(int courseId);
@@ -235,6 +246,41 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     throw Exception('Invalid update user response structure');
+  }
+
+  @override
+  Future<AdminUserModel> patchUser({
+    required int id,
+    String? username,
+    String? email,
+    String? role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool? isActive,
+    bool? isApprovedTeacher,
+  }) async {
+    final body = <String, dynamic>{};
+
+    if (username != null) body['username'] = username;
+    if (email != null) body['email'] = email;
+    if (role != null) body['role'] = role.toLowerCase();
+    if (firstName != null) body['first_name'] = firstName;
+    if (lastName != null) body['last_name'] = lastName;
+    if (phone != null) body['phone'] = phone;
+    if (isActive != null) body['is_active'] = isActive;
+    if (isApprovedTeacher != null) body['is_approved_teacher'] = isApprovedTeacher;
+
+    final response = await apiClient.patch(
+      ApiEndpoints.adminUserDetail(id),
+      data: body,
+    );
+
+    if (response is Map<String, dynamic>) {
+      return AdminUserModel.fromJson(response);
+    }
+
+    throw Exception('Invalid patch user response structure');
   }
 
   @override

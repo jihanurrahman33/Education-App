@@ -32,6 +32,17 @@ abstract class AdminRepository {
     bool isActive = true,
     bool isApprovedTeacher = false,
   });
+  ResultFuture<AdminUserEntity> patchUser({
+    required int id,
+    String? username,
+    String? email,
+    String? role,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    bool? isActive,
+    bool? isApprovedTeacher,
+  });
   ResultVoid approveTeacher(int teacherId);
   ResultVoid approveCourse(int courseId);
   ResultVoid rejectCourse(int courseId);
