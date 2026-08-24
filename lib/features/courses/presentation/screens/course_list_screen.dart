@@ -36,6 +36,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCourses();
+  }
+
+  void _loadCourses() {
     context.read<CourseBloc>().add(const FetchCoursesRequested());
   }
 
@@ -47,7 +51,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
 
   void _onSearch(String query) {
     context.read<CourseBloc>().add(
-          FetchCoursesRequested(searchQuery: query.isEmpty ? null : query),
+          FetchCoursesRequested(
+            searchQuery: query.isEmpty ? null : query,
+            category: _selectedCategory == 'All' ? null : _selectedCategory,
+          ),
         );
   }
 
@@ -66,6 +73,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasActiveFilter = _selectedCategory != 'All';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -75,7 +84,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
         leading: widget.isTab
             ? null
             : IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                icon: const Icon(Icons.arrow_back_rounded,
+                    color: AppColors.textPrimary),
                 onPressed: () => context.pop(),
               ),
         title: const Text(
@@ -88,9 +98,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune_rounded, color: AppColors.primary),
-            tooltip: 'Filter Courses',
-            onPressed: _openFilterModal,
+            icon: const Icon(Icons.refresh_rounded,
+                color: AppColors.textPrimary),
+            tooltip: 'Refresh Courses',
+            onPressed: _loadCourses,
           ),
         ],
       ),
@@ -104,7 +115,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Search Header
+                  // Search Header with Single Unified Filter Button
                   Container(
                     color: AppColors.background,
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -119,34 +130,50 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Search topics, skills, instructor...',
-                              prefixIcon:
-                                  const Icon(Icons.search_rounded, color: AppColors.outline),
+                              prefixIcon: const Icon(Icons.search_rounded,
+                                  color: AppColors.outline),
                               suffixIcon: _searchController.text.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear_rounded, size: 18),
+                                      icon: const Icon(Icons.clear_rounded,
+                                          size: 18),
                                       onPressed: () {
                                         _searchController.clear();
                                         _onSearch('');
                                       },
                                     )
                                   : null,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        InkWell(
-                          onTap: _openFilterModal,
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
+                        Tooltip(
+                          message: 'Filter Courses',
+                          child: InkWell(
+                            onTap: _openFilterModal,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: hasActiveFilter
+                                    ? AppColors.primary
+                                    : AppColors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                                border: hasActiveFilter
+                                    ? null
+                                    : Border.all(
+                                        color: AppColors.primary
+                                            .withValues(alpha: 0.2)),
+                              ),
+                              child: Icon(
+                                Icons.tune_rounded,
+                                color: hasActiveFilter
+                                    ? AppColors.onPrimary
+                                    : AppColors.primary,
+                                size: 20,
+                              ),
                             ),
-                            child: const Icon(Icons.tune_rounded,
-                                color: AppColors.primary, size: 20),
                           ),
                         ),
                       ],
@@ -164,7 +191,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   ),
                   const Divider(height: 1, color: AppColors.divider),
 
-                  // Courses List View / Grid
+                  // Courses Grid/List Area
                   Expanded(
                     child: BlocBuilder<CourseBloc, CourseState>(
                       builder: (context, state) {
@@ -174,7 +201,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               padding: const EdgeInsets.all(16.0),
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: constraints.maxWidth > 1000 ? 3 : 2,
+                                crossAxisCount:
+                                    constraints.maxWidth > 1000 ? 3 : 2,
                                 childAspectRatio: 1.4,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
@@ -193,41 +221,39 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         }
 
                         if (state.status.isError && state.courses.isEmpty) {
-                          return EmptyStateWidget(
-                            icon: Icons.error_outline_rounded,
-                            title: 'Failed to load courses',
-                            message: state.errorMessage ??
-                                'Please check your connection and try again.',
-                            actionText: 'Retry',
-                            onAction: () => context
-                                .read<CourseBloc>()
-                                .add(const FetchCoursesRequested()),
+                          return Center(
+                            child: EmptyStateWidget(
+                              icon: Icons.wifi_off_rounded,
+                              title: 'Failed to Load Courses',
+                              message: state.errorMessage ??
+                                  'Could not connect to the course catalog. Please check your connection.',
+                              actionText: 'Retry',
+                              onAction: _loadCourses,
+                            ),
                           );
                         }
 
-                        if (state.courses.isEmpty) {
-                          return EmptyStateWidget(
-                            icon: Icons.search_off_rounded,
-                            title: 'No courses found',
-                            message:
-                                'Try adjusting your search terms or category filter to discover content.',
-                            actionText: 'Reset Filters',
-                            onAction: () {
-                              _searchController.clear();
-                              setState(() {
-                                _selectedCategory = 'All';
-                              });
-                              _onSearch('');
-                            },
+                        final courses = state.courses;
+
+                        if (courses.isEmpty) {
+                          return Center(
+                            child: EmptyStateWidget(
+                              icon: Icons.search_off_rounded,
+                              title: 'No Courses Found',
+                              message:
+                                  'Try adjusting your search query or selecting a different category filter.',
+                              actionText: 'Reset Filters',
+                              onAction: () {
+                                _searchController.clear();
+                                setState(() => _selectedCategory = 'All');
+                                _onSearch('');
+                              },
+                            ),
                           );
                         }
 
                         return RefreshIndicator(
-                          onRefresh: () async {
-                            context
-                                .read<CourseBloc>()
-                                .add(const FetchCoursesRequested());
-                          },
+                          onRefresh: () async => _loadCourses(),
                           child: isWide
                               ? GridView.builder(
                                   padding: const EdgeInsets.all(16.0),
@@ -239,27 +265,25 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                     crossAxisSpacing: 16,
                                     mainAxisSpacing: 16,
                                   ),
-                                  itemCount: state.courses.length,
+                                  itemCount: courses.length,
                                   itemBuilder: (context, index) {
-                                    final course = state.courses[index];
+                                    final course = courses[index];
                                     return CourseCardWidget(
                                       course: course,
-                                      onTap: () {
-                                        context.push('/courses/${course.id}');
-                                      },
+                                      onTap: () => context
+                                          .push('/courses/${course.id}'),
                                     );
                                   },
                                 )
                               : ListView.builder(
                                   padding: const EdgeInsets.all(16.0),
-                                  itemCount: state.courses.length,
+                                  itemCount: courses.length,
                                   itemBuilder: (context, index) {
-                                    final course = state.courses[index];
+                                    final course = courses[index];
                                     return CourseCardWidget(
                                       course: course,
-                                      onTap: () {
-                                        context.push('/courses/${course.id}');
-                                      },
+                                      onTap: () => context
+                                          .push('/courses/${course.id}'),
                                     );
                                   },
                                 ),
