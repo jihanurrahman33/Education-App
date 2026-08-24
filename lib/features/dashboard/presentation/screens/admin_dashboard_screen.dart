@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 
@@ -14,15 +15,23 @@ class AdminDashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Admin Banner
           Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [AppColors.roleAdmin, Color(0xFFB91C1C)],
+                colors: [AppColors.roleAdmin, Color(0xFF991B1B)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.roleAdmin.withValues(alpha: 0.25),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: const Row(
               children: [
@@ -57,47 +66,94 @@ class AdminDashboardScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+
+          // Platform Stats Row
+          Row(
+            children: [
+              _buildStatMetric('Pending Teachers', '3', AppColors.warning),
+              const SizedBox(width: 10),
+              _buildStatMetric('Pending Courses', '2', AppColors.primary),
+              const SizedBox(width: 10),
+              _buildStatMetric('Total Users', '542', AppColors.secondary),
+            ],
+          ),
           const SizedBox(height: 24),
+
+          const Text(
+            'Management Operations',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.onSurface,
+            ),
+          ),
+          const SizedBox(height: 12),
 
           // Admin Action Grid
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.15,
             children: [
               _buildAdminCard(
-                'Pending Teachers',
-                'Approve or reject teacher applications',
+                'Teacher Approvals',
+                '3 pending applications',
                 Icons.how_to_reg_rounded,
-                AppColors.roleTeacher,
-                () {},
+                AppColors.warning,
+                () => context.push('/admin/teachers/pending'),
               ),
               _buildAdminCard(
-                'Pending Courses',
-                'Review submitted course drafts',
+                'Course Approvals',
+                '2 pending submissions',
                 Icons.rate_review_rounded,
                 AppColors.primary,
-                () {},
+                () => context.push('/admin/courses/pending'),
               ),
               _buildAdminCard(
-                'User Management',
-                'View registered students & teachers',
+                'User Directory',
+                'Manage students & teachers',
                 Icons.people_outline_rounded,
                 AppColors.secondary,
-                () {},
+                () => context.push('/admin/users'),
               ),
               _buildAdminCard(
                 'Analytics & Stats',
-                'Platform performance and revenues',
+                'Platform performance & revenue',
                 Icons.insights_rounded,
-                AppColors.accent,
-                () {},
+                AppColors.tertiary,
+                () => context.push('/admin/analytics'),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatMetric(String label, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -111,13 +167,20 @@ class AdminDashboardScreen extends StatelessWidget {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,25 +191,25 @@ class AdminDashboardScreen extends StatelessWidget {
                 color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: 22),
             ),
             const Spacer(),
             Text(
               title,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: AppColors.onSurface,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               subtitle,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ],

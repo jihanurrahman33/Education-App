@@ -15,14 +15,14 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  final SharedPreferences _prefs;
+  final SharedPreferences prefs;
 
-  const AuthLocalDataSourceImpl({required this._prefs});
+  const AuthLocalDataSourceImpl({required this.prefs});
 
   @override
   Future<void> cacheAuthToken(String token) async {
     try {
-      await _prefs.setString(AppConstants.tokenKey, token);
+      await prefs.setString(AppConstants.tokenKey, token);
     } catch (e) {
       throw CacheException(message: 'Failed to cache authentication token: $e');
     }
@@ -31,7 +31,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getAuthToken() async {
     try {
-      return _prefs.getString(AppConstants.tokenKey);
+      return prefs.getString(AppConstants.tokenKey);
     } catch (e) {
       throw CacheException(message: 'Failed to read cached token: $e');
     }
@@ -40,7 +40,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> cacheRefreshToken(String refreshToken) async {
     try {
-      await _prefs.setString(AppConstants.refreshTokenKey, refreshToken);
+      await prefs.setString(AppConstants.refreshTokenKey, refreshToken);
     } catch (e) {
       throw CacheException(message: 'Failed to cache refresh token: $e');
     }
@@ -49,7 +49,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getRefreshToken() async {
     try {
-      return _prefs.getString(AppConstants.refreshTokenKey);
+      return prefs.getString(AppConstants.refreshTokenKey);
     } catch (e) {
       throw CacheException(message: 'Failed to read refresh token: $e');
     }
@@ -59,8 +59,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> cacheUser(UserModel user) async {
     try {
       final userJson = jsonEncode(user.toJson());
-      await _prefs.setString(AppConstants.userDataKey, userJson);
-      await _prefs.setString(AppConstants.userRoleKey, user.role.toApiValue());
+      await prefs.setString(AppConstants.userDataKey, userJson);
+      await prefs.setString(AppConstants.userRoleKey, user.role.toApiValue());
     } catch (e) {
       throw CacheException(message: 'Failed to cache user profile: $e');
     }
@@ -69,7 +69,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<UserModel?> getCachedUser() async {
     try {
-      final userString = _prefs.getString(AppConstants.userDataKey);
+      final userString = prefs.getString(AppConstants.userDataKey);
       if (userString != null && userString.isNotEmpty) {
         final Map<String, dynamic> json = jsonDecode(userString);
         return UserModel.fromJson(json);
@@ -83,10 +83,10 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearSession() async {
     try {
-      await _prefs.remove(AppConstants.tokenKey);
-      await _prefs.remove(AppConstants.refreshTokenKey);
-      await _prefs.remove(AppConstants.userDataKey);
-      await _prefs.remove(AppConstants.userRoleKey);
+      await prefs.remove(AppConstants.tokenKey);
+      await prefs.remove(AppConstants.refreshTokenKey);
+      await prefs.remove(AppConstants.userDataKey);
+      await prefs.remove(AppConstants.userRoleKey);
     } catch (e) {
       throw CacheException(message: 'Failed to clear session: $e');
     }

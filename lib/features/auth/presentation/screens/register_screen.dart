@@ -10,7 +10,9 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final String? initialRole;
+
+  const RegisterScreen({super.key, this.initialRole});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -24,8 +26,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
 
-  UserRole _selectedRole = UserRole.student;
+  late UserRole _selectedRole;
   bool _obscurePassword = true;
+  bool _agreeToTerms = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialRole?.toLowerCase() == 'teacher') {
+      _selectedRole = UserRole.teacher;
+    } else {
+      _selectedRole = UserRole.student;
+    }
+  }
 
   @override
   void dispose() {
@@ -38,6 +51,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _onRegister() {
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the terms and conditions to proceed'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
             AuthRegisterSubmitted(
@@ -59,12 +82,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surfaceContainerLowest,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
           onPressed: () => context.go('/login'),
         ),
-        title: const Text('Create Account'),
+        title: const Text(
+          'Create Account',
+          style: TextStyle(
+            color: AppColors.onSurface,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -73,6 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SnackBar(
                 content: Text(state.errorMessage!),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
               ),
             );
           } else if (state.status.isAuthenticated) {
@@ -80,149 +114,302 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         builder: (context, state) {
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Join Education App',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Choose your role and get started today',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'I am joining as a:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+          return SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Header
+                      Text(
+                        'Start your journey with EduFlow',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.onSurface,
+                          letterSpacing: -0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    SegmentedButton<UserRole>(
-                      segments: const [
-                        ButtonSegment<UserRole>(
-                          value: UserRole.student,
-                          label: Text('Student'),
-                          icon: Icon(Icons.school_outlined),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Choose your account type to personalize your experience.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onSurfaceVariant,
                         ),
-                        ButtonSegment<UserRole>(
-                          value: UserRole.teacher,
-                          label: Text('Teacher'),
-                          icon: Icon(Icons.person_outline),
-                        ),
-                      ],
-                      selected: {_selectedRole},
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          _selectedRole = newSelection.first;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _usernameController,
-                      label: 'Username',
-                      hint: 'johndoe',
-                      prefixIcon: Icons.account_circle_outlined,
-                      validator: (val) =>
-                          (val == null || val.isEmpty) ? 'Username is required' : null,
-                    ),
-                    const SizedBox(height: 14),
-                    CustomTextField(
-                      controller: _emailController,
-                      label: 'Email',
-                      hint: 'john@example.com',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icons.email_outlined,
-                      validator: (val) =>
-                          (val == null || !val.contains('@')) ? 'Valid email is required' : null,
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            controller: _firstNameController,
-                            label: 'First Name',
-                            hint: 'John',
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomTextField(
-                            controller: _lastNameController,
-                            label: 'Last Name',
-                            hint: 'Doe',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    CustomTextField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hint: '••••••••',
-                      obscureText: _obscurePassword,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
                       ),
-                      validator: (val) =>
-                          (val == null || val.length < 6) ? 'Password must be at least 6 characters' : null,
-                    ),
-                    const SizedBox(height: 24),
-                    CustomButton(
-                      text: 'Create Account',
-                      isLoading: state.status.isLoading,
-                      onPressed: _onRegister,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Already have an account? ',
-                          style: TextStyle(color: AppColors.textSecondary),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.go('/login'),
-                          child: const Text(
-                            'Sign In',
-                            style: TextStyle(
+                      const SizedBox(height: 24),
+
+                      // Role Selection Cards
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildRoleCard(
+                              role: UserRole.student,
+                              title: 'Student',
+                              subtitle: 'Learn & earn certificates',
+                              icon: Icons.school_rounded,
                               color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildRoleCard(
+                              role: UserRole.teacher,
+                              title: 'Teacher',
+                              subtitle: 'Create & publish courses',
+                              icon: Icons.cast_for_education_rounded,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Form Container
+                      Container(
+                        padding: const EdgeInsets.all(24.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextField(
+                                      controller: _firstNameController,
+                                      label: 'First Name',
+                                      hint: 'John',
+                                      prefixIcon: Icons.badge_outlined,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: CustomTextField(
+                                      controller: _lastNameController,
+                                      label: 'Last Name',
+                                      hint: 'Doe',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _usernameController,
+                                label: 'Username',
+                                hint: 'johndoe',
+                                prefixIcon: Icons.person_outline_rounded,
+                                validator: (val) => (val == null || val.trim().isEmpty)
+                                    ? 'Username is required'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _emailController,
+                                label: 'Email Address',
+                                hint: 'john@example.com',
+                                keyboardType: TextInputType.emailAddress,
+                                prefixIcon: Icons.mail_outline_rounded,
+                                validator: (val) =>
+                                    (val == null || !val.contains('@') || !val.contains('.'))
+                                        ? 'Enter a valid email address'
+                                        : null,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _passwordController,
+                                label: 'Password',
+                                hint: '••••••••',
+                                obscureText: _obscurePassword,
+                                prefixIcon: Icons.lock_outline_rounded,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: AppColors.outline,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                                validator: (val) => (val == null || val.length < 6)
+                                    ? 'Password must be at least 6 characters'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Terms Agreement
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: Checkbox(
+                                      value: _agreeToTerms,
+                                      activeColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _agreeToTerms = val ?? true;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Expanded(
+                                    child: Text(
+                                      'I agree to the EduFlow Terms of Service and Privacy Policy.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.onSurfaceVariant,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              CustomButton(
+                                text: _selectedRole == UserRole.teacher
+                                    ? 'Register as Teacher'
+                                    : 'Create Student Account',
+                                backgroundColor: _selectedRole == UserRole.teacher
+                                    ? AppColors.secondary
+                                    : AppColors.primary,
+                                isLoading: state.status.isLoading,
+                                onPressed: _onRegister,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Sign in redirect
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Already have an account? ',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.go('/login'),
+                            child: const Text(
+                              'Sign In',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRoleCard({
+    required UserRole role,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    final isSelected = _selectedRole == role;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedRole = role;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : AppColors.outlineVariant.withValues(alpha: 0.4),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? color : AppColors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                  ),
+                ),
+                if (isSelected)
+                  Icon(Icons.check_circle_rounded, color: color, size: 20),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? color : AppColors.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

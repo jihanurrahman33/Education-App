@@ -8,13 +8,13 @@ abstract class CertificateRemoteDataSource {
 }
 
 class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
-  final ApiClient _apiClient;
+  final ApiClient apiClient;
 
-  const CertificateRemoteDataSourceImpl({required this._apiClient});
+  const CertificateRemoteDataSourceImpl({required this.apiClient});
 
   @override
   Future<List<CertificateModel>> getMyCertificates() async {
-    final response = await _apiClient.get(ApiEndpoints.certificates);
+    final response = await apiClient.get(ApiEndpoints.certificates);
 
     if (response is List) {
       return response
@@ -33,8 +33,8 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
 
   @override
   Future<CertificateModel> generateCertificate(int courseId) async {
-    final response = await _apiClient.post(
-      ApiEndpoints.generateCertificate,
+    final response = await apiClient.post(
+      ApiEndpoints.generateCertificate(courseId),
       data: {'course_id': courseId},
     );
 

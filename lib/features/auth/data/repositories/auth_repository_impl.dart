@@ -8,12 +8,12 @@ import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource _remoteDataSource;
-  final AuthLocalDataSource _localDataSource;
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
 
   const AuthRepositoryImpl({
-    required this._remoteDataSource,
-    required this._localDataSource,
+    required this.remoteDataSource,
+    required this.localDataSource,
   });
 
   @override
@@ -22,18 +22,18 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final userModel = await _remoteDataSource.login(
+      final userModel = await remoteDataSource.login(
         usernameOrEmail: usernameOrEmail,
         password: password,
       );
 
       if (userModel.token != null) {
-        await _localDataSource.cacheAuthToken(userModel.token!);
+        await localDataSource.cacheAuthToken(userModel.token!);
       }
       if (userModel.refreshToken != null) {
-        await _localDataSource.cacheRefreshToken(userModel.refreshToken!);
+        await localDataSource.cacheRefreshToken(userModel.refreshToken!);
       }
-      await _localDataSource.cacheUser(userModel);
+      await localDataSource.cacheUser(userModel);
 
       return Right(userModel);
     } on ServerException catch (e) {
@@ -57,7 +57,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? lastName,
   }) async {
     try {
-      final registeredUser = await _remoteDataSource.register(
+      final registeredUser = await remoteDataSource.register(
         username: username,
         email: email,
         password: password,
@@ -68,18 +68,18 @@ class AuthRepositoryImpl implements AuthRepository {
 
       // Automatically login right after registration to acquire JWT tokens
       try {
-        final loggedInUser = await _remoteDataSource.login(
+        final loggedInUser = await remoteDataSource.login(
           usernameOrEmail: username,
           password: password,
         );
 
         if (loggedInUser.token != null) {
-          await _localDataSource.cacheAuthToken(loggedInUser.token!);
+          await localDataSource.cacheAuthToken(loggedInUser.token!);
         }
         if (loggedInUser.refreshToken != null) {
-          await _localDataSource.cacheRefreshToken(loggedInUser.refreshToken!);
+          await localDataSource.cacheRefreshToken(loggedInUser.refreshToken!);
         }
-        await _localDataSource.cacheUser(loggedInUser);
+        await localDataSource.cacheUser(loggedInUser);
 
         return Right(loggedInUser);
       } catch (_) {
@@ -98,16 +98,16 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   ResultFuture<UserEntity> getCurrentUser() async {
     try {
-      final cachedUser = await _localDataSource.getCachedUser();
-      final token = await _localDataSource.getAuthToken();
+      final cachedUser = await localDataSource.getCachedUser();
+      final token = await localDataSource.getAuthToken();
 
       if (token == null || token.isEmpty) {
         return const Left(AuthenticationFailure(message: 'No active session found'));
       }
 
       try {
-        final remoteUser = await _remoteDataSource.getCurrentUser();
-        await _localDataSource.cacheUser(remoteUser);
+        final remoteUser = await remoteDataSource.getCurrentUser();
+        await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       } catch (_) {
         if (cachedUser != null) {
@@ -120,7 +120,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on UnauthorizedException catch (e) {
-      await _localDataSource.clearSession();
+      await localDataSource.clearSession();
       return Left(AuthenticationFailure(message: e.message));
     } catch (e) {
       return Left(UnknownFailure(message: e.toString()));
@@ -130,7 +130,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   ResultVoid logout() async {
     try {
-      await _localDataSource.clearSession();
+      await localDataSource.clearSession();
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));

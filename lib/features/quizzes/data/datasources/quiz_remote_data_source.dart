@@ -11,13 +11,13 @@ abstract class QuizRemoteDataSource {
 }
 
 class QuizRemoteDataSourceImpl implements QuizRemoteDataSource {
-  final ApiClient _apiClient;
+  final ApiClient apiClient;
 
-  const QuizRemoteDataSourceImpl({required this._apiClient});
+  const QuizRemoteDataSourceImpl({required this.apiClient});
 
   @override
   Future<QuizModel> getQuizDetails(int quizId) async {
-    final response = await _apiClient.get('${ApiEndpoints.quizzes}$quizId/');
+    final response = await apiClient.get('${ApiEndpoints.quizzes}$quizId/');
 
     if (response is Map<String, dynamic>) {
       return QuizModel.fromJson(response);
@@ -36,8 +36,8 @@ class QuizRemoteDataSourceImpl implements QuizRemoteDataSource {
           'choice_id': e.value,
         }).toList();
 
-    final response = await _apiClient.post(
-      ApiEndpoints.submitQuiz,
+    final response = await apiClient.post(
+      ApiEndpoints.submitQuiz(quizId),
       data: {
         'quiz_id': quizId,
         'answers': formattedAnswers,

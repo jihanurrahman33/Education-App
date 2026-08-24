@@ -24,16 +24,16 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final ApiClient _apiClient;
+  final ApiClient apiClient;
 
-  const AuthRemoteDataSourceImpl({required this._apiClient});
+  const AuthRemoteDataSourceImpl({required this.apiClient});
 
   @override
   Future<UserModel> login({
     required String usernameOrEmail,
     required String password,
   }) async {
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.login,
       data: {
         'username': usernameOrEmail,
@@ -68,7 +68,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? firstName,
     String? lastName,
   }) async {
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.register,
       data: {
         'username': username,
@@ -93,7 +93,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    final response = await _apiClient.get(ApiEndpoints.currentUser);
+    final response = await apiClient.get(ApiEndpoints.currentUser);
 
     if (response is Map<String, dynamic>) {
       return UserModel.fromJson(response);
@@ -104,7 +104,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<String> refreshToken(String refreshToken) async {
-    final response = await _apiClient.post(
+    final response = await apiClient.post(
       ApiEndpoints.refreshToken,
       data: {'refresh': refreshToken},
     );
