@@ -138,7 +138,15 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     FetchCourseDetailsRequested event,
     Emitter<CourseState> emit,
   ) async {
-    emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
+    final isDifferentCourse = state.selectedCourse != null &&
+        state.selectedCourse!.id != event.courseId;
+
+    emit(state.copyWith(
+      status: CourseStatus.loading,
+      selectedCourse: isDifferentCourse ? null : state.selectedCourse,
+      curriculum: isDifferentCourse ? const [] : state.curriculum,
+      clearMessages: true,
+    ));
 
     final result = await getCourseDetailsUseCase(
       GetCourseDetailsParams(courseId: event.courseId),
@@ -153,7 +161,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
         status: CourseStatus.loaded,
         selectedCourse: course,
         curriculum: course.chapters,
-        errorMessage: null,
+        clearMessages: true,
       )),
     );
   }
@@ -181,6 +189,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
           status: CourseStatus.loaded,
           teacherCourses: updated,
           selectedCourse: newCourse,
+          curriculum: const [],
           successMessage: 'Course created successfully!',
         ));
       },
@@ -191,6 +200,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     UpdateCourseRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await updateCourseUseCase(UpdateCourseParams(
       id: event.courseId,
       title: event.title,
@@ -201,10 +212,17 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (updatedCourse) {
-        final updatedList = state.teacherCourses.map((c) => c.id == event.courseId ? updatedCourse : c).toList();
+        final mergedCourse = updatedCourse.copyWith(
+          chapters: state.curriculum.isNotEmpty
+              ? state.curriculum
+              : updatedCourse.chapters,
+        );
+        final updatedList = state.teacherCourses
+            .map((c) => c.id == event.courseId ? mergedCourse : c)
+            .toList();
         emit(state.copyWith(
           teacherCourses: updatedList,
-          selectedCourse: updatedCourse,
+          selectedCourse: mergedCourse,
           successMessage: 'Course details updated!',
         ));
       },
@@ -215,17 +233,29 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     TogglePublishCourseRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await togglePublishCourseUseCase(event.courseId);
 
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (updatedCourse) {
-        final updatedList = state.teacherCourses.map((c) => c.id == event.courseId ? updatedCourse : c).toList();
+        final mergedCourse = updatedCourse.copyWith(
+          chapters: state.curriculum.isNotEmpty
+              ? state.curriculum
+              : updatedCourse.chapters,
+        );
+        final updatedList = state.teacherCourses
+            .map((c) => c.id == event.courseId ? mergedCourse : c)
+            .toList();
         emit(state.copyWith(
           teacherCourses: updatedList,
-          selectedCourse: updatedCourse,
-          successMessage: 'Course status updated to ${updatedCourse.status}',
+          selectedCourse: mergedCourse,
+          successMessage: mergedCourse.isPublished
+              ? 'Course submitted for admin moderation approval!'
+              : 'Course un-published back to draft.',
         ));
+        add(FetchCourseDetailsRequested(event.courseId));
       },
     );
   }
@@ -234,12 +264,15 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     DeleteCourseRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await deleteCourseUseCase(event.courseId);
 
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (_) {
-        final updated = state.teacherCourses.where((c) => c.id != event.courseId).toList();
+        final updated =
+            state.teacherCourses.where((c) => c.id != event.courseId).toList();
         emit(state.copyWith(
           teacherCourses: updated,
           successMessage: 'Course deleted successfully.',
@@ -252,6 +285,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     CreateChapterRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await createChapterUseCase(CreateChapterParams(
       courseId: event.courseId,
       title: event.title,
@@ -271,6 +306,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     UpdateChapterRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await updateChapterUseCase(UpdateChapterParams(
       id: event.chapterId,
       courseId: event.courseId,
@@ -291,6 +328,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     DeleteChapterRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await deleteChapterUseCase(event.chapterId);
 
     result.fold(
@@ -306,6 +345,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     CreateLessonRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await createLessonUseCase(CreateLessonParams(
       chapterId: event.chapterId,
       title: event.title,
@@ -332,6 +373,8 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     DeleteLessonRequested event,
     Emitter<CourseState> emit,
   ) async {
+    emit(state.copyWith(clearMessages: true));
+
     final result = await deleteLessonUseCase(event.lessonId);
 
     result.fold(

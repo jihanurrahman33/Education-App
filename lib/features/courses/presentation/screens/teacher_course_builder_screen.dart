@@ -56,6 +56,14 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
     super.dispose();
   }
 
+  void _handleBack() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/dashboard');
+    }
+  }
+
   void _onSaveCourse() {
     if (_formKey.currentState?.validate() ?? false) {
       if (widget.courseId == null) {
@@ -90,7 +98,7 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-            onPressed: () => context.pop(),
+            onPressed: _handleBack,
           ),
           title: const Text('Course Builder',
               style: TextStyle(color: AppColors.textPrimary)),
@@ -131,7 +139,7 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
             ),
           );
           if (isEditing) {
-            context.pop();
+            _handleBack();
           } else if (state.selectedCourse != null) {
             context.pushReplacement(
               '/teacher/courses/${state.selectedCourse!.id}/curriculum',
@@ -161,7 +169,7 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: _handleBack,
             ),
             title: Text(
               isEditing ? 'Edit Course Details' : 'Create New Course',
