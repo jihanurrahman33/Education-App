@@ -75,21 +75,38 @@ class FetchTeacherQuizResultsRequested extends QuizEvent {
   List<Object?> get props => [quizId];
 }
 
+class CreateQuizQuestionInput extends Equatable {
+  final String text;
+  final int order;
+  final List<ChoiceEntity> choices;
+
+  const CreateQuizQuestionInput({
+    required this.text,
+    this.order = 0,
+    required this.choices,
+  });
+
+  @override
+  List<Object?> get props => [text, order, choices];
+}
+
 class CreateQuizSubmitted extends QuizEvent {
   final int lessonId;
   final String title;
   final String? description;
   final int? passScorePercent;
+  final List<CreateQuizQuestionInput>? questions;
 
   const CreateQuizSubmitted({
     required this.lessonId,
     required this.title,
     this.description,
     this.passScorePercent,
+    this.questions,
   });
 
   @override
-  List<Object?> get props => [lessonId, title, description, passScorePercent];
+  List<Object?> get props => [lessonId, title, description, passScorePercent, questions];
 }
 
 class UpdateQuizSubmitted extends QuizEvent {

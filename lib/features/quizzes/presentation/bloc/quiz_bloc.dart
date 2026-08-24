@@ -214,17 +214,31 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
       ),
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    await result.fold(
+      (failure) async => emit(state.copyWith(
         status: QuizStatus.error,
         errorMessage: failure.message,
       )),
-      (quiz) {
+      (quiz) async {
+        if (event.questions != null && event.questions!.isNotEmpty) {
+          for (int i = 0; i < event.questions!.length; i++) {
+            final q = event.questions![i];
+            await createQuestionUseCase(
+              CreateQuestionParams(
+                quizId: quiz.id,
+                text: q.text,
+                order: q.order > 0 ? q.order : i + 1,
+                choices: q.choices,
+              ),
+            );
+          }
+        }
+
         final updatedQuizzes = List<QuizEntity>.from(state.quizzes)..add(quiz);
         emit(state.copyWith(
           status: QuizStatus.loaded,
           quizzes: updatedQuizzes,
-          successMessage: 'Quiz created successfully',
+          successMessage: 'Quiz created successfully!',
         ));
       },
     );

@@ -206,6 +206,10 @@ class AppRouter {
         builder: (context, state) => const TeacherPendingScreen(),
       ),
       GoRoute(
+        path: '/teacher/courses',
+        builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
         path: '/teacher/courses/create',
         builder: (context, state) => const TeacherCourseBuilderScreen(),
       ),
@@ -233,11 +237,33 @@ class AppRouter {
       ),
       GoRoute(
         path: '/teacher/quizzes',
-        builder: (context, state) => const TeacherQuizManagerScreen(),
+        builder: (context, state) {
+          final quizId = int.tryParse(state.uri.queryParameters['quizId'] ?? '');
+          final courseId = int.tryParse(state.uri.queryParameters['courseId'] ?? '');
+          final chapterId = int.tryParse(state.uri.queryParameters['chapterId'] ?? '');
+          final lessonId = int.tryParse(state.uri.queryParameters['lessonId'] ?? '');
+          return TeacherQuizManagerScreen(
+            quizId: quizId,
+            courseId: courseId,
+            chapterId: chapterId,
+            lessonId: lessonId,
+          );
+        },
         routes: [
           GoRoute(
             path: 'create',
-            builder: (context, state) => const TeacherQuizManagerScreen(),
+            builder: (context, state) {
+              final quizId = int.tryParse(state.uri.queryParameters['quizId'] ?? '');
+              final courseId = int.tryParse(state.uri.queryParameters['courseId'] ?? '');
+              final chapterId = int.tryParse(state.uri.queryParameters['chapterId'] ?? '');
+              final lessonId = int.tryParse(state.uri.queryParameters['lessonId'] ?? '');
+              return TeacherQuizManagerScreen(
+                quizId: quizId,
+                courseId: courseId,
+                chapterId: chapterId,
+                lessonId: lessonId,
+              );
+            },
           ),
           GoRoute(
             path: ':id/results',

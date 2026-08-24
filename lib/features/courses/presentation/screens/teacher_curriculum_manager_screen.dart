@@ -653,6 +653,16 @@ class _TeacherCurriculumManagerScreenState
                                                 ),
                                                 IconButton(
                                                   icon: const Icon(
+                                                      Icons.quiz_outlined,
+                                                      size: 18,
+                                                      color: AppColors.roleTeacher),
+                                                  tooltip: 'Create Quiz for this Lesson',
+                                                  onPressed: () => context.push(
+                                                    '/teacher/quizzes/create?courseId=${widget.courseId}&chapterId=$chapterId&lessonId=${lesson.id}',
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(
                                                       Icons
                                                           .delete_outline_rounded,
                                                       size: 18,
@@ -673,7 +683,7 @@ class _TeacherCurriculumManagerScreenState
                           const SizedBox(height: 24),
 
                           // 4. Publication Submission Card
-                          _buildPublishActionCard(isPublished, chapters.length),
+                          _buildPublishActionCard(isPublished, chapters),
                         ],
                       ),
                     ),
@@ -819,7 +829,7 @@ class _TeacherCurriculumManagerScreenState
     );
   }
 
-  Widget _buildPublishActionCard(bool isPublished, int totalChapters) {
+  Widget _buildPublishActionCard(bool isPublished, List<ChapterEntity> chapters) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -890,7 +900,16 @@ class _TeacherCurriculumManagerScreenState
             isOutlined: true,
             backgroundColor: AppColors.roleTeacher,
             textColor: AppColors.roleTeacher,
-            onPressed: () => context.push('/teacher/quizzes/create'),
+            onPressed: () {
+              final totalLessons = chapters.fold<int>(0, (sum, ch) => sum + ch.lessons.length);
+              if (totalLessons == 0) {
+                AppToast.showInfo(
+                  context,
+                  'Tip: Make sure to add at least one lesson before creating assessment questions.',
+                );
+              }
+              context.push('/teacher/quizzes/create?courseId=${widget.courseId}');
+            },
           ),
         ],
       ),

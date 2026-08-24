@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:education_app/features/quizzes/data/models/quiz_model.dart';
+import 'package:education_app/features/quizzes/presentation/bloc/quiz_event.dart';
 
 void main() {
   group('Quiz Models Tests', () {
@@ -87,6 +88,37 @@ void main() {
       expect(result.passed, isTrue);
       expect(result.answers.length, equals(1));
       expect(result.answers.first.isCorrect, isTrue);
+    });
+
+    test('CreateQuizQuestionInput and CreateQuizSubmitted event serialization', () {
+      final choices = [
+        const ChoiceModel(text: 'Option A', isCorrect: true),
+        const ChoiceModel(text: 'Option B', isCorrect: false),
+      ];
+
+      final questionInput = CreateQuizQuestionInput(
+        text: 'What is BLoC?',
+        order: 1,
+        choices: choices,
+      );
+
+      expect(questionInput.text, equals('What is BLoC?'));
+      expect(questionInput.choices.length, equals(2));
+      expect(questionInput.choices.first.isCorrect, isTrue);
+
+      final event = CreateQuizSubmitted(
+        lessonId: 42,
+        title: 'BLoC Fundamentals Assessment',
+        description: 'Test your stream knowledge',
+        passScorePercent: 85,
+        questions: [questionInput],
+      );
+
+      expect(event.lessonId, equals(42));
+      expect(event.title, equals('BLoC Fundamentals Assessment'));
+      expect(event.passScorePercent, equals(85));
+      expect(event.questions?.length, equals(1));
+      expect(event.questions?.first.text, equals('What is BLoC?'));
     });
   });
 }

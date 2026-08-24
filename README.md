@@ -4,6 +4,18 @@ EduFlow is an enterprise-grade learning management application built with **Flut
 
 ---
 
+## 🔐 Demo Credentials / Test Accounts
+
+You can log in to explore different user roles using the pre-configured credentials below:
+
+| Role | Username | Password | Key Permissions & Capabilities |
+| :--- | :--- | :--- | :--- |
+| 🎓 **Student** | `john` | `123456` | Browse courses, enroll, watch video/PDF lectures, take quizzes, view certificates |
+| 👨‍🏫 **Teacher** | `teacher` | `123456` | Author courses, organize curriculum chapters/lessons, upload videos & PDFs, create quizzes |
+| 🛡️ **Admin** | `admin` | `admin12345` | Platform analytics, approve instructor registrations, moderate & publish courses, manage users |
+
+---
+
 ## 📸 Key Features & Capabilities
 
 ### 🎓 1. Student Learning Journey
@@ -12,13 +24,13 @@ EduFlow is an enterprise-grade learning management application built with **Flut
 * **Rich Media Player:** Seamless playback of video lectures (MP4), reading PDF study guides, and text lessons.
 * **Progress Tracking:** Automatic lesson completion updates, course percentage counters, and progress overview.
 * **Assessment Quizzes:** Timed single-choice modular quizzes with instant scoring and answer breakdowns.
-* **Verified Certificates:** Automatically unlock and download official completion certificates when reaching 100% course progress.
+* **Verified Certificates:** Automatically unlock and download official completion certificates upon reaching 100% course progress.
 
 ### 👨‍🏫 2. Teacher Course & Curriculum Studio
 * **Course Builder:** Draft and configure course metadata, category tags, descriptions, and pricing.
-* **Curriculum Management:** Organize content into structured chapters/modules with reordering support.
+* **Curriculum Management:** Organize content into structured chapters and lessons with reordering support.
 * **Media Uploads:** Upload high-definition video lectures and PDF lecture notes via `multipart/form-data`.
-* **Quiz Creator:** Create course quizzes, question banks, and define passing score thresholds.
+* **Quiz Creator:** Create assessment quizzes attached directly to specific lessons with custom pass marks.
 * **Moderation Pipeline:** Submit completed drafts for administrative quality approval.
 
 ### 🛡️ 3. Administrator Moderation & Analytics Hub
@@ -97,15 +109,24 @@ flutter run -d chrome
 flutter run -d windows
 ```
 
+### 4. Running Tests & Static Analysis
+```bash
+# Run all unit and widget tests
+flutter test
+
+# Run static code analysis
+flutter analyze
+```
+
 ---
 
 ## 📚 Detailed Documentation
 
-Detailed technical documentation is available in the [`docs/`](file:///c:/Users/jihan/Documents/projects/education_app/docs/) directory:
-* **[API Specification](file:///c:/Users/jihan/Documents/projects/education_app/docs/API_DOCUMENTATION.md)** — Complete endpoint catalog, request payloads, and response models.
-* **[Architecture Guide](file:///c:/Users/jihan/Documents/projects/education_app/docs/ARCHITECTURE.md)** — Clean Architecture layer responsibilities and GetIt wiring.
-* **[User Workflows](file:///c:/Users/jihan/Documents/projects/education_app/docs/WORKFLOWS.md)** — Step-by-step user journeys and sequence diagrams.
-* **[Design System](file:///c:/Users/jihan/Documents/projects/education_app/docs/DESIGN_SYSTEM.md)** — Color palette tokens, typography rules, and custom widgets.
+Detailed technical documentation is available in the [`docs/`](docs/) directory:
+* **[API Specification](docs/API_DOCUMENTATION.md)** — Complete endpoint catalog, request payloads, and response models.
+* **[Architecture Guide](docs/ARCHITECTURE.md)** — Clean Architecture layer responsibilities and GetIt wiring.
+* **[User Workflows](docs/WORKFLOWS.md)** — Step-by-step user journeys and sequence diagrams.
+* **[Design System](docs/DESIGN_SYSTEM.md)** — Color palette tokens, typography rules, and custom widgets.
 
 ---
 
