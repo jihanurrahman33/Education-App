@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../widgets/file_upload_box_widget.dart';
 
 class TeacherCourseBuilderScreen extends StatefulWidget {
   final int? courseId;
@@ -19,6 +20,7 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController(text: '0');
   String _category = 'Computer Science';
+  String? _thumbnailName;
 
   final List<String> _categories = [
     'Computer Science',
@@ -165,58 +167,18 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
               ),
               const SizedBox(height: 20),
 
-              // Thumbnail Upload Box
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Course Cover / Thumbnail',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Selecting image file...')),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 120,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_photo_alternate_rounded, size: 36, color: AppColors.primary),
-                            SizedBox(height: 8),
-                            Text(
-                              'Tap to upload cover image (16:9 ratio)',
-                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              // Reusable FileUploadBoxWidget for Course Thumbnail
+              FileUploadBoxWidget(
+                title: 'Course Cover / Thumbnail',
+                hintText: 'Tap to upload cover image (16:9 ratio)',
+                selectedFileName: _thumbnailName,
+                icon: Icons.add_photo_alternate_rounded,
+                onTap: () {
+                  setState(() => _thumbnailName = 'course_cover_banner.png');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Selected course_cover_banner.png')),
+                  );
+                },
               ),
               const SizedBox(height: 28),
 

@@ -8,6 +8,7 @@ import '../../domain/entities/user_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/role_selection_card_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
   final String? initialRole;
@@ -123,10 +124,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Header
-                      Text(
+                      const Text(
                         'Start your journey with EduFlow',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: AppColors.onSurface,
@@ -143,26 +143,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Role Selection Cards
+                      // Reusable Role Selection Cards
                       Row(
                         children: [
                           Expanded(
-                            child: _buildRoleCard(
-                              role: UserRole.student,
+                            child: RoleSelectionCardWidget(
+                              isSelected: _selectedRole == UserRole.student,
                               title: 'Student',
                               subtitle: 'Learn & earn certificates',
                               icon: Icons.school_rounded,
                               color: AppColors.primary,
+                              onTap: () => setState(() => _selectedRole = UserRole.student),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: _buildRoleCard(
-                              role: UserRole.teacher,
+                            child: RoleSelectionCardWidget(
+                              isSelected: _selectedRole == UserRole.teacher,
                               title: 'Teacher',
                               subtitle: 'Create & publish courses',
                               icon: Icons.cast_for_education_rounded,
                               color: AppColors.secondary,
+                              onTap: () => setState(() => _selectedRole = UserRole.teacher),
                             ),
                           ),
                         ],
@@ -338,78 +340,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildRoleCard({
-    required UserRole role,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
-    final isSelected = _selectedRole == role;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedRole = role;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : AppColors.outlineVariant.withValues(alpha: 0.4),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isSelected ? color : AppColors.surfaceContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.check_circle_rounded, color: color, size: 20),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? color : AppColors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

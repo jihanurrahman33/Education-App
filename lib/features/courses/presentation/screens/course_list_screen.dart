@@ -8,6 +8,7 @@ import '../bloc/course_bloc.dart';
 import '../bloc/course_event.dart';
 import '../bloc/course_state.dart';
 import '../widgets/course_card_widget.dart';
+import '../widgets/course_category_filter_pills.dart';
 import '../widgets/course_search_filter_modal.dart';
 
 class CourseListScreen extends StatefulWidget {
@@ -137,49 +138,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
             ),
           ),
 
-          // Horizontal Categories Filter
-          Container(
-            height: 48,
-            color: Colors.white,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final cat = _categories[index];
-                final isSelected = _selectedCategory == cat;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-                  child: FilterChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = cat;
-                      });
-                      _onSearch(_searchController.text.trim());
-                    },
-                    selectedColor: AppColors.primary,
-                    backgroundColor: AppColors.surfaceContainerLow,
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.outlineVariant.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    showCheckmark: false,
-                  ),
-                );
-              },
-            ),
+          // Reusable Horizontal Categories Filter Pills
+          CourseCategoryFilterPills(
+            categories: _categories,
+            selectedCategory: _selectedCategory,
+            onSelectCategory: (cat) {
+              setState(() => _selectedCategory = cat);
+              _onSearch(_searchController.text.trim());
+            },
           ),
           const Divider(height: 1, color: AppColors.divider),
 

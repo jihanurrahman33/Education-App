@@ -7,6 +7,7 @@ import '../../../../core/widgets/status_badge.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/profile_info_tile_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -134,7 +135,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Account Information
+                // Account Information using ProfileInfoTileWidget
                 Container(
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
@@ -154,16 +155,28 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoRow('User ID', '#${user.id}', Icons.tag_rounded),
+                      ProfileInfoTileWidget(
+                        label: 'User ID',
+                        value: '#${user.id}',
+                        icon: Icons.tag_rounded,
+                      ),
                       const Divider(height: 24, color: AppColors.divider),
-                      _buildInfoRow('Username', user.username, Icons.alternate_email_rounded),
+                      ProfileInfoTileWidget(
+                        label: 'Username',
+                        value: user.username,
+                        icon: Icons.alternate_email_rounded,
+                      ),
                       const Divider(height: 24, color: AppColors.divider),
-                      _buildInfoRow('Email', user.email, Icons.mail_outline_rounded),
+                      ProfileInfoTileWidget(
+                        label: 'Email',
+                        value: user.email,
+                        icon: Icons.mail_outline_rounded,
+                      ),
                       const Divider(height: 24, color: AppColors.divider),
-                      _buildInfoRow(
-                        'Role',
-                        user.role.toApiValue().toUpperCase(),
-                        Icons.shield_outlined,
+                      ProfileInfoTileWidget(
+                        label: 'Role',
+                        value: user.role.toApiValue().toUpperCase(),
+                        icon: Icons.shield_outlined,
                       ),
                     ],
                   ),
@@ -187,35 +200,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: AppColors.textMuted),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

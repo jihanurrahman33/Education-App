@@ -15,6 +15,7 @@ class CourseEntity extends Equatable {
   final int totalDurationMinutes;
   final double? progressPercentage;
   final bool isEnrolled;
+  final List<ChapterEntity> chapters;
 
   const CourseEntity({
     required this.id,
@@ -31,6 +32,7 @@ class CourseEntity extends Equatable {
     this.totalDurationMinutes = 0,
     this.progressPercentage,
     this.isEnrolled = false,
+    this.chapters = const [],
   });
 
   @override
@@ -49,6 +51,7 @@ class CourseEntity extends Equatable {
         totalDurationMinutes,
         progressPercentage,
         isEnrolled,
+        chapters,
       ];
 }
 

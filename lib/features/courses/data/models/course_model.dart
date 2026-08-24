@@ -16,9 +16,16 @@ class CourseModel extends CourseEntity {
     super.totalDurationMinutes = 0,
     super.progressPercentage,
     super.isEnrolled = false,
+    super.chapters = const [],
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
+    var rawChapters = json['chapters'] as List<dynamic>? ?? [];
+    List<ChapterModel> chapters = rawChapters
+        .whereType<Map<String, dynamic>>()
+        .map((c) => ChapterModel.fromJson(c))
+        .toList();
+
     return CourseModel(
       id: json['id'] is int ? json['id'] as int : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       title: json['title'] as String? ?? '',
@@ -42,6 +49,7 @@ class CourseModel extends CourseEntity {
           ? double.tryParse(json['progress_percentage'].toString())
           : null,
       isEnrolled: json['is_enrolled'] as bool? ?? false,
+      chapters: chapters,
     );
   }
 
@@ -61,6 +69,7 @@ class CourseModel extends CourseEntity {
       'total_duration_minutes': totalDurationMinutes,
       'progress_percentage': progressPercentage,
       'is_enrolled': isEnrolled,
+      'chapters': chapters.map((c) => (c as ChapterModel).toJson()).toList(),
     };
   }
 }

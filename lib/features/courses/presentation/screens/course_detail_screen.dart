@@ -9,6 +9,7 @@ import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../bloc/course_bloc.dart';
 import '../bloc/course_event.dart';
 import '../bloc/course_state.dart';
+import '../widgets/curriculum_accordion_widget.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final int courseId;
@@ -132,8 +133,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
               Container(
                 height: 180,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [AppColors.primaryDark, AppColors.primary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -217,8 +218,18 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                   children: [
                     // Tab 1: Overview
                     _buildOverviewTab(course),
-                    // Tab 2: Curriculum
-                    _buildCurriculumTab(course),
+                    // Tab 2: Curriculum using CurriculumAccordionWidget
+                    CurriculumAccordionWidget(
+                      chapters: course.chapters,
+                      isEnrolled: course.isEnrolled,
+                      onLessonTap: (lesson) {
+                        if (course.isEnrolled) {
+                          context.push('/learning/${course.id}/lesson/${lesson.id}');
+                        } else {
+                          _onEnroll(course.id, course.title);
+                        }
+                      },
+                    ),
                     // Tab 3: Instructor
                     _buildInstructorTab(course),
                   ],
@@ -344,66 +355,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCurriculumTab(dynamic course) {
-    if (course.chapters.isEmpty) {
-      return const EmptyStateWidget(
-        icon: Icons.menu_book_rounded,
-        title: 'Curriculum Coming Soon',
-        message: 'The instructor is finalizing the chapters and lessons.',
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: course.chapters.length,
-      itemBuilder: (context, index) {
-        final chapter = course.chapters[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ExpansionTile(
-            initiallyExpanded: index == 0,
-            leading: CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-              child: Text(
-                '${index + 1}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-            title: Text(
-              chapter.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            subtitle: Text(
-              '${chapter.lessons.length} lessons',
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-            children: chapter.lessons.map<Widget>((lesson) {
-              return ListTile(
-                leading: const Icon(Icons.play_circle_outline_rounded, size: 20, color: AppColors.primary),
-                title: Text(lesson.title, style: const TextStyle(fontSize: 13)),
-                trailing: course.isEnrolled
-                    ? const Icon(Icons.chevron_right_rounded, size: 18)
-                    : const Icon(Icons.lock_outline_rounded, size: 16, color: AppColors.outline),
-                onTap: () {
-                  if (course.isEnrolled) {
-                    context.push('/learning/${course.id}/lesson/${lesson.id}');
-                  } else {
-                    _onEnroll(course.id, course.title);
-                  }
-                },
-              );
-            }).toList(),
-          ),
-        );
-      },
     );
   }
 

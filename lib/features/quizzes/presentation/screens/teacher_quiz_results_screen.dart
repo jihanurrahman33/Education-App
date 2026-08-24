@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../widgets/quiz_result_tile_widget.dart';
+import '../widgets/quiz_submission_stat_box.dart';
 
 class TeacherQuizResultsScreen extends StatelessWidget {
   final int quizId;
@@ -59,14 +61,26 @@ class TeacherQuizResultsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Overview Stats
-            Row(
+            // Reusable Overview Stats Boxes
+            const Row(
               children: [
-                _buildStatBox('Total Attempts', '18', AppColors.primary),
-                const SizedBox(width: 10),
-                _buildStatBox('Pass Rate', '88%', AppColors.secondary),
-                const SizedBox(width: 10),
-                _buildStatBox('Avg Score', '83%', AppColors.accent),
+                QuizSubmissionStatBox(
+                  label: 'Total Attempts',
+                  value: '18',
+                  color: AppColors.primary,
+                ),
+                SizedBox(width: 10),
+                QuizSubmissionStatBox(
+                  label: 'Pass Rate',
+                  value: '88%',
+                  color: AppColors.secondary,
+                ),
+                SizedBox(width: 10),
+                QuizSubmissionStatBox(
+                  label: 'Avg Score',
+                  value: '83%',
+                  color: AppColors.accent,
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -89,82 +103,15 @@ class TeacherQuizResultsScreen extends StatelessWidget {
                 final sub = mockSubmissions[index];
                 final passed = sub['passed'] as bool;
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: AppColors.surfaceContainer,
-                          child: Text(
-                            (sub['student'] as String)[0],
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                sub['student'] as String,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                              ),
-                              Text(
-                                '${sub['email']} • ${sub['date']}',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${sub['percentage']}%',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: passed ? AppColors.secondary : AppColors.error,
-                              ),
-                            ),
-                            Text(
-                              sub['score'] as String,
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                return QuizResultTileWidget(
+                  title: sub['student'] as String,
+                  subtitle: sub['email'] as String,
+                  date: sub['date'] as String,
+                  scoreText: sub['score'] as String,
+                  percentage: sub['percentage'] as int,
+                  passed: passed,
                 );
               },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatBox(String label, String value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
             ),
           ],
         ),

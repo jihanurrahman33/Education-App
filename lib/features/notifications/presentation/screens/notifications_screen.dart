@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../widgets/notification_item_card_widget.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
-  final List<Map<String, dynamic>> mockNotifications = const [
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  final List<Map<String, dynamic>> _notifications = [
     {
       'id': 1,
       'title': 'New Lesson Released',
       'message': 'Chapter 3 Lesson 4 has been uploaded to "Full-Stack Modern App Architecture".',
       'time': '10 mins ago',
       'isRead': false,
-      'icon': Icons.video_collection_rounded,
-      'color': AppColors.primary,
+      'type': 'lesson',
     },
     {
       'id': 2,
@@ -22,8 +27,7 @@ class NotificationsScreen extends StatelessWidget {
       'message': 'You scored 90% in "BLoC State Management Fundamentals".',
       'time': '2 hours ago',
       'isRead': false,
-      'icon': Icons.emoji_events_rounded,
-      'color': AppColors.secondary,
+      'type': 'quiz',
     },
     {
       'id': 3,
@@ -31,10 +35,20 @@ class NotificationsScreen extends StatelessWidget {
       'message': 'Congratulations! Your certificate for "UI/UX Design Systems in Flutter" is available.',
       'time': '1 day ago',
       'isRead': true,
-      'icon': Icons.workspace_premium_rounded,
-      'color': AppColors.accent,
+      'type': 'certificate',
     },
   ];
+
+  void _markAllRead() {
+    setState(() {
+      for (var n in _notifications) {
+        n['isRead'] = true;
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('All notifications marked as read.')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,85 +71,43 @@ class NotificationsScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('All notifications marked as read.')),
-              );
-            },
-            child: const Text('Mark all read'),
+            onPressed: _markAllRead,
+            child: const Text('Mark all read', style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
-      body: mockNotifications.isEmpty
-          ? const EmptyStateWidget(
-              icon: Icons.notifications_off_outlined,
+      body: _notifications.isEmpty
+          ? EmptyStateWidget(
+              icon: Icons.notifications_off_rounded,
               title: 'No Notifications',
-              message: 'You are all caught up! Updates about your courses and quizzes will appear here.',
+              message: 'You are all caught up! Updates about course announcements and quizzes will appear here.',
+              actionText: 'Back to Dashboard',
+              onAction: () => context.go('/dashboard'),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: mockNotifications.length,
+              itemCount: _notifications.length,
               itemBuilder: (context, index) {
-                final notif = mockNotifications[index];
-                final isRead = notif['isRead'] as bool;
-                final color = notif['color'] as Color;
+                final item = _notifications[index];
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  color: isRead ? Colors.white : AppColors.surfaceContainerLowest,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(notif['icon'] as IconData, color: color, size: 22),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      notif['title'] as String,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
-                                        color: AppColors.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    notif['time'] as String,
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                notif['message'] as String,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                return NotificationItemCardWidget(
+                  title: item['title'] as String,
+                  message: item['message'] as String,
+                  time: item['time'] as String,
+                  isRead: item['isRead'] as bool,
+                  type: item['type'] as String,
+                  onTap: () {
+                    setState(() {
+                      item['isRead'] = true;
+                    });
+                    if (item['type'] == 'quiz') {
+                      context.push('/quizzes/1/result?score=9&total=10&percentage=90');
+                    } else if (item['type'] == 'certificate') {
+                      context.push('/certificates/1');
+                    } else {
+                      context.push('/learning/1/lesson/4');
+                    }
+                  },
                 );
               },
             ),

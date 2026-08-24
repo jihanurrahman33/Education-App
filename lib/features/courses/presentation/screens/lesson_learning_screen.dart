@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../widgets/lesson_pdf_viewer_widget.dart';
+import '../widgets/lesson_video_player_widget.dart';
 
 class LessonLearningScreen extends StatefulWidget {
   final int courseId;
@@ -75,118 +77,25 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
       ),
       body: Column(
         children: [
-          // Media Player / PDF Viewer Container
+          // Reusable Media Player / PDF Viewer Container
           if (!_showingNotes)
-            Container(
-              height: 230,
-              width: double.infinity,
-              color: Colors.black,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        iconSize: 40,
-                        icon: Icon(
-                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isPlaying = !_isPlaying;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.black87],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                              trackHeight: 3,
-                            ),
-                            child: Slider(
-                              value: _videoProgress,
-                              activeColor: AppColors.primary,
-                              inactiveColor: Colors.white24,
-                              onChanged: (val) {
-                                setState(() {
-                                  _videoProgress = val;
-                                });
-                              },
-                            ),
-                          ),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('06:45', style: TextStyle(color: Colors.white, fontSize: 11)),
-                              Text('14:30', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            LessonVideoPlayerWidget(
+              isPlaying: _isPlaying,
+              videoProgress: _videoProgress,
+              onTogglePlay: () {
+                setState(() => _isPlaying = !_isPlaying);
+              },
+              onSeek: (val) {
+                setState(() => _videoProgress = val);
+              },
             )
           else
-            Container(
-              height: 230,
-              width: double.infinity,
-              color: AppColors.surfaceContainerLow,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.picture_as_pdf_rounded, size: 48, color: AppColors.error),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Chapter_Notes_Reference.pdf',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    '14 Pages • Downloaded 1.8 MB',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.download_rounded, size: 16),
-                    label: const Text('Open PDF Reader'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
-                    ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening PDF reader viewer...')),
-                      );
-                    },
-                  ),
-                ],
-              ),
+            LessonPdfViewerWidget(
+              onOpenPdf: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Opening PDF reader viewer...')),
+                );
+              },
             ),
 
           // Content & Navigation Container

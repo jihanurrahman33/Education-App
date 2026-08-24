@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../widgets/quiz_result_tile_widget.dart';
 
 class MyQuizResultsScreen extends StatelessWidget {
   const MyQuizResultsScreen({super.key});
@@ -64,72 +65,13 @@ class MyQuizResultsScreen extends StatelessWidget {
                 final item = mockHistory[index];
                 final passed = item['passed'] as bool;
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: passed
-                                ? AppColors.secondary.withValues(alpha: 0.12)
-                                : AppColors.error.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            passed ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                            color: passed ? AppColors.secondary : AppColors.error,
-                            size: 26,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['title'] as String,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${item['course']} • ${item['date']}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${item['percentage']}%',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: passed ? AppColors.secondary : AppColors.error,
-                              ),
-                            ),
-                            Text(
-                              '${item['score']}/${item['total']}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                return QuizResultTileWidget(
+                  title: item['title'] as String,
+                  subtitle: item['course'] as String,
+                  date: item['date'] as String,
+                  scoreText: '${item['score']}/${item['total']}',
+                  percentage: item['percentage'] as int,
+                  passed: passed,
                 );
               },
             ),

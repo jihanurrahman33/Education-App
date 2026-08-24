@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/admin/di.dart';
 import '../../features/auth/di.dart';
 import '../../features/certificates/di.dart';
 import '../../features/courses/di.dart';
+import '../../features/notifications/di.dart';
 import '../../features/progress/di.dart';
 import '../../features/quizzes/di.dart';
 import '../networking/api_client.dart';
@@ -32,4 +34,6 @@ Future<void> initGlobalDependencies() async {
   initQuizFeature(sl);
   initProgressFeature(sl);
   initCertificateFeature(sl);
+  initAdminFeature(sl);
+  initNotificationFeature(sl);
 }

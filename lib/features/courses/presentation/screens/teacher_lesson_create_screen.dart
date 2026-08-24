@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../widgets/file_upload_box_widget.dart';
 
 class TeacherLessonCreateScreen extends StatefulWidget {
   final int courseId;
@@ -154,65 +155,13 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
               ),
               const SizedBox(height: 20),
 
-              // File Upload Box
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _lessonType == 'video' ? 'Upload Video Lecture File' : 'Upload PDF Notes Document',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: _onUploadFile,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 120,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.outlineVariant.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _lessonType == 'video'
-                                  ? Icons.video_file_rounded
-                                  : Icons.upload_file_rounded,
-                              size: 36,
-                              color: AppColors.roleTeacher,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _selectedFileName ??
-                                  'Tap to choose ${_lessonType == 'video' ? 'MP4 / WebM' : 'PDF'} file',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: _selectedFileName != null ? FontWeight.bold : FontWeight.normal,
-                                color: _selectedFileName != null ? AppColors.secondary : AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              // Reusable FileUploadBoxWidget
+              FileUploadBoxWidget(
+                title: _lessonType == 'video' ? 'Upload Video Lecture File' : 'Upload PDF Notes Document',
+                hintText: 'Tap to choose ${_lessonType == 'video' ? 'MP4 / WebM' : 'PDF'} file',
+                selectedFileName: _selectedFileName,
+                icon: _lessonType == 'video' ? Icons.video_file_rounded : Icons.upload_file_rounded,
+                onTap: _onUploadFile,
               ),
               const SizedBox(height: 28),
 

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/custom_button.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../widgets/settings_group_card_widget.dart';
+import '../widgets/settings_tile_item_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,8 +17,8 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotifications = true;
-  bool _emailUpdates = true;
-  bool _downloadOverWifiOnly = true;
+  bool _emailAlerts = false;
+  bool _darkMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,100 +43,104 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Notification Preferences',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+            // Account Group
+            SettingsGroupCardWidget(
+              title: 'ACCOUNT',
+              children: [
+                SettingsTileItemWidget(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Edit Profile Information',
+                  subtitle: 'Update your name, bio, and avatar',
+                  onTap: () => context.push('/profile/edit'),
+                ),
+                const Divider(height: 1),
+                SettingsTileItemWidget(
+                  icon: Icons.lock_outline_rounded,
+                  title: 'Password & Security',
+                  subtitle: 'Manage two-factor auth & password',
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password & Security settings')),
+                    );
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text('Push Notifications', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text('Receive instant alerts for quiz results and course updates', style: TextStyle(fontSize: 12)),
-                    value: _pushNotifications,
-                    activeThumbColor: AppColors.primary,
-                    onChanged: (val) => setState(() => _pushNotifications = val),
-                  ),
-                  const Divider(height: 1),
-                  SwitchListTile(
-                    title: const Text('Email Digest', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text('Weekly summary of learning streaks and progress', style: TextStyle(fontSize: 12)),
-                    value: _emailUpdates,
-                    activeThumbColor: AppColors.primary,
-                    onChanged: (val) => setState(() => _emailUpdates = val),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-            const Text(
-              'Downloads & Storage',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text('Download over Wi-Fi only', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text('Save mobile data when downloading video lessons & PDF notes', style: TextStyle(fontSize: 12)),
-                    value: _downloadOverWifiOnly,
-                    activeThumbColor: AppColors.primary,
-                    onChanged: (val) => setState(() => _downloadOverWifiOnly = val),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    title: const Text('Clear Cached Course Data', style: TextStyle(fontSize: 14)),
-                    trailing: const Text('128 MB', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cache cleared successfully!')),
-                      );
+            // Notifications Group
+            SettingsGroupCardWidget(
+              title: 'NOTIFICATIONS',
+              children: [
+                SettingsTileItemWidget(
+                  icon: Icons.notifications_active_outlined,
+                  title: 'Push Notifications',
+                  subtitle: 'Daily study streak & lesson reminders',
+                  trailing: Switch(
+                    value: _pushNotifications,
+                    activeTrackColor: AppColors.primary,
+                    onChanged: (val) {
+                      setState(() => _pushNotifications = val);
                     },
                   ),
-                ],
-              ),
+                ),
+                const Divider(height: 1),
+                SettingsTileItemWidget(
+                  icon: Icons.mail_outline_rounded,
+                  title: 'Email Digest',
+                  subtitle: 'Weekly progress & certificate updates',
+                  trailing: Switch(
+                    value: _emailAlerts,
+                    activeTrackColor: AppColors.primary,
+                    onChanged: (val) {
+                      setState(() => _emailAlerts = val);
+                    },
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-            const Text(
-              'About EduFlow',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+            // Appearance & App Info Group
+            SettingsGroupCardWidget(
+              title: 'APPEARANCE & SYSTEM',
+              children: [
+                SettingsTileItemWidget(
+                  icon: Icons.dark_mode_outlined,
+                  title: 'Dark Theme',
+                  subtitle: 'Academic modernist night mode',
+                  trailing: Switch(
+                    value: _darkMode,
+                    activeTrackColor: AppColors.primary,
+                    onChanged: (val) {
+                      setState(() => _darkMode = val);
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                SettingsTileItemWidget(
+                  icon: Icons.info_outline_rounded,
+                  title: 'App Version',
+                  trailing: const Text(
+                    'v1.0.0 (Build 2026.08)',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Column(
-                children: [
-                  ListTile(
-                    title: Text('Version', style: TextStyle(fontSize: 14)),
-                    trailing: Text('1.0.0 (Academic Modernist)', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                  ),
-                  Divider(height: 1),
-                  ListTile(
-                    title: Text('Backend REST Server', style: TextStyle(fontSize: 14)),
-                    trailing: Text('Connected (Port 8000)', style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 28),
+
+            CustomButton(
+              text: 'Log Out of EduFlow',
+              icon: Icons.logout_rounded,
+              isOutlined: true,
+              textColor: AppColors.error,
+              backgroundColor: AppColors.error,
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthLogoutRequested());
+                context.go('/login');
+              },
             ),
           ],
         ),

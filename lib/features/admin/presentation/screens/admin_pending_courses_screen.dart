@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../widgets/admin_pending_course_card.dart';
 
 class AdminPendingCoursesScreen extends StatefulWidget {
   const AdminPendingCoursesScreen({super.key});
@@ -113,88 +114,11 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
               itemBuilder: (context, index) {
                 final course = _pendingCourses[index];
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                (course['category'] as String).toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Submitted ${course['submittedDate']}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          course['title'] as String,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Author: ${course['instructor']} • ${course['chaptersCount']} Chapters • ${course['lessonsCount']} Lessons',
-                          style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton.icon(
-                              icon: const Icon(Icons.preview_rounded, size: 16),
-                              label: const Text('Review Curriculum'),
-                              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-                              onPressed: () => context.push('/admin/courses/${course['id']}/review'),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.error,
-                                side: const BorderSide(color: AppColors.error),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () => _onRejectCourse(course['id'] as int, course['title'] as String),
-                              child: const Text('Reject'),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.check_rounded, size: 16),
-                              label: const Text('Approve'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.secondary,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () => _onApproveCourse(course['id'] as int, course['title'] as String),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                return AdminPendingCourseCard(
+                  course: course,
+                  onReview: () => context.push('/admin/courses/${course['id']}/review'),
+                  onApprove: () => _onApproveCourse(course['id'] as int, course['title'] as String),
+                  onReject: () => _onRejectCourse(course['id'] as int, course['title'] as String),
                 );
               },
             ),

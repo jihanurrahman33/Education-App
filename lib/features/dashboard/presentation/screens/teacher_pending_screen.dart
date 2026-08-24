@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../widgets/teacher_onboarding_step_row_widget.dart';
 
 class TeacherPendingScreen extends StatelessWidget {
   const TeacherPendingScreen({super.key});
@@ -62,7 +63,7 @@ class TeacherPendingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
 
-                  // Review steps card
+                  // Review steps card using TeacherOnboardingStepRowWidget
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -70,24 +71,24 @@ class TeacherPendingScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
                     ),
-                    child: Column(
+                    child: const Column(
                       children: [
-                        _buildStepRow(
+                        TeacherOnboardingStepRowWidget(
                           step: '1',
                           title: 'Account Submitted',
                           subtitle: 'Your profile details are recorded.',
                           isDone: true,
                         ),
-                        const SizedBox(height: 16),
-                        _buildStepRow(
+                        SizedBox(height: 16),
+                        TeacherOnboardingStepRowWidget(
                           step: '2',
                           title: 'Admin Quality Review',
                           subtitle: 'Admin validates instructor credentials.',
                           isDone: false,
                           isActive: true,
                         ),
-                        const SizedBox(height: 16),
-                        _buildStepRow(
+                        SizedBox(height: 16),
+                        TeacherOnboardingStepRowWidget(
                           step: '3',
                           title: 'Course Creation Unlocked',
                           subtitle: 'You can publish courses and upload lessons.',
@@ -121,68 +122,6 @@ class TeacherPendingScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildStepRow({
-    required String step,
-    required String title,
-    required String subtitle,
-    bool isDone = false,
-    bool isActive = false,
-  }) {
-    final color = isDone
-        ? AppColors.secondary
-        : isActive
-            ? AppColors.warning
-            : AppColors.outline;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-            border: Border.all(color: color, width: 1.5),
-          ),
-          child: Center(
-            child: isDone
-                ? Icon(Icons.check, size: 16, color: color)
-                : Text(
-                    step,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isDone || isActive ? AppColors.onSurface : AppColors.outline,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

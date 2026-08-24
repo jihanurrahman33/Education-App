@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/domain/entities/user_entity.dart';
+import '../widgets/dashboard_stat_card_widget.dart';
+import '../widgets/teacher_verification_banner_widget.dart';
 
 class TeacherDashboardScreen extends StatelessWidget {
   final UserEntity user;
@@ -35,46 +37,10 @@ class TeacherDashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Teacher Status Banner
+          // Reusable Teacher Status Warning Banner
           if (!user.isApprovedTeacher) ...[
-            InkWell(
+            TeacherVerificationBannerWidget(
               onTap: () => context.push('/teacher/pending'),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.warning),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.pending_actions_rounded, color: AppColors.warning),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Account Pending Admin Approval',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Tap to check your application review status.',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right_rounded, color: AppColors.warning),
-                  ],
-                ),
-              ),
             ),
             const SizedBox(height: 20),
           ],
@@ -132,14 +98,29 @@ class TeacherDashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Teacher Stats
+          // Reusable Teacher Stats Row
           Row(
             children: [
-              _buildStatCard('Authored', '2 Courses', Icons.menu_book_rounded, AppColors.roleTeacher),
+              DashboardStatCardWidget(
+                title: 'Authored',
+                count: '2 Courses',
+                icon: Icons.menu_book_rounded,
+                color: AppColors.roleTeacher,
+              ),
               const SizedBox(width: 10),
-              _buildStatCard('Enrolled', '128 Students', Icons.groups_rounded, AppColors.primary),
+              DashboardStatCardWidget(
+                title: 'Enrolled',
+                count: '128 Students',
+                icon: Icons.groups_rounded,
+                color: AppColors.primary,
+              ),
               const SizedBox(width: 10),
-              _buildStatCard('Quizzes', '3 Active', Icons.quiz_rounded, AppColors.secondary),
+              DashboardStatCardWidget(
+                title: 'Quizzes',
+                count: '3 Active',
+                icon: Icons.quiz_rounded,
+                color: AppColors.secondary,
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -253,49 +234,6 @@ class TeacherDashboardScreen extends StatelessWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String count, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              count,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

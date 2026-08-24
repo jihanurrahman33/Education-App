@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../admin/presentation/widgets/admin_action_card_widget.dart';
+import '../../../admin/presentation/widgets/admin_stat_metric_card.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -69,13 +71,25 @@ class AdminDashboardScreen extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Platform Stats Row
-          Row(
+          const Row(
             children: [
-              _buildStatMetric('Pending Teachers', '3', AppColors.warning),
-              const SizedBox(width: 10),
-              _buildStatMetric('Pending Courses', '2', AppColors.primary),
-              const SizedBox(width: 10),
-              _buildStatMetric('Total Users', '542', AppColors.secondary),
+              AdminStatMetricCard(
+                label: 'Pending Teachers',
+                value: '3',
+                color: AppColors.warning,
+              ),
+              SizedBox(width: 10),
+              AdminStatMetricCard(
+                label: 'Pending Courses',
+                value: '2',
+                color: AppColors.primary,
+              ),
+              SizedBox(width: 10),
+              AdminStatMetricCard(
+                label: 'Total Users',
+                value: '542',
+                color: AppColors.secondary,
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -99,121 +113,37 @@ class AdminDashboardScreen extends StatelessWidget {
             mainAxisSpacing: 12,
             childAspectRatio: 1.15,
             children: [
-              _buildAdminCard(
-                'Teacher Approvals',
-                '3 pending applications',
-                Icons.how_to_reg_rounded,
-                AppColors.warning,
-                () => context.push('/admin/teachers/pending'),
+              AdminActionCardWidget(
+                title: 'Teacher Approvals',
+                subtitle: '3 pending applications',
+                icon: Icons.how_to_reg_rounded,
+                color: AppColors.warning,
+                onTap: () => context.push('/admin/teachers/pending'),
               ),
-              _buildAdminCard(
-                'Course Approvals',
-                '2 pending submissions',
-                Icons.rate_review_rounded,
-                AppColors.primary,
-                () => context.push('/admin/courses/pending'),
+              AdminActionCardWidget(
+                title: 'Course Approvals',
+                subtitle: '2 pending submissions',
+                icon: Icons.rate_review_rounded,
+                color: AppColors.primary,
+                onTap: () => context.push('/admin/courses/pending'),
               ),
-              _buildAdminCard(
-                'User Directory',
-                'Manage students & teachers',
-                Icons.people_outline_rounded,
-                AppColors.secondary,
-                () => context.push('/admin/users'),
+              AdminActionCardWidget(
+                title: 'User Directory',
+                subtitle: 'Manage students & teachers',
+                icon: Icons.people_outline_rounded,
+                color: AppColors.secondary,
+                onTap: () => context.push('/admin/users'),
               ),
-              _buildAdminCard(
-                'Analytics & Stats',
-                'Platform performance & revenue',
-                Icons.insights_rounded,
-                AppColors.tertiary,
-                () => context.push('/admin/analytics'),
+              AdminActionCardWidget(
+                title: 'Analytics & Stats',
+                subtitle: 'Platform performance & revenue',
+                icon: Icons.insights_rounded,
+                color: AppColors.tertiary,
+                onTap: () => context.push('/admin/analytics'),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatMetric(String label, String value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAdminCard(
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const Spacer(),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

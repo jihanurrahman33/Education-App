@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../widgets/admin_review_chapter_widget.dart';
 
 class AdminCourseReviewScreen extends StatelessWidget {
   final int courseId;
@@ -102,7 +103,8 @@ class AdminCourseReviewScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            _buildReviewChapter(
+            // Reusable Admin Review Chapter Widgets
+            const AdminReviewChapterWidget(
               chapterNum: '1',
               title: 'Container Fundamentals & Dockerfile Optimization',
               lessons: [
@@ -112,7 +114,7 @@ class AdminCourseReviewScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            _buildReviewChapter(
+            const AdminReviewChapterWidget(
               chapterNum: '2',
               title: 'Inter-service gRPC & Protocol Buffers',
               lessons: [
@@ -177,48 +179,6 @@ class AdminCourseReviewScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildReviewChapter({
-    required String chapterNum,
-    required String title,
-    required List<String> lessons,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Chapter $chapterNum: $title',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          ...lessons.map(
-            (lesson) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.secondary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      lesson,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

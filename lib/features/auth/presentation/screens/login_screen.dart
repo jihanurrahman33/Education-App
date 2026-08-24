@@ -7,6 +7,8 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/auth_brand_header_widget.dart';
+import '../widgets/social_login_buttons_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -69,51 +71,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Logo & Brand Header
-                      Center(
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryContainer,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.2),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.school_rounded,
-                                size: 36,
-                                color: AppColors.onPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'EduFlow',
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Welcome back to your learning journey',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Reusable Brand Header Widget
+                      const AuthBrandHeaderWidget(),
                       const SizedBox(height: 32),
 
                       // Login Card Container
@@ -227,77 +186,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 20),
 
-                              // Divider
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Divider(
-                                      color: AppColors.outlineVariant.withValues(alpha: 0.4),
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 12.0),
-                                    child: Text(
-                                      'OR CONTINUE WITH',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.outline,
-                                        letterSpacing: 0.8,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Divider(
-                                      color: AppColors.outlineVariant.withValues(alpha: 0.4),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Quick Social Buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      icon: const Icon(Icons.g_mobiledata_rounded, size: 24),
-                                      label: const Text('Google'),
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: AppColors.onSurface,
-                                        side: BorderSide(
-                                          color: AppColors.outlineVariant.withValues(alpha: 0.5),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        _usernameController.text = 'admin';
-                                        _passwordController.text = 'admin12345';
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      icon: const Icon(Icons.apple_rounded, size: 20),
-                                      label: const Text('Apple'),
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: AppColors.onSurface,
-                                        side: BorderSide(
-                                          color: AppColors.outlineVariant.withValues(alpha: 0.5),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                  ),
-                                ],
+                              // Reusable Social Login Buttons Widget
+                              SocialLoginButtonsWidget(
+                                onGoogleTap: () {
+                                  _usernameController.text = 'admin';
+                                  _passwordController.text = 'admin12345';
+                                },
+                                onAppleTap: () {},
                               ),
                             ],
                           ),
