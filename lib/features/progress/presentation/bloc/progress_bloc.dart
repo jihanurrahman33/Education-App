@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../../certificates/domain/entities/certificate_entity.dart';
 import '../../domain/entities/progress_entity.dart';
 import '../../domain/usecases/enroll_in_course_usecase.dart';
 import '../../domain/usecases/generate_certificate_usecase.dart';
