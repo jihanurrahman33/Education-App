@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -170,12 +171,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
   void _onSaveQuiz() {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please provide a quiz title'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showError(context, 'Please provide a quiz title');
       return;
     }
 
@@ -205,7 +201,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
             icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          title: const Text('Quiz Assessment Manager',
+          title: const Text('Quiz Manager',
               style: TextStyle(color: AppColors.textPrimary)),
         ),
         body: Center(
@@ -215,7 +211,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
               icon: Icons.hourglass_top_rounded,
               title: 'Account Approval Required',
               message:
-                  'Your instructor account is currently undergoing administrative review. Creating and publishing quizzes is locked until an administrator approves your instructor registration.',
+                  'Your instructor account is currently undergoing administrative review. Creating and managing quizzes is locked until an administrator approves your instructor registration.',
               actionText: 'Check Application Status',
               onAction: () => context.push('/teacher/pending'),
             ),
@@ -227,18 +223,10 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
     return BlocConsumer<QuizBloc, QuizState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error),
-          );
+          AppToast.showError(context, state.errorMessage!);
         }
         if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: AppColors.secondary),
-          );
+          AppToast.showSuccess(context, state.successMessage!);
           if (!widget.isTab) {
             context.pop();
           }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
@@ -691,14 +692,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     return BlocConsumer<AdminBloc, AdminState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage!), backgroundColor: AppColors.error),
-          );
+          AppToast.showError(context, state.errorMessage!);
         }
         if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.successMessage!), backgroundColor: AppColors.secondary),
-          );
+          AppToast.showSuccess(context, state.successMessage!);
         }
       },
       builder: (context, state) {

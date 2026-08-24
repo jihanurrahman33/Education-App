@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../progress/presentation/bloc/progress_bloc.dart';
 import '../../../progress/presentation/bloc/progress_event.dart';
@@ -83,19 +84,7 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
     return BlocListener<ProgressBloc, ProgressState>(
       listener: (context, state) {
         if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle_rounded, color: Colors.white),
-                  const SizedBox(width: 10),
-                  Text(state.successMessage!),
-                ],
-              ),
-              backgroundColor: AppColors.secondary,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          AppToast.showSuccess(context, state.successMessage!);
         }
       },
       child: Scaffold(
@@ -154,10 +143,8 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                           else
                             LessonPdfViewerWidget(
                               onOpenPdf: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Opening PDF reader viewer...')),
-                                );
+                                AppToast.showInfo(
+                                    context, 'Opening PDF reader viewer...');
                               },
                             ),
 

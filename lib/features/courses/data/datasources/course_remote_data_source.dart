@@ -141,19 +141,51 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
 
+    List<CourseModel> courses = [];
     if (response is List) {
-      return response
+      courses = response
           .whereType<Map<String, dynamic>>()
           .map((json) => CourseModel.fromJson(json))
           .toList();
     } else if (response is Map<String, dynamic> && response['results'] is List) {
-      return (response['results'] as List)
+      courses = (response['results'] as List)
           .whereType<Map<String, dynamic>>()
           .map((json) => CourseModel.fromJson(json))
           .toList();
     }
 
-    return [];
+    if (courses.isNotEmpty) {
+      try {
+        final myProgressRes = await apiClient.get(ApiEndpoints.myProgress);
+        if (myProgressRes is List) {
+          final enrolledMap = <int, double>{};
+          for (final item in myProgressRes) {
+            if (item is Map<String, dynamic> && item['is_enrolled'] == true) {
+              final cid = item['course_id'] is int
+                  ? item['course_id'] as int
+                  : int.tryParse(item['course_id']?.toString() ?? '');
+              if (cid != null) {
+                final percent = item['progress_percent'] != null
+                    ? double.tryParse(item['progress_percent'].toString()) ?? 0.0
+                    : 0.0;
+                enrolledMap[cid] = percent;
+              }
+            }
+          }
+          courses = courses.map((c) {
+            if (enrolledMap.containsKey(c.id)) {
+              return c.copyWith(
+                isEnrolled: true,
+                progressPercentage: enrolledMap[c.id],
+              );
+            }
+            return c;
+          }).toList();
+        }
+      } catch (_) {}
+    }
+
+    return courses;
   }
 
   @override
@@ -166,19 +198,51 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
 
+    List<CourseModel> courses = [];
     if (response is List) {
-      return response
+      courses = response
           .whereType<Map<String, dynamic>>()
           .map((json) => CourseModel.fromJson(json))
           .toList();
     } else if (response is Map<String, dynamic> && response['results'] is List) {
-      return (response['results'] as List)
+      courses = (response['results'] as List)
           .whereType<Map<String, dynamic>>()
           .map((json) => CourseModel.fromJson(json))
           .toList();
     }
 
-    return [];
+    if (courses.isNotEmpty) {
+      try {
+        final myProgressRes = await apiClient.get(ApiEndpoints.myProgress);
+        if (myProgressRes is List) {
+          final enrolledMap = <int, double>{};
+          for (final item in myProgressRes) {
+            if (item is Map<String, dynamic> && item['is_enrolled'] == true) {
+              final cid = item['course_id'] is int
+                  ? item['course_id'] as int
+                  : int.tryParse(item['course_id']?.toString() ?? '');
+              if (cid != null) {
+                final percent = item['progress_percent'] != null
+                    ? double.tryParse(item['progress_percent'].toString()) ?? 0.0
+                    : 0.0;
+                enrolledMap[cid] = percent;
+              }
+            }
+          }
+          courses = courses.map((c) {
+            if (enrolledMap.containsKey(c.id)) {
+              return c.copyWith(
+                isEnrolled: true,
+                progressPercentage: enrolledMap[c.id],
+              );
+            }
+            return c;
+          }).toList();
+        }
+      } catch (_) {}
+    }
+
+    return courses;
   }
 
   @override
@@ -211,7 +275,25 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     final response = await apiClient.get(ApiEndpoints.courseDetail(courseId));
 
     if (response is Map<String, dynamic>) {
-      return CourseModel.fromJson(response);
+      var course = CourseModel.fromJson(response);
+
+      // The backend course details endpoint does not populate is_enrolled for students.
+      // Enrich with real-time course progress & enrollment state:
+      try {
+        final progressRes = await apiClient.get(ApiEndpoints.courseProgress(courseId));
+        if (progressRes is Map<String, dynamic>) {
+          final isEnrolled = progressRes['is_enrolled'] as bool? ?? false;
+          final progressPercent = progressRes['progress_percent'] != null
+              ? double.tryParse(progressRes['progress_percent'].toString())
+              : null;
+          course = course.copyWith(
+            isEnrolled: isEnrolled,
+            progressPercentage: progressPercent,
+          );
+        }
+      } catch (_) {}
+
+      return course;
     }
 
     throw Exception('Invalid course details response format');

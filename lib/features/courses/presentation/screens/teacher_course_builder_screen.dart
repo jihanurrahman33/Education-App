@@ -274,11 +274,8 @@ class _TeacherCourseBuilderScreenState extends State<TeacherCourseBuilderScreen>
                             onTap: () {
                               setState(
                                   () => _thumbnailName = 'course_cover_banner.png');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Selected course_cover_banner.png')),
-                              );
+                              AppToast.showInfo(
+                                  context, 'Selected course_cover_banner.png');
                             },
                           ),
                           const SizedBox(height: 28),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_view.dart';
@@ -60,12 +61,7 @@ class _AdminPendingTeachersScreenState
 
     if (confirmed == true && mounted) {
       context.read<AdminBloc>().add(DeleteAdminUserEvent(id));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$name\'s application was rejected.'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showError(context, '$name\'s application was rejected.');
     }
   }
 
@@ -100,18 +96,10 @@ class _AdminPendingTeachersScreenState
       body: BlocConsumer<AdminBloc, AdminState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(state.errorMessage!),
-                  backgroundColor: AppColors.error),
-            );
+            AppToast.showError(context, state.errorMessage!);
           }
           if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(state.successMessage!),
-                  backgroundColor: AppColors.secondary),
-            );
+            AppToast.showSuccess(context, state.successMessage!);
           }
         },
         builder: (context, state) {

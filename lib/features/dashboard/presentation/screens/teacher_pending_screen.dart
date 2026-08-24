@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -29,18 +30,11 @@ class _TeacherPendingScreenState extends State<TeacherPendingScreen> {
     setState(() => _isChecking = false);
     final user = context.read<AuthBloc>().state.user;
     if (user != null && user.isApprovedTeacher) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🎉 Congratulations! Your instructor account has been approved by admin!'),
-          backgroundColor: AppColors.secondary,
-        ),
-      );
+      AppToast.showSuccess(context,
+          '🎉 Congratulations! Your instructor account has been approved by admin!');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your application is still undergoing administrative review. Please check back soon.'),
-        ),
-      );
+      AppToast.showInfo(context,
+          'Your application is still undergoing administrative review. Please check back soon.');
     }
   }
 

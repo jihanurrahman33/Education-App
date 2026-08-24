@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/error_view.dart';
@@ -73,20 +74,10 @@ class _AdminCourseReviewScreenState extends State<AdminCourseReviewScreen> {
     return BlocListener<AdminBloc, AdminState>(
       listener: (context, adminState) {
         if (adminState.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(adminState.errorMessage!),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          AppToast.showError(context, adminState.errorMessage!);
         }
         if (adminState.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(adminState.successMessage!),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
+          AppToast.showSuccess(context, adminState.successMessage!);
           context.pop();
         }
       },

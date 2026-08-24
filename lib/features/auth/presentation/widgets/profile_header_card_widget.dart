@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/user_entity.dart';
 
@@ -132,12 +133,7 @@ class ProfileHeaderCardWidget extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: user.email));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Email copied to clipboard!'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
+                    AppToast.showInfo(context, 'Email copied to clipboard!');
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: Padding(

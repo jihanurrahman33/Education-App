@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -48,12 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: BlocConsumer<SettingsBloc, SettingsState>(
         listener: (context, state) {
           if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: AppColors.secondary,
-              ),
-            );
+            AppToast.showSuccess(context, state.successMessage!);
           }
         },
         builder: (context, state) {
@@ -89,9 +85,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               title: 'Password & Security',
                               subtitle: 'Manage two-factor auth & password',
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Password & Security settings')),
-                                );
+                                AppToast.showInfo(
+                                    context, 'Password & Security settings');
                               },
                             ),
                           ],
