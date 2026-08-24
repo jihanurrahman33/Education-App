@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduFlow - Start Learning Today</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#dbe1ff",
+                      "outline-variant": "#c3c5d7",
+                      "primary": "#003fb1",
+                      "on-surface-variant": "#434654",
+                      "surface-container-low": "#f0f3ff",
+                      "on-background": "#151c27",
+                      "on-surface": "#151c27",
+                      "on-primary-fixed": "#00174d",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "inverse-on-surface": "#ebf1ff",
+                      "on-secondary-fixed": "#002114",
+                      "secondary": "#006c4a",
+                      "surface": "#f9f9ff",
+                      "tertiary": "#694100",
+                      "on-secondary-fixed-variant": "#005137",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-primary-container": "#d4dcff",
+                      "outline": "#737686",
+                      "inverse-primary": "#b5c4ff",
+                      "tertiary-fixed": "#ffddb8",
+                      "secondary-container": "#82f5c1",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "background": "#f9f9ff",
+                      "surface-container-high": "#e2e8f8",
+                      "primary-container": "#1a56db",
+                      "on-primary": "#ffffff",
+                      "surface-container": "#e7eefe",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary-fixed-dim": "#68dba9",
+                      "secondary-fixed": "#85f8c4",
+                      "on-tertiary-container": "#ffd6a8",
+                      "on-primary-fixed-variant": "#003dab",
+                      "surface-container-highest": "#dce2f3",
+                      "on-secondary-container": "#00714e",
+                      "surface-tint": "#1353d8",
+                      "inverse-surface": "#2a313d",
+                      "surface-bright": "#f9f9ff",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dce2f3",
+                      "surface-dim": "#d3daea",
+                      "tertiary-container": "#895600"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "unit": "8px",
+                      "gutter": "24px",
+                      "container-padding-mobile": "16px",
+                      "stack-md": "16px",
+                      "container-padding-desktop": "32px",
+                      "stack-sm": "8px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #f0f3ff 0%, #e7eefe 100%);
+        }
+        .bento-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim shadow-[0_4px_12px_0_rgba(0,0,0,0.1)] shadow-sm">
+<div class="flex justify-between items-center px-container-padding-mobile md:px-container-padding-desktop h-16 w-full">
+<div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1; font-size: 32px;">school</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">EduFlow</span>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform" href="#">Courses</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform" href="#">About</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform" href="#">Testimonials</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden md:block font-label-md text-label-md text-primary border border-primary rounded-full px-6 py-2 hover:bg-primary-container hover:text-on-primary-container transition-colors">Login</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary rounded-full px-6 py-2 hover:opacity-90 transition-opacity active:scale-95 transition-transform shadow-md">Register</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow pt-16 pb-24 md:pb-16">
+<!-- Hero Section -->
+<section class="relative hero-gradient pt-stack-lg pb-stack-lg md:pt-24 md:pb-32 px-container-padding-mobile md:px-container-padding-desktop overflow-hidden">
+<!-- Decorative Elements -->
+<div class="absolute top-10 left-10 w-64 h-64 bg-primary-fixed opacity-50 rounded-full blur-3xl mix-blend-multiply"></div>
+<div class="absolute bottom-10 right-10 w-80 h-80 bg-secondary-container opacity-40 rounded-full blur-3xl mix-blend-multiply"></div>
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center relative z-10">
+<div class="flex flex-col gap-stack-md">
+<div class="inline-flex items-center gap-2 bg-surface-container-high text-primary px-4 py-1.5 rounded-full w-fit">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span class="font-label-sm text-label-sm">Over 10,000 active learners</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-background md:hidden">Master New<br/><span class="text-primary">Skills Faster</span></h1>
+<h1 class="font-display-lg text-display-lg text-on-background hidden md:block">Master New Skills<br/>with <span class="text-primary">EduFlow</span></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">Unlock your potential with expert-led courses designed for modern professionals. Structured learning, clear progress tracking, and a supportive community.</p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="font-label-md text-label-md bg-primary text-on-primary rounded-full px-8 py-4 hover:opacity-90 transition-opacity active:scale-95 transition-transform shadow-lg flex items-center justify-center gap-2">
+                            Start Learning Now
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="font-label-md text-label-md bg-surface-container-lowest text-on-surface border border-outline-variant rounded-full px-8 py-4 hover:bg-surface-container-low transition-colors active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">play_circle</span>
+                            View Syllabus
+                        </button>
+</div>
+</div>
+<!-- Hero Imagery / Bento Style -->
+<div class="relative h-[400px] md:h-[500px] w-full rounded-2xl overflow-hidden glass-panel shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A bright, modern digital illustration of a diverse group of young professionals and students engaged in collaborative learning around a sleek interactive digital display. The aesthetic is clean corporate with an EdTech focus, utilizing deep academic blue accents against a pristine white and soft gray background. The lighting is soft and optimistic, conveying focus and achievement." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuC2aYHvwV7SUA8zX7mcNdRvZZDobfyIiKUlCbErK8xF50_vzA5w0Md4NbW-WX6xYmy5N8mN5hsbClpLCfiR6wsZ0p9My5u-ORZFdSAb8ouWc4KQNMv6DaGKiRz2va2-37NZ1yOc6YrXfHtUhDV069UaUXkY306BfCcmboHJYzL03T4ffzFsptApFtF8JIgmnJPBOBxIakjGDls_6db_-Ww_CJ67AHIC77yjFYlH_glmrlAbzZ_7q_"/>
+<!-- Floating Stats Card -->
+<div class="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-72 bg-surface-container-lowest/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-outline-variant/30">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Success Rate</p>
+<p class="font-headline-md text-headline-md text-on-surface">94%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Courses Bento Grid -->
+<section class="py-stack-lg px-container-padding-mobile md:px-container-padding-desktop max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-stack-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-2">Featured Courses</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Carefully curated paths to accelerate your career.</p>
+</div>
+<a class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1" href="#">
+                    View all courses <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Course Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 overflow-hidden bento-card shadow-[0_4px_12px_0_rgba(0,0,0,0.05)] flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A clean, minimalist 3D rendering of abstract geometric shapes—spheres and cubes—floating in a well-lit white studio space with soft shadows. The color palette features a deep academic blue dominant object and subtle metallic accents, representing structured data and logic. The mood is analytical and pristine, suited for a modern tech course thumbnail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDpQ4WTCGAs0b9j-CgzeKTAvZij8moS1m2-kz17-mbcieT0D9dAq4UGgOFebd5Nxmq4lZr3ljyP63av9ZmRIOn4BwhPOueaU_Z0Rm7jcHCIGK96HS8DHnFc-5tEv56K4rNVJIV95HGdV58Xie8SqfyjrP2hhxwrW9yNmejf3w8KqP6E0vDfXX7AgTMfFMJKHOQtRms2kvHeciRIJ60EMtHYULV0z8O7C6gXDgkH71jAhDKe7Tgbt3a"/>
+<div class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-primary">Data Science</span>
+</div>
+</div>
+<div class="p-gutter flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Advanced Data Analytics</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow">Master Python, pandas, and machine learning fundamentals with real-world datasets.</p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">schedule</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">8 Weeks</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">Enroll</span>
+</div>
+</div>
+</div>
+<!-- Course Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 overflow-hidden bento-card shadow-[0_4px_12px_0_rgba(0,0,0,0.05)] flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A high-quality top-down photograph of a neat, organized modern desk setting. Features a sleek laptop slightly open, a digital stylus, a sketchbook with wireframe UI designs, and a small potted succulent. The lighting is natural and bright window light, emphasizing clarity and design focus. Color palette is dominated by whites, light grays, and a touch of deep blue." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCG4IX3JWGw0hSe4d0zYgPqJEuSDd4SKLON1n3oK0Y0UrDCK9mSe_0oSf2YAflp1DeqyudhRFg7ELzYPAgvc0hZCGEx9eu6hEF_lnOuB4V0vQrtLF4AYUc1kMgs4AMnW1bRf6GAeRllGrVObKpoyNi6Sr5YVqgn9oeceykDCPwBmnlbhrkvsRY7YVJeyBpEzBOWRWuW1zYq-54zA4AHorQ_d6Y52o_j1uHtXTNaMW8r6SCJUDQ0l0t"/>
+<div class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-tertiary">Design</span>
+</div>
+</div>
+<div class="p-gutter flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">UI/UX Systems Design</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow">Learn to create scalable design systems and accessible user interfaces from scratch.</p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">schedule</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">6 Weeks</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">Enroll</span>
+</div>
+</div>
+</div>
+<!-- Course Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 overflow-hidden bento-card shadow-[0_4px_12px_0_rgba(0,0,0,0.05)] flex flex-col">
+<div class="h-48 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A stylish, abstract macro photograph of glowing fiber optic cables transmitting blue and bright green light against a dark, out-of-focus background. The aesthetic is highly technical, modern, and fast-paced, representing digital communication and backend development. The image feels sharp, high-stakes, yet secure." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtagwfoFl8sxdQWsvvT0Js4ufL60urL87vJKuFnQfxltZTiEStLilNBAMkVMaec8VukMqnATBRjh3-o7zDLvwdOzAKi1gkMqfe359hIu6WY7F1uuiMBHH0GL6gO-tq-IdjQRqGEFC1IpokdAx2Il8qXa0OkUZ-TjEntLXcH6cPk1WczR6KOXmcTrp_dHYKBb8vzgJaxjVgnZcYR0-4SyesaYUBvCGY6IA46bD2DMacv-BQUdARpHlq"/>
+<div class="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-secondary">Engineering</span>
+</div>
+</div>
+<div class="p-gutter flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Cloud Architecture</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow">Build resilient, scalable backend systems using modern serverless technologies.</p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">schedule</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">10 Weeks</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">Enroll</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials Section -->
+<section class="bg-surface-container-low py-stack-lg px-container-padding-mobile md:px-container-padding-desktop">
+<div class="max-w-7xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background text-center mb-stack-lg">What Our Students Say</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-gutter rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col gap-4">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface italic flex-grow">"The structured approach to learning helped me transition into a data science role within 6 months. The community support is unparalleled."</p>
+<div class="flex items-center gap-4 mt-4">
+<div class="w-12 h-12 rounded-full bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young woman with a warm, confident smile, wearing a smart casual light blue blazer. She is standing in a brightly lit modern office environment with blurred glass partitions in the background. The aesthetic is clean, corporate, and approachable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkjspK3xleZt6lhJMImdCW7pRrr9TZhIJ26l8U0W6XJrnvFZmTQBqG0J1XmWr_3S7--JJpqKEdI0Ef5CnkCkX0pDt1iAsNtwSFM3fVLIG1EmIK20CAAd5t6FnQd1ADDKmo19_nIPwkzHhr0yKSMHo4n7543aMkiKRRXQT60nd7uBWrLQX4gUC8c4d4Zv9xSqyE2WytGSBkE2K4JunJSpNVQaQKB_dCd-zTt8tz8xElBJoKRbBqMY-j"/>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface font-bold">Sarah Jenkins</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Data Analyst at TechCorp</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-gutter rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col gap-4">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface italic flex-grow">"EduFlow's UI design course didn't just teach me tools; it taught me how to think about systems. Completely changed my workflow."</p>
+<div class="flex items-center gap-4 mt-4">
+<div class="w-12 h-12 rounded-full bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young man with a neat beard, wearing a casual gray crewneck sweater. He is looking directly at the camera with a subtle, friendly expression. The background is a clean, minimalist workspace with soft natural lighting coming from the side." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhpuQBPcl_nAKBSBxvvCrB13iEXYwajlK20dIGJNk46VbsO8f5tvkzc-Fny75NMDTYJdoSUeQxwY0JbPm1EDRQnbtHs1G3s7SI6RlmC8kyewW4FK96nlG6SagXe4dd-ZBb3i2FDgupwVD6zM3bfT0M1N_nwcckMdPUo9KejmpdrgMZrjCOc3OEN8mpAXq80GQ-2V8dvYvi1Q1Te7hxt9wYL2dzxnhnXnadNLELqbBAfPgh9qPN3ftM"/>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface font-bold">David Chen</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Product Designer</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe md:hidden bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-t border-outline-variant/30 dark:border-outline/20 shadow-[0_-4px_12px_0_rgba(0,0,0,0.05)]">
+<div class="flex justify-around items-center h-16 px-4">
+<!-- Active Tab: Home -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<!-- Inactive Tab: My Courses -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1">school</span>
+<span class="font-label-sm text-label-sm">My Courses</span>
+</button>
+<!-- Inactive Tab: Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</div>
+</nav>
+</body></html>
