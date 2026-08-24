@@ -62,10 +62,20 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Quiz Assessment'),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: const Text(
+          'Quiz Assessment',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
+          icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
       ),

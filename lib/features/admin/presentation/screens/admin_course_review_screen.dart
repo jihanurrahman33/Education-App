@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../../domain/usecases/approve_course_use_case.dart';
-import '../../domain/usecases/reject_course_use_case.dart';
-import '../widgets/admin_review_chapter_widget.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../../courses/presentation/bloc/course_bloc.dart';
+import '../../../courses/presentation/bloc/course_event.dart';
+import '../../../courses/presentation/bloc/course_state.dart';
+import '../bloc/admin_bloc.dart';
+import '../bloc/admin_event.dart';
+import '../bloc/admin_state.dart';
 
 class AdminCourseReviewScreen extends StatefulWidget {
   final int courseId;
@@ -14,232 +19,442 @@ class AdminCourseReviewScreen extends StatefulWidget {
   const AdminCourseReviewScreen({super.key, required this.courseId});
 
   @override
-  State<AdminCourseReviewScreen> createState() => _AdminCourseReviewScreenState();
+  State<AdminCourseReviewScreen> createState() =>
+      _AdminCourseReviewScreenState();
 }
 
 class _AdminCourseReviewScreenState extends State<AdminCourseReviewScreen> {
-  final ApproveCourseUseCase _approveCourseUseCase = GetIt.I<ApproveCourseUseCase>();
-  final RejectCourseUseCase _rejectCourseUseCase = GetIt.I<RejectCourseUseCase>();
+  @override
+  void initState() {
+    super.initState();
+    _loadCourseDetails();
+  }
 
-  bool _isProcessing = false;
+  void _loadCourseDetails() {
+    context
+        .read<CourseBloc>()
+        .add(FetchCourseDetailsRequested(widget.courseId));
+  }
 
-  void _onApprove() async {
+  void _onApprove(String courseTitle) async {
     final confirmed = await ConfirmationDialog.show(
       context,
       title: 'Approve Course Publication?',
-      message: 'This course will go live in the public catalog for all students.',
+      message:
+          'Approving "$courseTitle" will publish it immediately to the public course catalog for all students.',
       confirmText: 'Approve & Publish',
       confirmColor: AppColors.secondary,
+      icon: Icons.check_circle_rounded,
     );
 
     if (confirmed == true && mounted) {
-      setState(() => _isProcessing = true);
-      final result = await _approveCourseUseCase(widget.courseId);
-
-      if (!mounted) return;
-      setState(() => _isProcessing = false);
-
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to approve course: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        },
-        (_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Course approved and published live!'),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
-          context.pop();
-        },
-      );
+      context.read<AdminBloc>().add(ApproveCourseEvent(widget.courseId));
     }
   }
 
-  void _onReject() async {
+  void _onReject(String courseTitle) async {
     final confirmed = await ConfirmationDialog.show(
       context,
       title: 'Reject Course Draft?',
-      message: 'Send rejection notice to instructor for content updates.',
+      message:
+          'Rejecting "$courseTitle" will notify the instructor to update and improve the course materials before resubmitting.',
       confirmText: 'Reject Draft',
       confirmColor: AppColors.error,
+      icon: Icons.cancel_rounded,
     );
 
     if (confirmed == true && mounted) {
-      setState(() => _isProcessing = true);
-      final result = await _rejectCourseUseCase(widget.courseId);
-
-      if (!mounted) return;
-      setState(() => _isProcessing = false);
-
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to reject course: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        },
-        (_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Course draft returned for revision.'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-          context.pop();
-        },
-      );
+      context.read<AdminBloc>().add(RejectCourseEvent(widget.courseId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return BlocListener<AdminBloc, AdminState>(
+      listener: (context, adminState) {
+        if (adminState.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(adminState.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        if (adminState.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(adminState.successMessage!),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+          context.pop();
+        }
+      },
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Course Quality Review',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: AppColors.textPrimary),
+            onPressed: () => context.pop(),
           ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Course Header Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.border,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'PENDING QUALITY AUDIT',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'Course ID: #${widget.courseId}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Advanced Microservices with Dart & Docker',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Covers containerization, gRPC service communication, distributed tracing, and horizontal scaling in cloud clusters.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.onSurfaceVariant,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
+          title: const Text(
+            'Course Quality Review',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
-            const SizedBox(height: 20),
-
-            const Text(
-              'Submitted Chapters & Content Verification',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Reusable Admin Review Chapter Widgets
-            const AdminReviewChapterWidget(
-              chapterNum: '1',
-              title: 'Container Fundamentals & Dockerfile Optimization',
-              lessons: [
-                'Lesson 1.1: Docker Engine Architecture (14 mins HD Video)',
-                'Lesson 1.2: Multi-stage Build Strategies (PDF Guide)',
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            const AdminReviewChapterWidget(
-              chapterNum: '2',
-              title: 'Inter-service gRPC & Protocol Buffers',
-              lessons: [
-                'Lesson 2.1: Proto Definitions & Code Generation (20 mins HD Video)',
-                'Lesson 2.2: Stream Interceptors & Authentication (18 mins HD Video)',
-              ],
-            ),
-            const SizedBox(height: 28),
-
-            // Decision Actions
-            Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'Reject with Feedback',
-                    icon: Icons.cancel_outlined,
-                    backgroundColor: AppColors.error,
-                    isLoading: _isProcessing,
-                    onPressed: _onReject,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CustomButton(
-                    text: 'Approve & Publish',
-                    icon: Icons.check_circle_rounded,
-                    backgroundColor: AppColors.secondary,
-                    isLoading: _isProcessing,
-                    onPressed: _onApprove,
-                  ),
-                ),
-              ],
+          ),
+          actions: [
+            IconButton(
+              icon:
+                  const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
+              tooltip: 'Refresh',
+              onPressed: _loadCourseDetails,
             ),
           ],
+        ),
+        body: BlocBuilder<CourseBloc, CourseState>(
+          builder: (context, courseState) {
+            final isLoading = courseState.status.isLoading &&
+                courseState.selectedCourse == null;
+            final course = courseState.selectedCourse;
+
+            if (isLoading) {
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: const [
+                      LoadingSkeletonCard(height: 180, borderRadius: 16),
+                      SizedBox(height: 20),
+                      LoadingSkeletonCard(height: 100, borderRadius: 16),
+                      SizedBox(height: 12),
+                      LoadingSkeletonCard(height: 100, borderRadius: 16),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            if (courseState.status.isError && course == null) {
+              return Center(
+                child: ErrorView(
+                  message: courseState.errorMessage ??
+                      'Failed to load course details for review.',
+                  onRetry: _loadCourseDetails,
+                ),
+              );
+            }
+
+            if (course == null) {
+              return const Center(
+                child: Text(
+                  'Course details not available.',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              );
+            }
+
+            final chapters = course.chapters;
+            final totalLessons = course.lessonsCount;
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 768;
+
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 850),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isWide ? 32.0 : 20.0,
+                              vertical: 20.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Course Overview Card
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border:
+                                        Border.all(color: AppColors.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.12),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                  color: AppColors.primary
+                                                      .withValues(alpha: 0.3)),
+                                            ),
+                                            child: Text(
+                                              course.status.toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            'Course ID: #${course.id}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 14),
+                                      Text(
+                                        course.title,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        course.description,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.person_outline_rounded,
+                                            size: 16,
+                                            color: AppColors.roleTeacher,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Instructor: ${course.teacherName ?? "Author"}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Text(
+                                            '${chapters.length} Chapters • $totalLessons Lessons',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+
+                                const Text(
+                                  'Submitted Curriculum & Lesson Verification',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                if (chapters.isEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surface,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border:
+                                          Border.all(color: AppColors.border),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'No chapters or lessons uploaded yet for this course.',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: chapters.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 12),
+                                    itemBuilder: (context, index) {
+                                      final chapter = chapters[index];
+                                      return Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.surface,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          border: Border.all(
+                                              color: AppColors.border),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Chapter ${index + 1}: ${chapter.title}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            if (chapter.lessons.isEmpty)
+                                              const Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 4.0),
+                                                child: Text(
+                                                  'No lessons added to this chapter.',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                                ),
+                                              )
+                                            else
+                                              ...chapter.lessons.map(
+                                                (lesson) => Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 4.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        lesson.lessonType ==
+                                                                'video'
+                                                            ? Icons
+                                                                .play_circle_outline_rounded
+                                                            : (lesson.lessonType ==
+                                                                    'pdf'
+                                                                ? Icons
+                                                                    .picture_as_pdf_outlined
+                                                                : Icons
+                                                                    .article_outlined),
+                                                        size: 16,
+                                                        color:
+                                                            AppColors.secondary,
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          '${lesson.title} (${lesson.durationMinutes > 0 ? "${lesson.durationMinutes} mins" : lesson.lessonType.toUpperCase()})',
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors
+                                                                .textSecondary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Sticky Action Bar
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isWide ? 32.0 : 20.0,
+                            vertical: 16.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            border: const Border(
+                              top: BorderSide(color: AppColors.border),
+                            ),
+                          ),
+                          child: BlocBuilder<AdminBloc, AdminState>(
+                            builder: (context, adminState) {
+                              final isActionLoading =
+                                  adminState.status == AdminStatus.loading;
+
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: 'Reject Course Draft',
+                                      icon: Icons.cancel_outlined,
+                                      isOutlined: true,
+                                      textColor: AppColors.error,
+                                      backgroundColor: AppColors.error,
+                                      isLoading: isActionLoading,
+                                      onPressed: () => _onReject(course.title),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: 'Approve & Publish',
+                                      icon: Icons.check_circle_rounded,
+                                      backgroundColor: AppColors.primary,
+                                      textColor: AppColors.onPrimary,
+                                      isLoading: isActionLoading,
+                                      onPressed: () =>
+                                          _onApprove(course.title),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

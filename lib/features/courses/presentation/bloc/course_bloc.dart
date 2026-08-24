@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/create_chapter_usecase.dart';
 import '../../domain/usecases/create_course_usecase.dart';
 import '../../domain/usecases/create_lesson_usecase.dart';
@@ -346,7 +347,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     EnrollCourseRequested event,
     Emitter<CourseState> emit,
   ) async {
-    emit(state.copyWith(isEnrolling: true));
+    emit(state.copyWith(isEnrolling: true, clearMessages: true));
 
     final result = await enrollCourseUseCase(
       EnrollCourseParams(courseId: event.courseId),
@@ -358,9 +359,33 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
         errorMessage: failure.message,
       )),
       (_) {
+        CourseEntity? updatedSelectedCourse;
+        if (state.selectedCourse != null &&
+            state.selectedCourse!.id == event.courseId) {
+          updatedSelectedCourse =
+              state.selectedCourse!.copyWith(isEnrolled: true);
+        }
+
+        final updatedCourses = state.courses.map((c) {
+          if (c.id == event.courseId) {
+            return c.copyWith(isEnrolled: true);
+          }
+          return c;
+        }).toList();
+
+        final updatedApprovedCourses = state.approvedCourses.map((c) {
+          if (c.id == event.courseId) {
+            return c.copyWith(isEnrolled: true);
+          }
+          return c;
+        }).toList();
+
         emit(state.copyWith(
           isEnrolling: false,
-          successMessage: 'Enrolled in course successfully!',
+          selectedCourse: updatedSelectedCourse ?? state.selectedCourse,
+          courses: updatedCourses,
+          approvedCourses: updatedApprovedCourses,
+          successMessage: 'Successfully enrolled in course! Happy learning!',
         ));
       },
     );
