@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../domain/entities/admin_course_entity.dart';
+import '../../domain/usecases/approve_course_use_case.dart';
+import '../../domain/usecases/get_pending_courses_use_case.dart';
+import '../../domain/usecases/reject_course_use_case.dart';
 import '../widgets/admin_pending_course_card.dart';
 
 class AdminPendingCoursesScreen extends StatefulWidget {
@@ -13,26 +19,45 @@ class AdminPendingCoursesScreen extends StatefulWidget {
 }
 
 class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
-  final List<Map<String, dynamic>> _pendingCourses = [
-    {
-      'id': 201,
-      'title': 'Advanced Microservices with Dart & Docker',
-      'instructor': 'Dr. Robert Smith',
-      'category': 'Computer Science',
-      'submittedDate': 'Aug 23, 2026',
-      'chaptersCount': 5,
-      'lessonsCount': 22,
-    },
-    {
-      'id': 202,
-      'title': 'Design Token Automation in Production Apps',
-      'instructor': 'Clara Oswald',
-      'category': 'Design & UI',
-      'submittedDate': 'Aug 22, 2026',
-      'chaptersCount': 3,
-      'lessonsCount': 12,
-    },
-  ];
+  final GetPendingCoursesUseCase _getPendingCoursesUseCase = GetIt.I<GetPendingCoursesUseCase>();
+  final ApproveCourseUseCase _approveCourseUseCase = GetIt.I<ApproveCourseUseCase>();
+  final RejectCourseUseCase _rejectCourseUseCase = GetIt.I<RejectCourseUseCase>();
+
+  List<AdminCourseEntity> _pendingCourses = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPendingCourses();
+  }
+
+  Future<void> _fetchPendingCourses() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await _getPendingCoursesUseCase(const GetPendingCoursesParams());
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = failure.message;
+        });
+      },
+      (courses) {
+        setState(() {
+          _isLoading = false;
+          _pendingCourses = courses;
+        });
+      },
+    );
+  }
 
   void _onApproveCourse(int id, String title) async {
     final confirmed = await ConfirmationDialog.show(
@@ -45,14 +70,30 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _pendingCourses.removeWhere((c) => c['id'] == id);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Course "$title" approved and published!'),
-          backgroundColor: AppColors.secondary,
-        ),
+      final result = await _approveCourseUseCase(id);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to approve course: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          setState(() {
+            _pendingCourses.removeWhere((c) => c.id == id);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Course "$title" approved and published!'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+        },
       );
     }
   }
@@ -68,14 +109,30 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _pendingCourses.removeWhere((c) => c['id'] == id);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Course "$title" rejected.'),
-          backgroundColor: AppColors.error,
-        ),
+      final result = await _rejectCourseUseCase(id);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to reject course: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          setState(() {
+            _pendingCourses.removeWhere((c) => c.id == id);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Course "$title" rejected.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
       );
     }
   }
@@ -83,7 +140,7 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surfaceContainerLowest,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -99,29 +156,93 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
             fontSize: 18,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
+            tooltip: 'Refresh',
+            onPressed: _fetchPendingCourses,
+          ),
+        ],
       ),
-      body: _pendingCourses.isEmpty
-          ? EmptyStateWidget(
-              icon: Icons.verified_rounded,
-              title: 'No Pending Course Submissions',
-              message: 'All submitted teacher courses have been reviewed and processed.',
-              actionText: 'Back to Dashboard',
-              onAction: () => context.go('/dashboard'),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _pendingCourses.length,
-              itemBuilder: (context, index) {
-                final course = _pendingCourses[index];
+      body: _buildBody(),
+    );
+  }
 
-                return AdminPendingCourseCard(
-                  course: course,
-                  onReview: () => context.push('/admin/courses/${course['id']}/review'),
-                  onApprove: () => _onApproveCourse(course['id'] as int, course['title'] as String),
-                  onReject: () => _onRejectCourse(course['id'] as int, course['title'] as String),
-                );
-              },
+  Widget _buildBody() {
+    if (_isLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 4,
+        itemBuilder: (_, index) => const LoadingSkeletonCard(height: 140, borderRadius: 16),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.onSurface, fontSize: 15),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _fetchPendingCourses,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_pendingCourses.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _fetchPendingCourses,
+        child: ListView(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: EmptyStateWidget(
+                icon: Icons.verified_rounded,
+                title: 'No Pending Course Submissions',
+                message: 'All submitted teacher courses have been reviewed and processed.',
+                actionText: 'Back to Dashboard',
+                onAction: () => context.go('/dashboard'),
+              ),
             ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _fetchPendingCourses,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _pendingCourses.length,
+        itemBuilder: (context, index) {
+          final course = _pendingCourses[index];
+
+          return AdminPendingCourseCard(
+            courseEntity: course,
+            onReview: () => context.push('/admin/courses/${course.id}/review'),
+            onApprove: () => _onApproveCourse(course.id, course.title),
+            onReject: () => _onRejectCourse(course.id, course.title),
+          );
+        },
+      ),
     );
   }
 }

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../domain/entities/admin_course_entity.dart';
 
 class AdminPendingCourseCard extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Map<String, dynamic>? course;
+  final AdminCourseEntity? courseEntity;
   final VoidCallback onReview;
   final VoidCallback onApprove;
   final VoidCallback onReject;
 
   const AdminPendingCourseCard({
     super.key,
-    required this.course,
+    this.course,
+    this.courseEntity,
     required this.onReview,
     required this.onApprove,
     required this.onReject,
@@ -17,9 +20,25 @@ class AdminPendingCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = courseEntity?.title ?? course?['title'] as String? ?? 'Untitled Course';
+    final instructor = courseEntity?.teacherName ?? course?['instructor'] as String? ?? 'Instructor';
+    final category = course?['category'] as String? ?? 'GENERAL';
+    final date = courseEntity?.createdAt != null && courseEntity!.createdAt.length >= 10
+        ? courseEntity!.createdAt.substring(0, 10)
+        : (course?['submittedDate'] as String? ?? 'Recent');
+    final chapters = course?['chaptersCount']?.toString() ?? 'Pending';
+    final lessons = course?['lessonsCount']?.toString() ?? 'Review';
+
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: AppColors.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -35,7 +54,7 @@ class AdminPendingCourseCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    (course['category'] as String).toUpperCase(),
+                    category.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -44,14 +63,14 @@ class AdminPendingCourseCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Submitted ${course['submittedDate']}',
+                  'Submitted $date',
                   style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Text(
-              course['title'] as String,
+              title,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -60,7 +79,7 @@ class AdminPendingCourseCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Author: ${course['instructor']} • ${course['chaptersCount']} Chapters • ${course['lessonsCount']} Lessons',
+              'Instructor: $instructor • $chapters • $lessons',
               style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
             ),
             const SizedBox(height: 16),

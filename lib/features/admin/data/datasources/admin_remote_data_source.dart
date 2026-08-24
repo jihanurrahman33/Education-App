@@ -1,9 +1,11 @@
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/networking/api_client.dart';
+import '../models/admin_course_model.dart';
 import '../models/admin_stats_model.dart';
 
 abstract class AdminRemoteDataSource {
   Future<AdminStatsModel> getAdminStats();
+  Future<List<AdminCourseModel>> getPendingCourses({int? page});
   Future<void> approveTeacher(int teacherId);
   Future<void> approveCourse(int courseId);
   Future<void> rejectCourse(int courseId);
@@ -23,6 +25,34 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     throw Exception('Invalid admin stats response format');
+  }
+
+  @override
+  Future<List<AdminCourseModel>> getPendingCourses({int? page}) async {
+    final queryParams = <String, dynamic>{};
+    if (page != null) {
+      queryParams['page'] = page;
+    }
+
+    final response = await apiClient.get(
+      ApiEndpoints.adminPendingCourses,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    if (response is Map<String, dynamic> && response['results'] is List) {
+      final results = response['results'] as List<dynamic>;
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map((json) => AdminCourseModel.fromJson(json))
+          .toList();
+    } else if (response is List) {
+      return response
+          .whereType<Map<String, dynamic>>()
+          .map((json) => AdminCourseModel.fromJson(json))
+          .toList();
+    }
+
+    return [];
   }
 
   @override
