@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/generate_certificate_usecase.dart';
 import '../../domain/usecases/get_certificates_usecase.dart';
 import 'certificate_event.dart';
@@ -22,7 +23,7 @@ class CertificateBloc extends Bloc<CertificateEvent, CertificateState> {
   ) async {
     emit(state.copyWith(status: CertificateStatus.loading, clearMessages: true));
 
-    final result = await getCertificatesUseCase(page: event.page);
+    final result = await getCertificatesUseCase(const NoParams());
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -42,7 +43,9 @@ class CertificateBloc extends Bloc<CertificateEvent, CertificateState> {
   ) async {
     emit(state.copyWith(status: CertificateStatus.loading, clearMessages: true));
 
-    final result = await generateCertificateUseCase(event.courseId);
+    final result = await generateCertificateUseCase(
+      GenerateCertificateParams(courseId: event.courseId),
+    );
 
     result.fold(
       (failure) => emit(state.copyWith(

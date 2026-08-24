@@ -40,7 +40,8 @@ class ProfileScreen extends StatelessWidget {
             leading: isTab
                 ? null
                 : IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                    icon: const Icon(Icons.arrow_back_rounded,
+                        color: AppColors.textPrimary),
                     onPressed: () => context.pop(),
                   ),
             title: const Text(
@@ -59,154 +60,174 @@ class ProfileScreen extends StatelessWidget {
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                // Profile Avatar & Header Card
-                Container(
-                  padding: const EdgeInsets.all(24.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            width: 84,
-                            height: 84,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                user.fullName.isNotEmpty
-                                    ? user.fullName[0].toUpperCase()
-                                    : user.username[0].toUpperCase(),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 750),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isWide ? 32.0 : 20.0,
+                      vertical: 20.0,
+                    ),
+                    child: Column(
+                      children: [
+                        // Profile Avatar & Header Card
+                        Container(
+                          padding: const EdgeInsets.all(24.0),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            children: [
+                              Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  Container(
+                                    width: 84,
+                                    height: 84,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        user.fullName.isNotEmpty
+                                            ? user.fullName[0].toUpperCase()
+                                            : user.username[0].toUpperCase(),
+                                        style: const TextStyle(
+                                          color: AppColors.onPrimary,
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.surface,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.verified_rounded,
+                                      size: 20,
+                                      color: AppColors.secondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                user.fullName,
                                 style: const TextStyle(
-                                  color: AppColors.onPrimary,
-                                  fontSize: 32,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '@${user.username} • ${user.email}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              StatusBadge.role(user.role.toApiValue()),
+                              if (user.role.toApiValue() == 'teacher') ...[
+                                const SizedBox(height: 8),
+                                StatusBadge.approval(user.isApprovedTeacher),
+                              ],
+                            ],
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: AppColors.surface,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.verified_rounded,
-                              size: 20,
-                              color: AppColors.secondary,
-                            ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Account Information using ProfileInfoTileWidget
+                        Container(
+                          padding: const EdgeInsets.all(20.0),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.border),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        user.fullName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Account Details',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ProfileInfoTileWidget(
+                                label: 'User ID',
+                                value: '#${user.id}',
+                                icon: Icons.tag_rounded,
+                              ),
+                              const Divider(
+                                  height: 24, color: AppColors.divider),
+                              ProfileInfoTileWidget(
+                                label: 'Username',
+                                value: user.username,
+                                icon: Icons.alternate_email_rounded,
+                              ),
+                              const Divider(
+                                  height: 24, color: AppColors.divider),
+                              ProfileInfoTileWidget(
+                                label: 'Email',
+                                value: user.email,
+                                icon: Icons.mail_outline_rounded,
+                              ),
+                              const Divider(
+                                  height: 24, color: AppColors.divider),
+                              ProfileInfoTileWidget(
+                                label: 'Role',
+                                value: user.role.toApiValue().toUpperCase(),
+                                icon: Icons.shield_outlined,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '@${user.username} • ${user.email}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+                        const SizedBox(height: 24),
+
+                        // Actions
+                        CustomButton(
+                          text: 'Sign Out',
+                          isOutlined: true,
+                          icon: Icons.logout_rounded,
+                          textColor: AppColors.error,
+                          backgroundColor: AppColors.error,
+                          onPressed: () {
+                            context
+                                .read<AuthBloc>()
+                                .add(const AuthLogoutRequested());
+                            context.go('/login');
+                          },
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      StatusBadge.role(user.role.toApiValue()),
-                      if (user.role.toApiValue() == 'teacher') ...[
-                        const SizedBox(height: 8),
-                        StatusBadge.approval(user.isApprovedTeacher),
                       ],
-                    ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Account Information using ProfileInfoTileWidget
-                Container(
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Account Details',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ProfileInfoTileWidget(
-                        label: 'User ID',
-                        value: '#${user.id}',
-                        icon: Icons.tag_rounded,
-                      ),
-                      const Divider(height: 24, color: AppColors.divider),
-                      ProfileInfoTileWidget(
-                        label: 'Username',
-                        value: user.username,
-                        icon: Icons.alternate_email_rounded,
-                      ),
-                      const Divider(height: 24, color: AppColors.divider),
-                      ProfileInfoTileWidget(
-                        label: 'Email',
-                        value: user.email,
-                        icon: Icons.mail_outline_rounded,
-                      ),
-                      const Divider(height: 24, color: AppColors.divider),
-                      ProfileInfoTileWidget(
-                        label: 'Role',
-                        value: user.role.toApiValue().toUpperCase(),
-                        icon: Icons.shield_outlined,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Actions
-                CustomButton(
-                  text: 'Sign Out',
-                  isOutlined: true,
-                  icon: Icons.logout_rounded,
-                  textColor: AppColors.error,
-                  backgroundColor: AppColors.error,
-                  onPressed: () {
-                    context.read<AuthBloc>().add(const AuthLogoutRequested());
-                    context.go('/login');
-                  },
-                ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },

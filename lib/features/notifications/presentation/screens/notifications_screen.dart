@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../bloc/notification_bloc.dart';
+import '../bloc/notification_event.dart';
+import '../bloc/notification_state.dart';
 import '../widgets/notification_item_card_widget.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -12,42 +17,10 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final List<Map<String, dynamic>> _notifications = [
-    {
-      'id': 1,
-      'title': 'New Lesson Released',
-      'message': 'Chapter 3 Lesson 4 has been uploaded to "Full-Stack Modern App Architecture".',
-      'time': '10 mins ago',
-      'isRead': false,
-      'type': 'lesson',
-    },
-    {
-      'id': 2,
-      'title': 'Quiz Evaluation Complete',
-      'message': 'You scored 90% in "BLoC State Management Fundamentals".',
-      'time': '2 hours ago',
-      'isRead': false,
-      'type': 'quiz',
-    },
-    {
-      'id': 3,
-      'title': 'Certificate Ready for Download',
-      'message': 'Congratulations! Your certificate for "UI/UX Design Systems in Flutter" is available.',
-      'time': '1 day ago',
-      'isRead': true,
-      'type': 'certificate',
-    },
-  ];
-
-  void _markAllRead() {
-    setState(() {
-      for (var n in _notifications) {
-        n['isRead'] = true;
-      }
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All notifications marked as read.')),
-    );
+  @override
+  void initState() {
+    super.initState();
+    context.read<NotificationBloc>().add(const LoadNotificationsEvent());
   }
 
   @override
@@ -71,46 +44,86 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: _markAllRead,
-            child: const Text('Mark all read', style: TextStyle(color: AppColors.primary)),
+            onPressed: () {
+              context.read<NotificationBloc>().add(const ClearAllNotificationsEvent());
+            },
+            child: const Text('Clear all', style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
-      body: _notifications.isEmpty
-          ? EmptyStateWidget(
+      body: BlocBuilder<NotificationBloc, NotificationState>(
+        builder: (context, state) {
+          final isLoading =
+              state.status == NotificationStatus.loading && state.notifications.isEmpty;
+
+          if (isLoading) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 4,
+                  itemBuilder: (context, index) =>
+                      const LoadingSkeletonCard(height: 80, borderRadius: 14),
+                ),
+              ),
+            );
+          }
+
+          if (state.notifications.isEmpty) {
+            return EmptyStateWidget(
               icon: Icons.notifications_off_rounded,
               title: 'No Notifications',
-              message: 'You are all caught up! Updates about course announcements and quizzes will appear here.',
+              message:
+                  'You are all caught up! Updates about course announcements and quizzes will appear here.',
               actionText: 'Back to Dashboard',
               onAction: () => context.go('/dashboard'),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _notifications.length,
-              itemBuilder: (context, index) {
-                final item = _notifications[index];
+            );
+          }
 
-                return NotificationItemCardWidget(
-                  title: item['title'] as String,
-                  message: item['message'] as String,
-                  time: item['time'] as String,
-                  isRead: item['isRead'] as bool,
-                  type: item['type'] as String,
-                  onTap: () {
-                    setState(() {
-                      item['isRead'] = true;
-                    });
-                    if (item['type'] == 'quiz') {
-                      context.push('/quizzes/1/result?score=9&total=10&percentage=90');
-                    } else if (item['type'] == 'certificate') {
-                      context.push('/certificates/1');
-                    } else {
-                      context.push('/learning/1/lesson/4');
-                    }
-                  },
-                );
-              },
-            ),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isWide ? 24.0 : 16.0,
+                      vertical: 16.0,
+                    ),
+                    itemCount: state.notifications.length,
+                    itemBuilder: (context, index) {
+                      final item = state.notifications[index];
+
+                      return NotificationItemCardWidget(
+                        title: item.title,
+                        message: item.message,
+                        time: item.time,
+                        isRead: item.isRead,
+                        type: item.type,
+                        onTap: () {
+                          context
+                              .read<NotificationBloc>()
+                              .add(MarkNotificationAsReadEvent(item.id));
+                          if (item.type == 'quiz') {
+                            context.push('/quizzes/1/result?score=9&total=10&percentage=90');
+                          } else if (item.type == 'certificate') {
+                            context.push('/certificates/1');
+                          } else {
+                            context.push('/learning/1/lesson/4');
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

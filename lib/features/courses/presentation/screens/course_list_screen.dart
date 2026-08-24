@@ -180,7 +180,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                 mainAxisSpacing: 16,
                               ),
                               itemCount: 6,
-                              itemBuilder: (_, __) =>
+                              itemBuilder: (context, index) =>
                                   const LoadingSkeletonCard(height: 160),
                             );
                           }

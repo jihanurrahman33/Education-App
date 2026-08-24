@@ -16,14 +16,17 @@ class TeacherQuizResultsScreen extends StatefulWidget {
   const TeacherQuizResultsScreen({super.key, required this.quizId});
 
   @override
-  State<TeacherQuizResultsScreen> createState() => _TeacherQuizResultsScreenState();
+  State<TeacherQuizResultsScreen> createState() =>
+      _TeacherQuizResultsScreenState();
 }
 
 class _TeacherQuizResultsScreenState extends State<TeacherQuizResultsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<QuizBloc>().add(FetchTeacherQuizResultsRequested(widget.quizId));
+    context
+        .read<QuizBloc>()
+        .add(FetchTeacherQuizResultsRequested(widget.quizId));
   }
 
   @override
@@ -34,7 +37,8 @@ class _TeacherQuizResultsScreenState extends State<TeacherQuizResultsScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon:
+              const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
@@ -68,87 +72,107 @@ class _TeacherQuizResultsScreenState extends State<TeacherQuizResultsScreen> {
               ? ((passedAttempts / totalAttempts) * 100).toStringAsFixed(0)
               : '0';
           final avgScore = totalAttempts > 0
-              ? (results.map((r) => r.scorePercent).reduce((a, b) => a + b) / totalAttempts)
+              ? (results.map((r) => r.scorePercent).reduce((a, b) => a + b) /
+                      totalAttempts)
                   .toStringAsFixed(0)
               : '0';
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<QuizBloc>().add(
-                    FetchTeacherQuizResultsRequested(widget.quizId),
-                  );
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<QuizBloc>().add(
+                            FetchTeacherQuizResultsRequested(widget.quizId),
+                          );
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isWide ? 32.0 : 20.0,
+                        vertical: 20.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              QuizSubmissionStatBox(
+                                label: 'Total Attempts',
+                                value: '$totalAttempts',
+                                color: AppColors.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              QuizSubmissionStatBox(
+                                label: 'Pass Rate',
+                                value: '$passRate%',
+                                color: AppColors.secondary,
+                              ),
+                              const SizedBox(width: 10),
+                              QuizSubmissionStatBox(
+                                label: 'Avg Score',
+                                value: '$avgScore%',
+                                color: AppColors.accent,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Student Attempts',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          if (results.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40.0),
+                              child: Center(
+                                child: Text(
+                                  'No students have submitted this quiz yet.',
+                                  style: TextStyle(
+                                      color: AppColors.textSecondary),
+                                ),
+                              ),
+                            )
+                          else
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: results.length,
+                              itemBuilder: (context, index) {
+                                final res = results[index];
+                                return QuizResultTileWidget(
+                                  title: 'Student #${res.studentId}',
+                                  subtitle: res.submittedAt != null
+                                      ? res.submittedAt!
+                                          .toLocal()
+                                          .toString()
+                                          .split('.')[0]
+                                      : 'Recent submission',
+                                  date: res.submittedAt != null
+                                      ? '${res.submittedAt!.day}/${res.submittedAt!.month}/${res.submittedAt!.year}'
+                                      : '',
+                                  scoreText:
+                                      '${res.scorePercent.toStringAsFixed(0)}%',
+                                  percentage: res.scorePercent.round(),
+                                  passed: res.passed,
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
             },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      QuizSubmissionStatBox(
-                        label: 'Total Attempts',
-                        value: '$totalAttempts',
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 10),
-                      QuizSubmissionStatBox(
-                        label: 'Pass Rate',
-                        value: '$passRate%',
-                        color: AppColors.secondary,
-                      ),
-                      const SizedBox(width: 10),
-                      QuizSubmissionStatBox(
-                        label: 'Avg Score',
-                        value: '$avgScore%',
-                        color: AppColors.accent,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Student Attempts',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (results.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.0),
-                      child: Center(
-                        child: Text(
-                          'No students have submitted this quiz yet.',
-                          style: TextStyle(color: AppColors.textSecondary),
-                        ),
-                      ),
-                    )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: results.length,
-                      itemBuilder: (context, index) {
-                        final res = results[index];
-                        return QuizResultTileWidget(
-                          title: 'Student #${res.studentId}',
-                          subtitle: res.submittedAt != null
-                              ? res.submittedAt!.toLocal().toString().split('.')[0]
-                              : 'Recent submission',
-                          date: res.submittedAt != null
-                              ? '${res.submittedAt!.day}/${res.submittedAt!.month}/${res.submittedAt!.year}'
-                              : '',
-                          scoreText: '${res.scorePercent.toStringAsFixed(0)}%',
-                          percentage: res.scorePercent.round(),
-                          passed: res.passed,
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ),
           );
         },
       ),

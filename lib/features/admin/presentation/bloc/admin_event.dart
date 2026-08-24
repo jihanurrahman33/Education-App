@@ -12,7 +12,12 @@ class LoadAdminDashboardEvent extends AdminEvent {
 }
 
 class LoadPendingTeachersEvent extends AdminEvent {
-  const LoadPendingTeachersEvent();
+  final int? page;
+
+  const LoadPendingTeachersEvent({this.page});
+
+  @override
+  List<Object?> get props => [page];
 }
 
 class ApproveTeacherEvent extends AdminEvent {
@@ -25,7 +30,12 @@ class ApproveTeacherEvent extends AdminEvent {
 }
 
 class LoadPendingCoursesEvent extends AdminEvent {
-  const LoadPendingCoursesEvent();
+  final int? page;
+
+  const LoadPendingCoursesEvent({this.page});
+
+  @override
+  List<Object?> get props => [page];
 }
 
 class ApproveCourseEvent extends AdminEvent {
@@ -48,11 +58,12 @@ class RejectCourseEvent extends AdminEvent {
 
 class LoadAdminUsersEvent extends AdminEvent {
   final int? page;
+  final String? search;
 
-  const LoadAdminUsersEvent({this.page});
+  const LoadAdminUsersEvent({this.page, this.search});
 
   @override
-  List<Object?> get props => [page];
+  List<Object?> get props => [page, search];
 }
 
 class CreateAdminUserEvent extends AdminEvent {

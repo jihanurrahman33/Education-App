@@ -42,9 +42,6 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     super.dispose();
   }
 
-  void _fetchUsers() {
-    context.read<AdminBloc>().add(const LoadAdminUsersEvent());
-  }
 
   Future<void> _deleteUser(AdminUserEntity user) async {
     final confirmed = await ConfirmationDialog.show(
@@ -295,7 +292,6 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     String selectedRole = user.role.toLowerCase();
     bool isActive = user.isActive;
     bool isApprovedTeacher = user.isApprovedTeacher;
-    bool isSubmitting = false;
 
     showModalBottomSheet(
       context: context,
@@ -610,7 +606,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: selectedRole,
+                        initialValue: selectedRole,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -737,7 +733,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
               IconButton(
                 icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
                 tooltip: 'Refresh Users',
-                onPressed: () => context.read<AdminBloc>().add(FetchAdminUsersEvent()),
+                onPressed: () => context.read<AdminBloc>().add(const LoadAdminUsersEvent()),
               ),
             ],
           ),

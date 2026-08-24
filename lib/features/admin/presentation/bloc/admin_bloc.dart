@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/entities/admin_stats_entity.dart';
+import '../../domain/entities/admin_top_course_entity.dart';
 import '../../domain/usecases/approve_course_use_case.dart';
 import '../../domain/usecases/approve_teacher_use_case.dart';
 import '../../domain/usecases/create_user_use_case.dart';
@@ -79,12 +81,12 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         topRes.fold(
           (failure) => emit(state.copyWith(
             status: AdminStatus.success,
-            dashboardStats: stats as dynamic,
+            dashboardStats: stats as AdminStatsEntity,
           )),
           (topCourses) => emit(state.copyWith(
             status: AdminStatus.success,
-            dashboardStats: stats as dynamic,
-            topCourses: topCourses as dynamic,
+            dashboardStats: stats as AdminStatsEntity,
+            topCourses: topCourses as List<AdminTopCourseEntity>,
           )),
         );
       },
@@ -97,7 +99,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   ) async {
     emit(state.copyWith(status: AdminStatus.loading, clearMessages: true));
 
-    final result = await getPendingTeachersUseCase(const NoParams());
+    final result = await getPendingTeachersUseCase(
+      GetPendingTeachersParams(page: event.page),
+    );
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -122,7 +126,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (_) {
-        final updated = state.pendingTeachers.where((t) => t.id != event.teacherId).toList();
+        final updated = state.pendingTeachers
+            .where((t) => t.id != event.teacherId)
+            .toList();
         emit(state.copyWith(
           pendingTeachers: updated,
           successMessage: 'Teacher approved successfully!',
@@ -137,7 +143,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   ) async {
     emit(state.copyWith(status: AdminStatus.loading, clearMessages: true));
 
-    final result = await getPendingCoursesUseCase(const NoParams());
+    final result = await getPendingCoursesUseCase(
+      GetPendingCoursesParams(page: event.page),
+    );
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -162,7 +170,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (_) {
-        final updated = state.pendingCourses.where((c) => c.id != event.courseId).toList();
+        final updated = state.pendingCourses
+            .where((c) => c.id != event.courseId)
+            .toList();
         emit(state.copyWith(
           pendingCourses: updated,
           successMessage: 'Course publication approved!',
@@ -182,7 +192,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (_) {
-        final updated = state.pendingCourses.where((c) => c.id != event.courseId).toList();
+        final updated = state.pendingCourses
+            .where((c) => c.id != event.courseId)
+            .toList();
         emit(state.copyWith(
           pendingCourses: updated,
           successMessage: 'Course publication rejected.',
@@ -197,7 +209,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   ) async {
     emit(state.copyWith(status: AdminStatus.loading, clearMessages: true));
 
-    final result = await getUsersUseCase(event.page);
+    final result = await getUsersUseCase(
+      GetUsersParams(page: event.page, search: event.search),
+    );
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -220,7 +234,6 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     final result = await createUserUseCase(CreateUserParams(
       username: event.username,
       email: event.email,
-      password: event.password,
       role: event.role,
       firstName: event.firstName,
       lastName: event.lastName,
@@ -266,7 +279,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (updatedUser) {
-        final updated = state.users.map((u) => u.id == event.id ? updatedUser : u).toList();
+        final updated = state.users
+            .map((u) => u.id == event.id ? updatedUser : u)
+            .toList();
         emit(state.copyWith(
           users: updated,
           successMessage: 'User details updated!',
@@ -289,10 +304,13 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (patchedUser) {
-        final updated = state.users.map((u) => u.id == event.userId ? patchedUser : u).toList();
+        final updated = state.users
+            .map((u) => u.id == event.userId ? patchedUser : u)
+            .toList();
         emit(state.copyWith(
           users: updated,
-          successMessage: 'User status updated to ${event.isActive ? 'Active' : 'Inactive'}',
+          successMessage:
+              'User status updated to ${event.isActive ? 'Active' : 'Inactive'}',
         ));
       },
     );
@@ -309,7 +327,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         errorMessage: failure.message,
       )),
       (_) {
-        final updated = state.users.where((u) => u.id != event.userId).toList();
+        final updated =
+            state.users.where((u) => u.id != event.userId).toList();
         emit(state.copyWith(
           users: updated,
           successMessage: 'User permanently deleted.',

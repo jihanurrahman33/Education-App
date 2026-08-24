@@ -93,7 +93,8 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
           if (state.status.isError && state.selectedQuiz == null) {
             return ErrorView(
               message: state.errorMessage ?? 'Failed to load quiz',
-              onRetry: () => context.read<QuizBloc>().add(TakeQuizRequested(widget.quizId)),
+              onRetry: () =>
+                  context.read<QuizBloc>().add(TakeQuizRequested(widget.quizId)),
             );
           }
 
@@ -112,71 +113,86 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
             );
           }
 
-          return Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                color: AppColors.surface,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        quiz.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.textPrimary,
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 14),
+                        color: AppColors.surface,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                quiz.title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '${state.selectedAnswers.length}/${questions.length} Answered',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    Text(
-                      '${state.selectedAnswers.length}/${questions.length} Answered',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: AppColors.divider),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(20.0),
-                  itemCount: questions.length,
-                  itemBuilder: (context, index) {
-                    final question = questions[index];
-                    return QuestionCardWidget(
-                      question: question,
-                      questionIndex: index,
-                      selectedChoiceId: state.selectedAnswers[question.id],
-                      onChoiceSelected: (choiceId) {
-                        context.read<QuizBloc>().add(
-                              SelectQuizAnswer(
-                                questionId: question.id,
-                                choiceId: choiceId,
-                              ),
+                      const Divider(height: 1, color: AppColors.divider),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isWide ? 24.0 : 16.0,
+                            vertical: 16.0,
+                          ),
+                          itemCount: questions.length,
+                          itemBuilder: (context, index) {
+                            final question = questions[index];
+                            return QuestionCardWidget(
+                              question: question,
+                              questionIndex: index,
+                              selectedChoiceId: state.selectedAnswers[question.id],
+                              onChoiceSelected: (choiceId) {
+                                context.read<QuizBloc>().add(
+                                      SelectQuizAnswer(
+                                        questionId: question.id,
+                                        choiceId: choiceId,
+                                      ),
+                                    );
+                              },
                             );
-                      },
-                    );
-                  },
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(20.0),
+                        decoration: const BoxDecoration(
+                          color: AppColors.surface,
+                          border: Border(top: BorderSide(color: AppColors.border)),
+                        ),
+                        child: CustomButton(
+                          text: 'Submit Quiz',
+                          isLoading: state.status.isSubmitting,
+                          onPressed: _onSubmit,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(20.0),
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border(top: BorderSide(color: AppColors.border)),
-                ),
-                child: CustomButton(
-                  text: 'Submit Quiz',
-                  isLoading: state.status.isSubmitting,
-                  onPressed: _onSubmit,
-                ),
-              ),
-            ],
+              );
+            },
           );
         },
       ),

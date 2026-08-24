@@ -97,7 +97,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
   ) async {
     emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
 
-    final result = await getApprovedCoursesUseCase(page: event.page);
+    final result = await getApprovedCoursesUseCase(event.page);
 
     result.fold(
       (failure) => emit(state.copyWith(
@@ -118,7 +118,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
   ) async {
     emit(state.copyWith(status: CourseStatus.loading, errorMessage: null));
 
-    final result = await getTeacherCoursesUseCase(page: event.page);
+    final result = await getTeacherCoursesUseCase(event.page);
 
     result.fold(
       (failure) => emit(state.copyWith(

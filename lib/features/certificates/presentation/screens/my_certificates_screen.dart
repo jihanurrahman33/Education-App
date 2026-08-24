@@ -63,7 +63,7 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: 3,
-                  itemBuilder: (_, __) =>
+                  itemBuilder: (context, index) =>
                       const LoadingSkeletonCard(height: 140, borderRadius: 16),
                 ),
               ),
@@ -116,7 +116,7 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
                         final cert = state.certificates[index];
 
                         return CertificateCardWidget(
-                          title: cert.courseTitle ?? 'Course Certificate',
+                          title: cert.courseTitle,
                           instructor: 'Verified Instructor',
                           issuedDate: cert.issuedAt,
                           credentialId: cert.certificateId,

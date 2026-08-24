@@ -37,7 +37,8 @@ class _QuizListScreenState extends State<QuizListScreen> {
           if (state.status.isError && state.quizzes.isEmpty) {
             return ErrorView(
               message: state.errorMessage ?? 'Failed to load quizzes',
-              onRetry: () => context.read<QuizBloc>().add(const FetchQuizzesRequested()),
+              onRetry: () =>
+                  context.read<QuizBloc>().add(const FetchQuizzesRequested()),
             );
           }
 
@@ -54,58 +55,75 @@ class _QuizListScreenState extends State<QuizListScreen> {
             onRefresh: () async {
               context.read<QuizBloc>().add(const FetchQuizzesRequested());
             },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: state.quizzes.length,
-              itemBuilder: (context, index) {
-                final quiz = state.quizzes[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 14),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 768;
+
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isWide ? 24.0 : 16.0,
+                        vertical: 16.0,
                       ),
-                      child: const Icon(
-                        Icons.quiz_rounded,
-                        color: AppColors.primary,
-                        size: 28,
-                      ),
-                    ),
-                    title: Text(
-                      quiz.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (quiz.description.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            quiz.description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: AppColors.textSecondary),
+                      itemCount: state.quizzes.length,
+                      itemBuilder: (context, index) {
+                        final quiz = state.quizzes[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.quiz_rounded,
+                                color: AppColors.primary,
+                                size: 28,
+                              ),
+                            ),
+                            title: Text(
+                              quiz.title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (quiz.description.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    quiz.description,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        color: AppColors.textSecondary),
+                                  ),
+                                ],
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Pass score: ${quiz.passScorePercent}%',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            trailing:
+                                const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                            onTap: () {
+                              context.push('/quizzes/${quiz.id}/take');
+                            },
                           ),
-                        ],
-                        const SizedBox(height: 6),
-                        Text(
-                          'Pass score: ${quiz.passScorePercent}%',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.secondary,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {
-                      context.push('/quizzes/${quiz.id}/take');
-                    },
                   ),
                 );
               },

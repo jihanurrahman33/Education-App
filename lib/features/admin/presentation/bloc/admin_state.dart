@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/admin_dashboard_entity.dart';
+import '../../domain/entities/admin_course_entity.dart';
+import '../../domain/entities/admin_stats_entity.dart';
+import '../../domain/entities/admin_top_course_entity.dart';
 import '../../domain/entities/admin_user_entity.dart';
-import '../../domain/entities/pending_course_entity.dart';
-import '../../domain/entities/pending_teacher_entity.dart';
-import '../../domain/entities/top_course_entity.dart';
 
 enum AdminStatus { initial, loading, success, failure }
 
 class AdminState extends Equatable {
   final AdminStatus status;
-  final AdminDashboardEntity? dashboardStats;
-  final List<TopCourseEntity> topCourses;
-  final List<PendingTeacherEntity> pendingTeachers;
-  final List<PendingCourseEntity> pendingCourses;
+  final AdminStatsEntity? dashboardStats;
+  final List<AdminTopCourseEntity> topCourses;
+  final List<AdminUserEntity> pendingTeachers;
+  final List<AdminCourseEntity> pendingCourses;
   final List<AdminUserEntity> users;
   final String? errorMessage;
   final String? successMessage;
@@ -30,10 +29,10 @@ class AdminState extends Equatable {
 
   AdminState copyWith({
     AdminStatus? status,
-    AdminDashboardEntity? dashboardStats,
-    List<TopCourseEntity>? topCourses,
-    List<PendingTeacherEntity>? pendingTeachers,
-    List<PendingCourseEntity>? pendingCourses,
+    AdminStatsEntity? dashboardStats,
+    List<AdminTopCourseEntity>? topCourses,
+    List<AdminUserEntity>? pendingTeachers,
+    List<AdminCourseEntity>? pendingCourses,
     List<AdminUserEntity>? users,
     String? errorMessage,
     String? successMessage,
@@ -47,7 +46,8 @@ class AdminState extends Equatable {
       pendingCourses: pendingCourses ?? this.pendingCourses,
       users: users ?? this.users,
       errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
-      successMessage: clearMessages ? null : (successMessage ?? this.successMessage),
+      successMessage:
+          clearMessages ? null : (successMessage ?? this.successMessage),
     );
   }
 
