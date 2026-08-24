@@ -1,53 +1,19 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole {
-  student,
-  teacher,
-  admin;
-
-  static UserRole fromString(String? role) {
-    switch (role?.toLowerCase()) {
-      case 'teacher':
-        return UserRole.teacher;
-      case 'admin':
-        return UserRole.admin;
-      case 'student':
-      default:
-        return UserRole.student;
-    }
-  }
-
-  String toApiValue() {
-    switch (this) {
-      case UserRole.teacher:
-        return 'teacher';
-      case UserRole.admin:
-        return 'admin';
-      case UserRole.student:
-        return 'student';
-    }
-  }
-}
-
-class UserEntity extends Equatable {
+class AdminUserEntity extends Equatable {
   final int id;
   final String username;
   final String email;
   final String? firstName;
   final String? lastName;
-  final UserRole role;
+  final String role;
   final String? phone;
-  final String? bio;
-  final String? avatar;
+  final bool isActive;
   final bool isApprovedTeacher;
   final String? approvedAt;
-  final bool isActive;
   final String? dateJoined;
-  final String? createdAt;
-  final String? token;
-  final String? refreshToken;
 
-  const UserEntity({
+  const AdminUserEntity({
     required this.id,
     required this.username,
     required this.email,
@@ -55,15 +21,10 @@ class UserEntity extends Equatable {
     this.lastName,
     required this.role,
     this.phone,
-    this.bio,
-    this.avatar,
+    this.isActive = true,
     this.isApprovedTeacher = false,
     this.approvedAt,
-    this.isActive = true,
     this.dateJoined,
-    this.createdAt,
-    this.token,
-    this.refreshToken,
   });
 
   String get fullName {
@@ -85,14 +46,9 @@ class UserEntity extends Equatable {
         lastName,
         role,
         phone,
-        bio,
-        avatar,
+        isActive,
         isApprovedTeacher,
         approvedAt,
-        isActive,
         dateJoined,
-        createdAt,
-        token,
-        refreshToken,
       ];
 }
