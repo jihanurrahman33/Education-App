@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_event.dart';
@@ -14,13 +15,19 @@ class AdminPendingCoursesScreen extends StatefulWidget {
   const AdminPendingCoursesScreen({super.key});
 
   @override
-  State<AdminPendingCoursesScreen> createState() => _AdminPendingCoursesScreenState();
+  State<AdminPendingCoursesScreen> createState() =>
+      _AdminPendingCoursesScreenState();
 }
 
-class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
+class _AdminPendingCoursesScreenState
+    extends State<AdminPendingCoursesScreen> {
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
     context.read<AdminBloc>().add(const LoadPendingCoursesEvent());
   }
 
@@ -64,7 +71,8 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon:
+              const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: const Text(
@@ -79,7 +87,7 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
             tooltip: 'Refresh',
-            onPressed: () => context.read<AdminBloc>().add(const LoadPendingCoursesEvent()),
+            onPressed: _loadData,
           ),
         ],
       ),
@@ -87,17 +95,22 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
         listener: (context, state) {
           if (state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!), backgroundColor: AppColors.error),
+              SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.error),
             );
           }
           if (state.successMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.successMessage!), backgroundColor: AppColors.secondary),
+              SnackBar(
+                  content: Text(state.successMessage!),
+                  backgroundColor: AppColors.secondary),
             );
           }
         },
         builder: (context, state) {
-          final isLoading = state.status == AdminStatus.loading && state.pendingCourses.isEmpty;
+          final isLoading =
+              state.status == AdminStatus.loading && state.pendingCourses.isEmpty;
 
           if (isLoading) {
             return Center(
@@ -113,11 +126,20 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
             );
           }
 
+          if (state.status == AdminStatus.failure &&
+              state.pendingCourses.isEmpty) {
+            return Center(
+              child: ErrorView(
+                message: state.errorMessage ??
+                    'Failed to load pending course submissions.',
+                onRetry: _loadData,
+              ),
+            );
+          }
+
           if (state.pendingCourses.isEmpty) {
             return RefreshIndicator(
-              onRefresh: () async {
-                context.read<AdminBloc>().add(const LoadPendingCoursesEvent());
-              },
+              onRefresh: () async => _loadData(),
               child: ListView(
                 children: [
                   SizedBox(
@@ -127,8 +149,8 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
                       title: 'No Pending Course Submissions',
                       message:
                           'All submitted teacher courses have been reviewed and processed.',
-                      actionText: 'Back to Dashboard',
-                      onAction: () => context.go('/dashboard'),
+                      actionText: 'Refresh List',
+                      onAction: _loadData,
                     ),
                   ),
                 ],
@@ -138,15 +160,18 @@ class _AdminPendingCoursesScreenState extends State<AdminPendingCoursesScreen> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<AdminBloc>().add(const LoadPendingCoursesEvent());
-                    },
+                    onRefresh: () async => _loadData(),
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isWide ? 24.0 : 16.0,
+                        vertical: 16.0,
+                      ),
                       itemCount: state.pendingCourses.length,
                       itemBuilder: (context, index) {
                         final course = state.pendingCourses[index];
