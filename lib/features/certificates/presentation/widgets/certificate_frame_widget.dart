@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class CertificateFrameWidget extends StatelessWidget {
@@ -16,6 +17,18 @@ class CertificateFrameWidget extends StatelessWidget {
     this.issueDate = 'August 24, 2026',
     this.credentialCode = 'EDU-CERT-8849-1',
   });
+
+  String get _displayDate {
+    if (issueDate.trim().isEmpty) {
+      return DateFormat('MMMM d, y').format(DateTime.now());
+    }
+    try {
+      final parsed = DateTime.parse(issueDate).toLocal();
+      return DateFormat('MMMM d, y').format(parsed);
+    } catch (_) {
+      return issueDate;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +137,7 @@ class CertificateFrameWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    issueDate,
+                    _displayDate,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

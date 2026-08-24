@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -18,6 +19,18 @@ class CertificateViewerScreen extends StatelessWidget {
       context.pop();
     } else {
       context.go('/certificates');
+    }
+  }
+
+  String _formatIssueDate(String? rawDate) {
+    if (rawDate == null || rawDate.trim().isEmpty) {
+      return DateFormat('MMMM d, y').format(DateTime.now());
+    }
+    try {
+      final parsed = DateTime.parse(rawDate).toLocal();
+      return DateFormat('MMMM d, y').format(parsed);
+    } catch (_) {
+      return rawDate;
     }
   }
 
@@ -65,7 +78,7 @@ class CertificateViewerScreen extends StatelessWidget {
                 .firstOrNull;
             final courseTitle = cert?.courseTitle ??
                 'Mastering Clean Architecture & Flutter';
-            final issueDate = cert?.issuedAt ?? 'August 2026';
+            final formattedIssueDate = _formatIssueDate(cert?.issuedAt);
             final credentialCode =
                 cert?.certificateId ?? 'EDU-CERT-8849-$certificateId';
 
@@ -88,7 +101,7 @@ class CertificateViewerScreen extends StatelessWidget {
                             certificateId: certificateId,
                             studentName: cert?.studentName ?? studentName,
                             courseTitle: courseTitle,
-                            issueDate: issueDate,
+                            issueDate: formattedIssueDate,
                             credentialCode: credentialCode,
                           ),
                           const SizedBox(height: 28),

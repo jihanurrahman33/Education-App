@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_view.dart';
@@ -133,11 +134,16 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
                       itemCount: state.certificates.length,
                       itemBuilder: (context, index) {
                         final cert = state.certificates[index];
+                        String formattedDate = cert.issuedAt;
+                        try {
+                          final parsed = DateTime.parse(cert.issuedAt).toLocal();
+                          formattedDate = DateFormat('MMMM d, y').format(parsed);
+                        } catch (_) {}
 
                         return CertificateCardWidget(
                           title: cert.courseTitle,
                           instructor: 'Verified Instructor',
-                          issuedDate: cert.issuedAt,
+                          issuedDate: formattedDate,
                           credentialId: cert.certificateId,
                           onTap: () => context.push('/certificates/${cert.id}'),
                         );
