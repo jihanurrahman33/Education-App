@@ -31,13 +31,17 @@ class ApiEndpoints {
 
   // 4. Progress & Enrollment endpoints
   static const String enroll = '/api/progress/enroll/';
+  static const String enrollments = '/api/progress/enrollments/';
   static const String completeLesson = '/api/progress/complete/';
+  static const String completedLessons = '/api/progress/completed/';
   static String courseProgress(int id) => '/api/progress/course/$id/';
   static const String myProgress = '/api/progress/my-progress/';
   static const String progressSummary = '/api/progress/my-progress/';
   static const String progress = '/api/progress/my-progress/';
   static String generateCertificate(int id) => '/api/progress/certificate/$id/';
   static const String certificates = '/api/progress/certificates/';
+  static String teacherCourseStudentsProgress(int courseId) =>
+      '/api/progress/teacher/course/$courseId/students/';
 
   // 5. Admin Panel endpoints
   static const String adminUsers = '/api/admin-panel/users/';
