@@ -8,6 +8,8 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../progress/presentation/bloc/progress_bloc.dart';
 import '../../../progress/presentation/bloc/progress_event.dart';
 import '../bloc/course_bloc.dart';
@@ -160,6 +162,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
             );
           }
 
+          final currentUser = context.watch<AuthBloc>().state.user;
+          final isAdmin = currentUser?.role == UserRole.admin;
+          final isTeacher = currentUser?.role == UserRole.teacher;
+          final isOwnerTeacher = isTeacher && currentUser?.id == course.teacher;
+          final hasDirectAccess = isAdmin || isTeacher || course.isEnrolled;
+
           return LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 768;
@@ -173,53 +181,68 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                       Container(
                         height: isWide ? 220 : 180,
                         width: double.infinity,
+                        margin: EdgeInsets.fromLTRB(
+                          isWide ? 32.0 : 16.0,
+                          16.0,
+                          isWide ? 32.0 : 16.0,
+                          8.0,
+                        ),
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
                           gradient: LinearGradient(
                             colors: [
+                              AppColors.primaryDark,
+                              AppColors.primary,
                               AppColors.secondary.withValues(alpha: 0.8),
-                              AppColors.surface,
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          border: const Border(
-                            bottom: BorderSide(color: AppColors.border),
-                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.25),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
                         child: Stack(
-                          alignment: Alignment.center,
                           children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.2),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.primary
-                                          .withValues(alpha: 0.5),
-                                      width: 2,
+                            Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.08,
+                                child: CustomPaint(
+                                  painter: _GridPatternPainter(),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.school_rounded,
+                                      size: 40,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  child: const Icon(
-                                    Icons.play_arrow_rounded,
-                                    size: 38,
-                                    color: AppColors.primary,
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    'Curriculum Syllabus Overview',
+                                    style: TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'Curriculum Syllabus Overview',
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             Positioned(
                               top: 14,
@@ -228,19 +251,25 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: course.isEnrolled
+                                  color: hasDirectAccess
                                       ? AppColors.secondary
                                       : AppColors.primary,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  course.isEnrolled
-                                      ? 'ENROLLED'
-                                      : (course.price == 0
-                                          ? 'FREE ACCESS'
-                                          : '\$${course.price.toStringAsFixed(2)}'),
+                                  isAdmin
+                                      ? 'ADMIN VIEW'
+                                      : (isOwnerTeacher
+                                          ? 'COURSE AUTHOR'
+                                          : (isTeacher
+                                              ? 'INSTRUCTOR VIEW'
+                                              : (course.isEnrolled
+                                                  ? 'ENROLLED'
+                                                  : (course.price == 0
+                                                      ? 'FREE ACCESS'
+                                                      : '\$${course.price.toStringAsFixed(2)}')))),
                                   style: TextStyle(
-                                    color: course.isEnrolled
+                                    color: hasDirectAccess
                                         ? Colors.white
                                         : AppColors.onPrimary,
                                     fontSize: 10,
@@ -286,9 +315,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                             // Tab 2: Curriculum
                             CurriculumAccordionWidget(
                               chapters: course.chapters,
-                              isEnrolled: course.isEnrolled,
+                              isEnrolled: hasDirectAccess,
                               onLessonTap: (lesson) {
-                                if (course.isEnrolled) {
+                                if (hasDirectAccess) {
                                   context.push(
                                       '/learning/${course.id}/lesson/${lesson.id}');
                                 } else {
@@ -302,7 +331,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                         ),
                       ),
 
-                      // Bottom Enrollment Action Bar
+                      // Bottom Enrollment / Role Action Bar
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 14),
@@ -320,23 +349,31 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
-                                    'Access Status',
-                                    style: TextStyle(
+                                  Text(
+                                    isAdmin || isTeacher
+                                        ? 'Platform Access'
+                                        : 'Access Status',
+                                    style: const TextStyle(
                                         fontSize: 11,
                                         color: AppColors.textSecondary),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    course.isEnrolled
-                                        ? 'Enrolled'
-                                        : (course.price == 0
-                                            ? 'Free'
-                                            : '\$${course.price.toStringAsFixed(2)}'),
+                                    isAdmin
+                                        ? 'Administrator'
+                                        : (isOwnerTeacher
+                                            ? 'Course Author'
+                                            : (isTeacher
+                                                ? 'Instructor'
+                                                : (course.isEnrolled
+                                                    ? 'Enrolled'
+                                                    : (course.price == 0
+                                                        ? 'Free'
+                                                        : '\$${course.price.toStringAsFixed(2)}')))),
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
-                                      color: course.isEnrolled
+                                      color: hasDirectAccess
                                           ? AppColors.secondary
                                           : AppColors.primary,
                                     ),
@@ -345,36 +382,83 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                               ),
                               const SizedBox(width: 20),
                               Expanded(
-                                child: CustomButton(
-                                  text: course.isEnrolled
-                                      ? 'Continue Course'
-                                      : 'Enroll in Course',
-                                  icon: course.isEnrolled
-                                      ? Icons.play_circle_filled_rounded
-                                      : Icons.school_rounded,
-                                  isLoading: state.isEnrolling,
-                                  backgroundColor: course.isEnrolled
-                                      ? AppColors.secondary
-                                      : AppColors.primary,
-                                  textColor: course.isEnrolled
-                                      ? Colors.white
-                                      : AppColors.onPrimary,
-                                  onPressed: () {
-                                    if (course.isEnrolled) {
-                                      final firstLessonId =
-                                          _findFirstLessonId(course);
-                                      if (firstLessonId != null) {
-                                        context.push(
-                                            '/learning/${course.id}/lesson/$firstLessonId');
-                                      } else {
-                                        AppToast.showInfo(context,
-                                            'No lessons available yet in this course.');
-                                      }
-                                    } else {
-                                      _onEnroll(course.id, course.title);
-                                    }
-                                  },
-                                ),
+                                child: isAdmin
+                                    ? CustomButton(
+                                        text: 'Inspect Course Lessons',
+                                        icon: Icons.visibility_rounded,
+                                        backgroundColor: AppColors.surfaceDark,
+                                        textColor: Colors.white,
+                                        onPressed: () {
+                                          final firstLessonId =
+                                              _findFirstLessonId(course);
+                                          if (firstLessonId != null) {
+                                            context.push(
+                                                '/learning/${course.id}/lesson/$firstLessonId');
+                                          } else {
+                                            AppToast.showInfo(context,
+                                                'No lessons available yet in this course.');
+                                          }
+                                        },
+                                      )
+                                    : (isOwnerTeacher
+                                        ? CustomButton(
+                                            text: 'Manage Curriculum',
+                                            icon: Icons.edit_note_rounded,
+                                            backgroundColor: AppColors.primary,
+                                            textColor: AppColors.onPrimary,
+                                            onPressed: () {
+                                              context.push(
+                                                  '/teacher/courses/${course.id}/curriculum');
+                                            },
+                                          )
+                                        : (isTeacher
+                                            ? CustomButton(
+                                                text: 'Preview Course Lessons',
+                                                icon: Icons.visibility_rounded,
+                                                backgroundColor: AppColors.surfaceDark,
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  final firstLessonId =
+                                                      _findFirstLessonId(course);
+                                                  if (firstLessonId != null) {
+                                                    context.push(
+                                                        '/learning/${course.id}/lesson/$firstLessonId');
+                                                  } else {
+                                                    AppToast.showInfo(context,
+                                                        'No lessons available yet in this course.');
+                                                  }
+                                                },
+                                              )
+                                            : CustomButton(
+                                                text: course.isEnrolled
+                                                    ? 'Continue Course'
+                                                    : 'Enroll in Course',
+                                                icon: course.isEnrolled
+                                                    ? Icons.play_circle_filled_rounded
+                                                    : Icons.school_rounded,
+                                                isLoading: state.isEnrolling,
+                                                backgroundColor: course.isEnrolled
+                                                    ? AppColors.secondary
+                                                    : AppColors.primary,
+                                                textColor: course.isEnrolled
+                                                    ? Colors.white
+                                                    : AppColors.onPrimary,
+                                                onPressed: () {
+                                                  if (course.isEnrolled) {
+                                                    final firstLessonId =
+                                                        _findFirstLessonId(course);
+                                                    if (firstLessonId != null) {
+                                                      context.push(
+                                                          '/learning/${course.id}/lesson/$firstLessonId');
+                                                    } else {
+                                                      AppToast.showInfo(context,
+                                                          'No lessons available yet in this course.');
+                                                    }
+                                                  } else {
+                                                    _onEnroll(course.id, course.title);
+                                                  }
+                                                },
+                                              ))),
                               ),
                             ],
                           ),
@@ -576,4 +660,24 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
       ),
     );
   }
+}
+
+class _GridPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 1.0;
+
+    const step = 20.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
