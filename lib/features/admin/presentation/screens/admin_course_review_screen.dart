@@ -1,19 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../domain/usecases/approve_course_use_case.dart';
+import '../../domain/usecases/reject_course_use_case.dart';
 import '../widgets/admin_review_chapter_widget.dart';
 
-class AdminCourseReviewScreen extends StatelessWidget {
+class AdminCourseReviewScreen extends StatefulWidget {
   final int courseId;
 
   const AdminCourseReviewScreen({super.key, required this.courseId});
 
   @override
+  State<AdminCourseReviewScreen> createState() => _AdminCourseReviewScreenState();
+}
+
+class _AdminCourseReviewScreenState extends State<AdminCourseReviewScreen> {
+  final ApproveCourseUseCase _approveCourseUseCase = GetIt.I<ApproveCourseUseCase>();
+  final RejectCourseUseCase _rejectCourseUseCase = GetIt.I<RejectCourseUseCase>();
+
+  bool _isProcessing = false;
+
+  void _onApprove() async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Approve Course Publication?',
+      message: 'This course will go live in the public catalog for all students.',
+      confirmText: 'Approve & Publish',
+      confirmColor: AppColors.secondary,
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _isProcessing = true);
+      final result = await _approveCourseUseCase(widget.courseId);
+
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to approve course: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Course approved and published live!'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+          context.pop();
+        },
+      );
+    }
+  }
+
+  void _onReject() async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Reject Course Draft?',
+      message: 'Send rejection notice to instructor for content updates.',
+      confirmText: 'Reject Draft',
+      confirmColor: AppColors.error,
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _isProcessing = true);
+      final result = await _rejectCourseUseCase(widget.courseId);
+
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to reject course: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Course draft returned for revision.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context.pop();
+        },
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surfaceContainerLowest,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -41,7 +130,9 @@ class AdminCourseReviewScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,9 +155,9 @@ class AdminCourseReviewScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Text(
-                        'Author: Dr. Robert Smith',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      Text(
+                        'Course ID: #${widget.courseId}',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -84,7 +175,7 @@ class AdminCourseReviewScreen extends StatelessWidget {
                     'Covers containerization, gRPC service communication, distributed tracing, and horizontal scaling in cloud clusters.',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
+                      color: AppColors.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),
@@ -132,21 +223,8 @@ class AdminCourseReviewScreen extends StatelessWidget {
                     text: 'Reject with Feedback',
                     icon: Icons.cancel_outlined,
                     backgroundColor: AppColors.error,
-                    onPressed: () async {
-                      final confirmed = await ConfirmationDialog.show(
-                        context,
-                        title: 'Reject Course Draft?',
-                        message: 'Send rejection notice to instructor for content updates.',
-                        confirmText: 'Reject Draft',
-                        confirmColor: AppColors.error,
-                      );
-                      if (confirmed == true && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Course draft returned for revision.')),
-                        );
-                        context.pop();
-                      }
-                    },
+                    isLoading: _isProcessing,
+                    onPressed: _onReject,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -155,24 +233,8 @@ class AdminCourseReviewScreen extends StatelessWidget {
                     text: 'Approve & Publish',
                     icon: Icons.check_circle_rounded,
                     backgroundColor: AppColors.secondary,
-                    onPressed: () async {
-                      final confirmed = await ConfirmationDialog.show(
-                        context,
-                        title: 'Approve Course Publication?',
-                        message: 'This course will go live in the public catalog for all students.',
-                        confirmText: 'Approve',
-                        confirmColor: AppColors.secondary,
-                      );
-                      if (confirmed == true && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Course approved and published live!'),
-                            backgroundColor: AppColors.secondary,
-                          ),
-                        );
-                        context.pop();
-                      }
-                    },
+                    isLoading: _isProcessing,
+                    onPressed: _onApprove,
                   ),
                 ),
               ],
