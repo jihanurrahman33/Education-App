@@ -10,6 +10,7 @@ import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/admin_user_entity.dart';
 import '../../domain/usecases/create_user_use_case.dart';
+import '../../domain/usecases/delete_user_use_case.dart';
 import '../../domain/usecases/get_user_by_id_use_case.dart';
 import '../../domain/usecases/get_users_use_case.dart';
 import '../../domain/usecases/patch_user_use_case.dart';
@@ -29,6 +30,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   final CreateUserUseCase _createUserUseCase = GetIt.I<CreateUserUseCase>();
   final UpdateUserUseCase _updateUserUseCase = GetIt.I<UpdateUserUseCase>();
   final PatchUserUseCase _patchUserUseCase = GetIt.I<PatchUserUseCase>();
+  final DeleteUserUseCase _deleteUserUseCase = GetIt.I<DeleteUserUseCase>();
   final TextEditingController _searchController = TextEditingController();
 
   List<AdminUserEntity> _users = [];
@@ -75,6 +77,45 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         });
       },
     );
+  }
+
+  Future<void> _deleteUser(AdminUserEntity user) async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Delete User Account',
+      message: 'Are you sure you want to permanently delete @${user.username}? This action cannot be undone.',
+      confirmText: 'Delete User',
+      confirmColor: AppColors.error,
+      icon: Icons.delete_forever_rounded,
+    );
+
+    if (confirmed == true && mounted) {
+      final result = await _deleteUserUseCase(user.id);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete user: ${failure.message}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        (_) {
+          setState(() {
+            _users.removeWhere((u) => u.id == user.id);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('User @${user.username} has been deleted.'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+        },
+      );
+    }
   }
 
   Future<void> _toggleUserActiveStatus(AdminUserEntity user) async {
@@ -251,11 +292,11 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.edit_outlined, size: 16),
-                          label: const Text('Edit User'),
+                          label: const Text('Edit'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             side: const BorderSide(color: AppColors.primary),
@@ -266,6 +307,19 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             _openEditUserDialog(user);
                           },
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.error.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.error,
+                        ),
+                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        tooltip: 'Delete User',
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _deleteUser(user);
+                        },
                       ),
                     ],
                   ),

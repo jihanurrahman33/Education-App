@@ -43,6 +43,7 @@ abstract class AdminRepository {
     bool? isActive,
     bool? isApprovedTeacher,
   });
+  ResultVoid deleteUser(int userId);
   ResultVoid approveTeacher(int teacherId);
   ResultVoid approveCourse(int courseId);
   ResultVoid rejectCourse(int courseId);

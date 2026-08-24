@@ -44,6 +44,7 @@ abstract class AdminRemoteDataSource {
     bool? isActive,
     bool? isApprovedTeacher,
   });
+  Future<void> deleteUser(int userId);
   Future<void> approveTeacher(int teacherId);
   Future<void> approveCourse(int courseId);
   Future<void> rejectCourse(int courseId);
@@ -281,6 +282,11 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     throw Exception('Invalid patch user response structure');
+  }
+
+  @override
+  Future<void> deleteUser(int userId) async {
+    await apiClient.delete(ApiEndpoints.adminUserDetail(userId));
   }
 
   @override

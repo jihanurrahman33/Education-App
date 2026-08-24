@@ -1,0 +1,29 @@
+import 'package:equatable/equatable.dart';
+
+class StudentDashboardEntity extends Equatable {
+  final int enrolledCoursesCount;
+  final int completedLessonsCount;
+  final int certificatesEarnedCount;
+  final String lastCourseTitle;
+  final String lastLessonSubtitle;
+  final double progressRatio;
+
+  const StudentDashboardEntity({
+    this.enrolledCoursesCount = 0,
+    this.completedLessonsCount = 0,
+    this.certificatesEarnedCount = 0,
+    this.lastCourseTitle = 'Explore New Courses',
+    this.lastLessonSubtitle = 'Start your learning journey today',
+    this.progressRatio = 0.0,
+  });
+
+  @override
+  List<Object?> get props => [
+        enrolledCoursesCount,
+        completedLessonsCount,
+        certificatesEarnedCount,
+        lastCourseTitle,
+        lastLessonSubtitle,
+        progressRatio,
+      ];
+}

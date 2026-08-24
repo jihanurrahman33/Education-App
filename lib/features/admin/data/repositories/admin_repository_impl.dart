@@ -162,6 +162,16 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
+  ResultVoid deleteUser(int userId) async {
+    try {
+      await remoteDataSource.deleteUser(userId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   ResultVoid approveTeacher(int teacherId) async {
     try {
       await remoteDataSource.approveTeacher(teacherId);
