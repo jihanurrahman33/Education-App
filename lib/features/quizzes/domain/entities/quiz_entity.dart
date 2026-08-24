@@ -2,16 +2,16 @@ import 'package:equatable/equatable.dart';
 
 class QuizEntity extends Equatable {
   final int id;
-  final int lesson;
+  final int lessonId;
   final String title;
   final String description;
   final int passScorePercent;
-  final String? createdAt;
+  final DateTime? createdAt;
   final List<QuestionEntity> questions;
 
   const QuizEntity({
     required this.id,
-    required this.lesson,
+    required this.lessonId,
     required this.title,
     this.description = '',
     this.passScorePercent = 70,
@@ -19,15 +19,10 @@ class QuizEntity extends Equatable {
     this.questions = const [],
   });
 
-  // Backward-compatible alias helpers
-  int get courseId => lesson;
-  int get passingScore => passScorePercent;
-  int get timeLimitMinutes => 15;
-
   @override
   List<Object?> get props => [
         id,
-        lesson,
+        lessonId,
         title,
         description,
         passScorePercent,
@@ -38,41 +33,33 @@ class QuizEntity extends Equatable {
 
 class QuestionEntity extends Equatable {
   final int id;
-  final int quiz;
+  final int quizId;
   final String text;
   final int order;
   final List<ChoiceEntity> choices;
 
   const QuestionEntity({
     required this.id,
-    required this.quiz,
+    required this.quizId,
     required this.text,
-    this.order = 1,
+    this.order = 0,
     this.choices = const [],
   });
 
-  // Backward-compatible alias helpers
-  int get quizId => quiz;
-  String get questionText => text;
-
   @override
-  List<Object?> get props => [id, quiz, text, order, choices];
+  List<Object?> get props => [id, quizId, text, order, choices];
 }
 
 class ChoiceEntity extends Equatable {
-  final int id;
+  final int? id;
   final String text;
   final bool isCorrect;
 
   const ChoiceEntity({
-    required this.id,
+    this.id,
     required this.text,
     this.isCorrect = false,
   });
-
-  // Backward-compatible alias helpers
-  String get choiceText => text;
-  int get questionId => 0;
 
   @override
   List<Object?> get props => [id, text, isCorrect];
@@ -105,45 +92,41 @@ class AnswerResultEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [questionId, questionText, selectedText, isCorrect];
+  List<Object?> get props => [
+        questionId,
+        questionText,
+        selectedText,
+        isCorrect,
+      ];
 }
 
 class QuizResultEntity extends Equatable {
   final int id;
-  final int quiz;
-  final int student;
+  final int quizId;
+  final int studentId;
   final double scorePercent;
   final bool passed;
-  final String submittedAt;
+  final DateTime? submittedAt;
   final List<AnswerResultEntity> answers;
 
   const QuizResultEntity({
     required this.id,
-    required this.quiz,
-    required this.student,
+    required this.quizId,
+    required this.studentId,
     required this.scorePercent,
     required this.passed,
-    required this.submittedAt,
+    this.submittedAt,
     this.answers = const [],
   });
-
-  // Backward-compatible alias helpers
-  int get submissionId => id;
-  int get score => scorePercent.toInt();
-  int get totalQuestions => answers.isNotEmpty ? answers.length : 10;
-  bool get isPassed => passed;
 
   @override
   List<Object?> get props => [
         id,
-        quiz,
-        student,
+        quizId,
+        studentId,
         scorePercent,
         passed,
         submittedAt,
         answers,
       ];
 }
-
-// Backward-compatible alias for existing controllers
-typedef QuizSubmissionResultEntity = QuizResultEntity;

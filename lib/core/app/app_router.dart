@@ -27,7 +27,7 @@ import '../../features/courses/presentation/screens/teacher_lesson_create_screen
 import '../../features/quizzes/presentation/screens/my_quiz_results_screen.dart';
 import '../../features/quizzes/presentation/screens/quiz_list_screen.dart';
 import '../../features/quizzes/presentation/screens/quiz_result_screen.dart';
-import '../../features/quizzes/presentation/screens/quiz_taking_screen.dart';
+import '../../features/quizzes/presentation/screens/take_quiz_screen.dart';
 import '../../features/quizzes/presentation/screens/teacher_quiz_manager_screen.dart';
 import '../../features/quizzes/presentation/screens/teacher_quiz_results_screen.dart';
 
@@ -148,7 +148,7 @@ class AppRouter {
             path: ':id/take',
             builder: (context, state) {
               final id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
-              return QuizTakingScreen(quizId: id);
+              return TakeQuizScreen(quizId: id);
             },
           ),
           GoRoute(

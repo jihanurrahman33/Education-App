@@ -2,115 +2,162 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../widgets/quiz_score_summary_widget.dart';
+import '../../domain/entities/quiz_entity.dart';
 
 class QuizResultScreen extends StatelessWidget {
   final int quizId;
-  final int score;
-  final int total;
-  final int percentage;
+  final QuizResultEntity? result;
+  final int? score;
+  final int? total;
+  final int? percentage;
 
   const QuizResultScreen({
     super.key,
     required this.quizId,
-    required this.score,
-    required this.total,
-    required this.percentage,
+    this.result,
+    this.score,
+    this.total,
+    this.percentage,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isPassed = percentage >= 70;
+    final double calculatedScore = result?.scorePercent ??
+        (percentage?.toDouble() ?? (total != null && total! > 0 ? (score! / total!) * 100 : 0.0));
+    final bool isPassed = result?.passed ?? (calculatedScore >= 70.0);
+    final String scoreFormatted = calculatedScore.toStringAsFixed(1);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceContainerLowest,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Quiz Results'),
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Quiz Evaluation',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(28.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: isPassed
-                          ? AppColors.secondary.withValues(alpha: 0.12)
-                          : AppColors.error.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isPassed ? Icons.emoji_events_rounded : Icons.replay_circle_filled_rounded,
-                      size: 52,
-                      color: isPassed ? AppColors.secondary : AppColors.error,
-                    ),
+                  Icon(
+                    isPassed
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.highlight_off_rounded,
+                    color: isPassed ? AppColors.success : AppColors.error,
+                    size: 72,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Text(
-                    isPassed ? 'Congratulations! You Passed!' : 'Needs Improvement',
+                    isPassed ? 'Congratulations!' : 'Keep Practicing!',
                     style: const TextStyle(
                       fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.onSurface,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     isPassed
-                        ? 'You have demonstrated strong understanding of the module topics.'
-                        : 'Review the lecture materials and try again to meet the 70% passing threshold.',
+                        ? 'You passed the assessment with a score of'
+                        : 'You did not meet the passing threshold. Your score is',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
+                      color: AppColors.textSecondary,
                       fontSize: 14,
-                      color: AppColors.onSurfaceVariant,
-                      height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 32),
-
-                  // Reusable Score Overview Card Widget
-                  QuizScoreSummaryWidget(
-                    score: score,
-                    total: total,
-                    percentage: percentage,
-                    isPassed: isPassed,
-                  ),
-                  const SizedBox(height: 32),
-
-                  CustomButton(
-                    text: isPassed ? 'Back to Dashboard' : 'Retake Quiz',
-                    icon: isPassed ? Icons.dashboard_rounded : Icons.replay_rounded,
-                    backgroundColor: isPassed ? AppColors.primary : AppColors.primaryContainer,
-                    onPressed: () {
-                      if (isPassed) {
-                        context.go('/dashboard');
-                      } else {
-                        context.pushReplacement('/quizzes/$quizId/take');
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  CustomButton(
-                    text: 'View All Quizzes',
-                    isOutlined: true,
-                    onPressed: () => context.go('/quizzes'),
+                  const SizedBox(height: 16),
+                  Text(
+                    '$scoreFormatted%',
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: isPassed ? AppColors.success : AppColors.error,
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
+            const SizedBox(height: 28),
+
+            // Answers Breakdown
+            if (result?.answers.isNotEmpty ?? false) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Answer Breakdown (${result!.answers.length} Questions)',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...result!.answers.map((ans) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: ans.isCorrect
+                          ? AppColors.success.withValues(alpha: 0.5)
+                          : AppColors.error.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        ans.isCorrect
+                            ? Icons.check_circle_rounded
+                            : Icons.cancel_rounded,
+                        color: ans.isCorrect ? AppColors.success : AppColors.error,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ans.questionText,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Selected: ${ans.selectedText}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 24),
+            ],
+
+            CustomButton(
+              text: 'Back to Dashboard',
+              onPressed: () => context.go('/dashboard'),
+            ),
+          ],
         ),
       ),
     );

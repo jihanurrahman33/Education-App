@@ -6,27 +6,27 @@ import '../repositories/quiz_repository.dart';
 
 class SubmitQuizParams extends Equatable {
   final int quizId;
-  final Map<int, int> selectedAnswers;
+  final List<AnswerSubmitEntity> answers;
 
   const SubmitQuizParams({
     required this.quizId,
-    required this.selectedAnswers,
+    required this.answers,
   });
 
   @override
-  List<Object?> get props => [quizId, selectedAnswers];
+  List<Object?> get props => [quizId, answers];
 }
 
-class SubmitQuizUseCase implements UseCase<QuizSubmissionResultEntity, SubmitQuizParams> {
-  final QuizRepository _repository;
+class SubmitQuizUseCase implements UseCase<QuizResultEntity, SubmitQuizParams> {
+  final QuizRepository repository;
 
-  const SubmitQuizUseCase(this._repository);
+  const SubmitQuizUseCase(this.repository);
 
   @override
-  ResultFuture<QuizSubmissionResultEntity> call(SubmitQuizParams params) {
-    return _repository.submitQuiz(
+  ResultFuture<QuizResultEntity> call(SubmitQuizParams params) {
+    return repository.submitQuiz(
       quizId: params.quizId,
-      selectedAnswers: params.selectedAnswers,
+      answers: params.answers,
     );
   }
 }

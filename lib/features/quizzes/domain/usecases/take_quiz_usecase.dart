@@ -4,22 +4,22 @@ import '../../../../core/utils/typedefs.dart';
 import '../entities/quiz_entity.dart';
 import '../repositories/quiz_repository.dart';
 
-class GetQuizDetailsParams extends Equatable {
+class TakeQuizParams extends Equatable {
   final int quizId;
 
-  const GetQuizDetailsParams({required this.quizId});
+  const TakeQuizParams({required this.quizId});
 
   @override
   List<Object?> get props => [quizId];
 }
 
-class GetQuizDetailsUseCase implements UseCase<QuizEntity, GetQuizDetailsParams> {
+class TakeQuizUseCase implements UseCase<QuizEntity, TakeQuizParams> {
   final QuizRepository repository;
 
-  const GetQuizDetailsUseCase(this.repository);
+  const TakeQuizUseCase(this.repository);
 
   @override
-  ResultFuture<QuizEntity> call(GetQuizDetailsParams params) {
-    return repository.getQuizDetails(params.quizId);
+  ResultFuture<QuizEntity> call(TakeQuizParams params) {
+    return repository.takeQuiz(params.quizId);
   }
 }

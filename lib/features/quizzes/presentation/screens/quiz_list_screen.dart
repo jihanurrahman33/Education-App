@@ -1,87 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../widgets/quiz_card_widget.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../../../../core/widgets/loading_view.dart';
+import '../bloc/quiz_bloc.dart';
+import '../bloc/quiz_event.dart';
+import '../bloc/quiz_state.dart';
 
-class QuizListScreen extends StatelessWidget {
+class QuizListScreen extends StatefulWidget {
   const QuizListScreen({super.key});
 
-  final List<Map<String, dynamic>> mockQuizzes = const [
-    {
-      'id': 1,
-      'title': 'BLoC State Management Fundamentals',
-      'course': 'Full-Stack Modern App Architecture',
-      'questionsCount': 10,
-      'durationMinutes': 15,
-      'passScore': '80%',
-      'status': 'Completed',
-      'lastScore': '90%',
-    },
-    {
-      'id': 2,
-      'title': 'REST API Integration & Dio Error Boundaries',
-      'course': 'Full-Stack Modern App Architecture',
-      'questionsCount': 12,
-      'durationMinutes': 20,
-      'passScore': '75%',
-      'status': 'Not Started',
-      'lastScore': null,
-    },
-    {
-      'id': 3,
-      'title': 'Design Tokens & Academic Modernist Aesthetics',
-      'course': 'UI/UX Design Systems in Flutter',
-      'questionsCount': 8,
-      'durationMinutes': 10,
-      'passScore': '70%',
-      'status': 'Not Started',
-      'lastScore': null,
-    },
-  ];
+  @override
+  State<QuizListScreen> createState() => _QuizListScreenState();
+}
+
+class _QuizListScreenState extends State<QuizListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<QuizBloc>().add(const FetchQuizzesRequested());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Course Quizzes & Assessments',
-          style: TextStyle(
-            color: AppColors.onSurface,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history_rounded, color: AppColors.primary),
-            tooltip: 'My Quiz History',
-            onPressed: () => context.push('/quizzes/my-results'),
-          ),
-        ],
+        title: const Text('Quizzes & Assessments'),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: mockQuizzes.length,
-        itemBuilder: (context, index) {
-          final quiz = mockQuizzes[index];
-          final isCompleted = quiz['status'] == 'Completed';
+      body: BlocBuilder<QuizBloc, QuizState>(
+        builder: (context, state) {
+          if (state.status.isLoading && state.quizzes.isEmpty) {
+            return const LoadingView(message: 'Loading quizzes...');
+          }
 
-          return QuizCardWidget(
-            title: quiz['title'] as String,
-            courseName: quiz['course'] as String,
-            questionsCount: quiz['questionsCount'] as int,
-            durationMinutes: quiz['durationMinutes'] as int,
-            passScore: quiz['passScore'] as String,
-            isCompleted: isCompleted,
-            lastScore: quiz['lastScore'] as String?,
-            onStartQuiz: () => context.push('/quizzes/${quiz['id']}/take'),
+          if (state.status.isError && state.quizzes.isEmpty) {
+            return ErrorView(
+              message: state.errorMessage ?? 'Failed to load quizzes',
+              onRetry: () => context.read<QuizBloc>().add(const FetchQuizzesRequested()),
+            );
+          }
+
+          if (state.quizzes.isEmpty) {
+            return const Center(
+              child: Text(
+                'No quizzes available.',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<QuizBloc>().add(const FetchQuizzesRequested());
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: state.quizzes.length,
+              itemBuilder: (context, index) {
+                final quiz = state.quizzes[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.quiz_rounded,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+                    ),
+                    title: Text(
+                      quiz.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (quiz.description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            quiz.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        Text(
+                          'Pass score: ${quiz.passScorePercent}%',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                    onTap: () {
+                      context.push('/quizzes/${quiz.id}/take');
+                    },
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

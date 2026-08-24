@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/courses/presentation/bloc/course_bloc.dart';
+import '../../features/quizzes/presentation/bloc/quiz_bloc.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
 import 'app_router.dart';
@@ -19,6 +20,9 @@ class EducationApp extends StatelessWidget {
         ),
         BlocProvider<CourseBloc>(
           create: (_) => sl<CourseBloc>(),
+        ),
+        BlocProvider<QuizBloc>(
+          create: (_) => sl<QuizBloc>(),
         ),
       ],
       child: MaterialApp.router(
