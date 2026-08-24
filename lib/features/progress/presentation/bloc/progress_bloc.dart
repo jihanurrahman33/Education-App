@@ -86,29 +86,42 @@ class ProgressBloc extends Bloc<ProgressEvent, ProgressState> {
     final certsRes = results[1];
     final completedRes = results[2];
 
-    progressRes.fold(
-      (failure) => emit(state.copyWith(
-        status: ProgressStatus.failure,
-        errorMessage: failure.message,
-      )),
-      (progressList) {
-        final certsList = certsRes.fold(
-          (_) => <CertificateEntity>[],
-          (certs) => certs as List<CertificateEntity>,
-        );
-        final completedList = completedRes.fold(
-          (_) => <CompletedLessonEntity>[],
-          (lessons) => lessons as List<CompletedLessonEntity>,
-        );
-
-        emit(state.copyWith(
-          status: ProgressStatus.success,
-          myProgress: progressList as dynamic,
-          certificates: certsList,
-          completedLessons: completedList,
-        ));
-      },
+    final progressList = progressRes.fold(
+      (_) => <CourseProgressEntity>[],
+      (p) => p as List<CourseProgressEntity>,
     );
+    var certsList = certsRes.fold(
+      (_) => <CertificateEntity>[],
+      (certs) => certs as List<CertificateEntity>,
+    );
+    final completedList = completedRes.fold(
+      (_) => <CompletedLessonEntity>[],
+      (lessons) => lessons as List<CompletedLessonEntity>,
+    );
+
+    // Auto-generate certificates for completed courses if not yet generated
+    final existingCertCourseIds = certsList.map((c) => c.course).toSet();
+    for (final cp in progressList) {
+      if ((cp.percentage >= 100.0 ||
+              (cp.totalLessons > 0 && cp.completedLessons >= cp.totalLessons)) &&
+          !existingCertCourseIds.contains(cp.courseId)) {
+        final genRes = await generateCertificateUseCase(cp.courseId);
+        genRes.fold(
+          (_) => null,
+          (newCert) {
+            certsList = [newCert, ...certsList];
+            existingCertCourseIds.add(newCert.course);
+          },
+        );
+      }
+    }
+
+    emit(state.copyWith(
+      status: ProgressStatus.success,
+      myProgress: progressList as dynamic,
+      certificates: certsList,
+      completedLessons: completedList,
+    ));
   }
 
   Future<void> _onLoadCourseProgress(

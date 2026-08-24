@@ -31,6 +31,7 @@ void initCertificateFeature(GetIt sl) {
     () => CertificateBloc(
       getCertificatesUseCase: sl(),
       generateCertificateUseCase: sl(),
+      getMyProgressUseCase: sl(),
     ),
   );
 }

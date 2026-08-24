@@ -9,6 +9,7 @@ import '../../../progress/presentation/bloc/progress_bloc.dart';
 import '../../../progress/presentation/bloc/progress_event.dart';
 import '../../../progress/presentation/bloc/progress_state.dart';
 import '../../domain/entities/course_entity.dart';
+import '../../domain/usecases/get_course_details_usecase.dart';
 import '../../domain/usecases/get_lesson_by_id_usecase.dart';
 import '../widgets/lesson_pdf_viewer_widget.dart';
 import '../widgets/lesson_video_player_widget.dart';
@@ -28,9 +29,19 @@ class LessonLearningScreen extends StatefulWidget {
 }
 
 class _LessonLearningScreenState extends State<LessonLearningScreen> {
-  final GetLessonByIdUseCase _getLessonByIdUseCase = GetIt.I<GetLessonByIdUseCase>();
+  final GetLessonByIdUseCase _getLessonByIdUseCase =
+      GetIt.I<GetLessonByIdUseCase>();
+  final GetCourseDetailsUseCase _getCourseDetailsUseCase =
+      GetIt.I<GetCourseDetailsUseCase>();
 
   LessonEntity? _lesson;
+  CourseEntity? _course;
+  LessonEntity? _nextLesson;
+  LessonEntity? _prevLesson;
+  int _lessonIndexInCourse = 0;
+  int _totalLessonsInCourse = 1;
+  String? _chapterTitle;
+
   bool _isLoading = true;
   bool _isPlaying = true;
   double _videoProgress = 0.0;
@@ -45,22 +56,76 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
 
   Future<void> _loadLesson() async {
     setState(() => _isLoading = true);
-    final result = await _getLessonByIdUseCase(widget.lessonId);
+
+    // Cross-reference progress state for lesson completion status
+    final progressState = context.read<ProgressBloc>().state;
+    final bool alreadyCompleted = progressState.completedLessons
+        .any((cl) => cl.lesson == widget.lessonId);
+
+    final results = await Future.wait([
+      _getLessonByIdUseCase(widget.lessonId),
+      _getCourseDetailsUseCase(
+          GetCourseDetailsParams(courseId: widget.courseId)),
+    ]);
 
     if (!mounted) return;
 
-    result.fold(
-      (failure) {
-        setState(() => _isLoading = false);
-      },
-      (lesson) {
-        setState(() {
-          _lesson = lesson;
-          _showingNotes = lesson.lessonType == 'pdf';
-          _isLoading = false;
-        });
-      },
+    final lessonRes = results[0];
+    final courseRes = results[1];
+
+    LessonEntity? loadedLesson;
+    lessonRes.fold(
+      (failure) => null,
+      (lesson) => loadedLesson = lesson as LessonEntity,
     );
+
+    CourseEntity? loadedCourse;
+    courseRes.fold(
+      (failure) => null,
+      (course) => loadedCourse = course as CourseEntity,
+    );
+
+    LessonEntity? next;
+    LessonEntity? prev;
+    int currentIdx = 0;
+    int total = 1;
+    String? chapterName;
+
+    if (loadedCourse != null) {
+      final allLessons = <LessonEntity>[];
+      for (final ch in loadedCourse!.chapters) {
+        for (final l in ch.lessons) {
+          allLessons.add(l);
+          if (l.id == widget.lessonId) {
+            chapterName = ch.title;
+          }
+        }
+      }
+      total = allLessons.isEmpty ? 1 : allLessons.length;
+      final foundIdx = allLessons.indexWhere((l) => l.id == widget.lessonId);
+      if (foundIdx != -1) {
+        currentIdx = foundIdx;
+        if (foundIdx + 1 < allLessons.length) {
+          next = allLessons[foundIdx + 1];
+        }
+        if (foundIdx > 0) {
+          prev = allLessons[foundIdx - 1];
+        }
+      }
+    }
+
+    setState(() {
+      _lesson = loadedLesson;
+      _course = loadedCourse;
+      _nextLesson = next;
+      _prevLesson = prev;
+      _lessonIndexInCourse = currentIdx;
+      _totalLessonsInCourse = total;
+      _chapterTitle = chapterName;
+      _isCompleted = alreadyCompleted;
+      _showingNotes = loadedLesson?.lessonType == 'pdf';
+      _isLoading = false;
+    });
   }
 
   void _onMarkCompleted() {
@@ -96,18 +161,42 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             onPressed: () => context.pop(),
           ),
-          title: Text(
-            lessonTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                lessonTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (_chapterTitle != null || _course?.title != null)
+                Text(
+                  _chapterTitle != null
+                      ? (_course?.title != null
+                          ? '$_chapterTitle • ${_course!.title}'
+                          : _chapterTitle!)
+                      : (_course?.title ?? ''),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 11,
+                  ),
+                ),
+            ],
           ),
           actions: [
             IconButton(
               icon: Icon(
-                _showingNotes ? Icons.videocam_rounded : Icons.description_rounded,
+                _showingNotes
+                    ? Icons.videocam_rounded
+                    : Icons.description_rounded,
                 color: Colors.white,
               ),
               tooltip: _showingNotes ? 'Switch to Video' : 'View Notes & PDF',
@@ -120,7 +209,8 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
           ],
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white))
             : LayoutBuilder(
                 builder: (context, constraints) {
                   return Center(
@@ -154,26 +244,28 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                               width: double.infinity,
                               decoration: const BoxDecoration(
                                 color: AppColors.background,
-                                borderRadius:
-                                    BorderRadius.vertical(top: Radius.circular(20)),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)),
                               ),
                               padding: const EdgeInsets.all(20),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color:
-                                              AppColors.primary.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
-                                          'Lesson ${widget.lessonId}',
+                                          'Lesson ${_lessonIndexInCourse + 1} of $_totalLessonsInCourse',
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -188,7 +280,8 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                                           decoration: BoxDecoration(
                                             color: AppColors.secondary
                                                 .withValues(alpha: 0.12),
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
                                           child: const Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -243,36 +336,93 @@ class _LessonLearningScreenState extends State<LessonLearningScreen> {
                                   // Bottom Action Bar
                                   Row(
                                     children: [
+                                      // Previous Lesson Button
+                                      if (_prevLesson != null) ...[
+                                        IconButton.filled(
+                                          style: IconButton.styleFrom(
+                                            backgroundColor: AppColors
+                                                .surfaceContainerHigh,
+                                            foregroundColor:
+                                                AppColors.textPrimary,
+                                          ),
+                                          icon: const Icon(
+                                              Icons.arrow_back_rounded),
+                                          tooltip:
+                                              'Previous: ${_prevLesson!.title}',
+                                          onPressed: () {
+                                            context.pushReplacement(
+                                              '/learning/${widget.courseId}/lesson/${_prevLesson!.id}',
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+
+                                      // Mark Completed Button
                                       Expanded(
                                         child: CustomButton(
                                           text: _isCompleted
-                                              ? 'Completed'
+                                              ? 'Lesson Completed'
                                               : 'Mark Complete',
                                           icon: _isCompleted
                                               ? Icons.check_rounded
-                                              : Icons.check_circle_outline_rounded,
+                                              : Icons
+                                                  .check_circle_outline_rounded,
                                           backgroundColor: _isCompleted
                                               ? AppColors.secondary
                                               : AppColors.primary,
-                                          onPressed:
-                                              _isCompleted ? null : _onMarkCompleted,
+                                          onPressed: _isCompleted
+                                              ? null
+                                              : _onMarkCompleted,
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
-                                      IconButton.filled(
-                                        style: IconButton.styleFrom(
-                                          backgroundColor:
-                                              AppColors.surfaceContainerHigh,
-                                          foregroundColor: AppColors.textPrimary,
+
+                                      // Next Lesson Button (Only when next lesson exists)
+                                      if (_nextLesson != null) ...[
+                                        const SizedBox(width: 10),
+                                        IconButton.filled(
+                                          style: IconButton.styleFrom(
+                                            backgroundColor: _isCompleted
+                                                ? AppColors.primary
+                                                : AppColors
+                                                    .surfaceContainerHigh,
+                                            foregroundColor: _isCompleted
+                                                ? Colors.white
+                                                : AppColors.textMuted,
+                                          ),
+                                          icon: const Icon(
+                                              Icons.arrow_forward_rounded),
+                                          tooltip: _isCompleted
+                                              ? 'Next: ${_nextLesson!.title}'
+                                              : 'Complete lesson to unlock next',
+                                          onPressed: () {
+                                            if (!_isCompleted) {
+                                              AppToast.showInfo(
+                                                context,
+                                                'Please complete the current lesson before moving to the next one.',
+                                              );
+                                              return;
+                                            }
+                                            context.pushReplacement(
+                                              '/learning/${widget.courseId}/lesson/${_nextLesson!.id}',
+                                            );
+                                          },
                                         ),
-                                        icon: const Icon(Icons.arrow_forward_rounded),
-                                        tooltip: 'Next Lesson',
-                                        onPressed: () {
-                                          context.pushReplacement(
-                                            '/learning/${widget.courseId}/lesson/${widget.lessonId + 1}',
-                                          );
-                                        },
-                                      ),
+                                      ] else if (_isCompleted) ...[
+                                        const SizedBox(width: 10),
+                                        IconButton.filled(
+                                          style: IconButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          icon: const Icon(
+                                              Icons.celebration_rounded),
+                                          tooltip:
+                                              'Course Finished! Return to Course',
+                                          onPressed: () => context.pop(),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ],

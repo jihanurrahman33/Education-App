@@ -6,7 +6,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../progress/presentation/bloc/progress_bloc.dart';
 import '../bloc/certificate_bloc.dart';
+import '../bloc/certificate_event.dart';
 import '../bloc/certificate_state.dart';
 import '../../utils/certificate_pdf_generator.dart';
 import '../widgets/certificate_frame_widget.dart';
@@ -23,6 +25,12 @@ class CertificateViewerScreen extends StatefulWidget {
 
 class _CertificateViewerScreenState extends State<CertificateViewerScreen> {
   bool _isGeneratingPdf = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CertificateBloc>().add(const LoadCertificatesEvent());
+  }
 
   void _handleBack(BuildContext context) {
     if (context.canPop()) {
@@ -111,8 +119,14 @@ class _CertificateViewerScreenState extends State<CertificateViewerScreen> {
         child: BlocBuilder<CertificateBloc, CertificateState>(
           builder: (context, state) {
             final cert = state.certificates
-                .where((c) => c.id == widget.certificateId)
-                .firstOrNull;
+                    .where((c) => c.id == widget.certificateId)
+                    .firstOrNull ??
+                context
+                    .read<ProgressBloc>()
+                    .state
+                    .certificates
+                    .where((c) => c.id == widget.certificateId)
+                    .firstOrNull;
             final courseTitle = cert?.courseTitle ??
                 'Mastering Clean Architecture & Flutter';
             final formattedIssueDate = _formatIssueDate(cert?.issuedAt);

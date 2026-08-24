@@ -6,6 +6,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../../../progress/presentation/bloc/progress_bloc.dart';
+import '../../../progress/presentation/bloc/progress_event.dart';
 import '../bloc/certificate_bloc.dart';
 import '../bloc/certificate_event.dart';
 import '../bloc/certificate_state.dart';
@@ -27,6 +29,7 @@ class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
 
   void _loadCertificates() {
     context.read<CertificateBloc>().add(const LoadCertificatesEvent());
+    context.read<ProgressBloc>().add(const LoadMyProgressEvent());
   }
 
   void _handleBack() {

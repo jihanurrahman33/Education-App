@@ -78,6 +78,22 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
     return null;
   }
 
+  int? _findActiveOrFirstLessonId(CourseEntity course, Set<int> completedIds) {
+    for (final chapter in course.chapters) {
+      for (final lesson in chapter.lessons) {
+        if (!completedIds.contains(lesson.id)) {
+          return lesson.id;
+        }
+      }
+    }
+    for (final chapter in course.chapters) {
+      if (chapter.lessons.isNotEmpty) {
+        return chapter.lessons.first.id;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -320,10 +336,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                               isEnrolled: hasDirectAccess || course.isEnrolled,
                               isTeacherOrAdmin: isAdmin || isTeacher,
                               courseId: course.id,
-                              onLessonTap: (lesson) {
+                              onLessonTap: (lesson) async {
                                 if (hasDirectAccess || course.isEnrolled) {
-                                  context.push(
+                                  await context.push(
                                       '/learning/${course.id}/lesson/${lesson.id}');
+                                  if (mounted) {
+                                    _loadCourseDetails();
+                                  }
                                 } else {
                                   _onEnroll(course.id, course.title);
                                 }
@@ -392,12 +411,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                         icon: Icons.visibility_rounded,
                                         backgroundColor: AppColors.surfaceDark,
                                         textColor: Colors.white,
-                                        onPressed: () {
+                                        onPressed: () async {
                                           final firstLessonId =
                                               _findFirstLessonId(course);
                                           if (firstLessonId != null) {
-                                            context.push(
+                                            await context.push(
                                                 '/learning/${course.id}/lesson/$firstLessonId');
+                                            if (mounted) _loadCourseDetails();
                                           } else {
                                             AppToast.showInfo(context,
                                                 'No lessons available yet in this course.');
@@ -421,12 +441,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                                 icon: Icons.visibility_rounded,
                                                 backgroundColor: AppColors.surfaceDark,
                                                 textColor: Colors.white,
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   final firstLessonId =
                                                       _findFirstLessonId(course);
                                                   if (firstLessonId != null) {
-                                                    context.push(
+                                                    await context.push(
                                                         '/learning/${course.id}/lesson/$firstLessonId');
+                                                    if (mounted) _loadCourseDetails();
                                                   } else {
                                                     AppToast.showInfo(context,
                                                         'No lessons available yet in this course.');
@@ -447,13 +468,21 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                                 textColor: course.isEnrolled
                                                     ? Colors.white
                                                     : AppColors.onPrimary,
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   if (course.isEnrolled) {
-                                                    final firstLessonId =
-                                                        _findFirstLessonId(course);
-                                                    if (firstLessonId != null) {
-                                                      context.push(
-                                                          '/learning/${course.id}/lesson/$firstLessonId');
+                                                    final completedIds = context
+                                                        .read<ProgressBloc>()
+                                                        .state
+                                                        .completedLessons
+                                                        .map((cl) => cl.lesson)
+                                                        .toSet();
+                                                    final targetLessonId =
+                                                        _findActiveOrFirstLessonId(
+                                                            course, completedIds);
+                                                    if (targetLessonId != null) {
+                                                      await context.push(
+                                                          '/learning/${course.id}/lesson/$targetLessonId');
+                                                      if (mounted) _loadCourseDetails();
                                                     } else {
                                                       AppToast.showInfo(context,
                                                           'No lessons available yet in this course.');
