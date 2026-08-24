@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -50,13 +51,8 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
       _selectedFileName =
           _lessonType == 'video' ? 'lecture_video.mp4' : 'lecture_notes.pdf';
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Selected $_selectedFileName for upload (multipart/form-data)'),
-        backgroundColor: AppColors.secondary,
-      ),
-    );
+    AppToast.showSuccess(
+        context, 'Selected $_selectedFileName for upload (multipart/form-data)');
   }
 
   void _onSaveLesson() {
@@ -115,20 +111,10 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
     return BlocConsumer<CourseBloc, CourseState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          AppToast.showError(context, state.errorMessage!);
         }
         if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.successMessage!),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
+          AppToast.showSuccess(context, state.successMessage!);
           context.pop();
         }
       },

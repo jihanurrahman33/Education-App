@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_view.dart';
@@ -87,12 +88,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               extra: state.submissionResult,
             );
           } else if (state.status.isError && state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            AppToast.showError(context, state.errorMessage!);
           }
         },
         builder: (context, state) {

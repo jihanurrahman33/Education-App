@@ -3,16 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/certificate_bloc.dart';
 import '../bloc/certificate_state.dart';
+import '../../utils/certificate_pdf_generator.dart';
 import '../widgets/certificate_frame_widget.dart';
 
-class CertificateViewerScreen extends StatelessWidget {
+class CertificateViewerScreen extends StatefulWidget {
   final int certificateId;
 
   const CertificateViewerScreen({super.key, required this.certificateId});
+
+  @override
+  State<CertificateViewerScreen> createState() =>
+      _CertificateViewerScreenState();
+}
+
+class _CertificateViewerScreenState extends State<CertificateViewerScreen> {
+  bool _isGeneratingPdf = false;
 
   void _handleBack(BuildContext context) {
     if (context.canPop()) {
@@ -31,6 +41,36 @@ class CertificateViewerScreen extends StatelessWidget {
       return DateFormat('MMMM d, y').format(parsed);
     } catch (_) {
       return rawDate;
+    }
+  }
+
+  Future<void> _downloadPdf({
+    required String studentName,
+    required String courseTitle,
+    required String issueDate,
+    required String credentialCode,
+  }) async {
+    setState(() => _isGeneratingPdf = true);
+    AppToast.showInfo(context, 'Preparing official certificate PDF...');
+
+    try {
+      await CertificatePdfGenerator.downloadOrPrintCertificate(
+        studentName: studentName,
+        courseTitle: courseTitle,
+        issueDate: issueDate,
+        credentialCode: credentialCode,
+      );
+      if (mounted) {
+        AppToast.showSuccess(context, 'Certificate PDF generated successfully!');
+      }
+    } catch (e) {
+      if (mounted) {
+        AppToast.showError(context, 'Failed to generate certificate PDF.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isGeneratingPdf = false);
+      }
     }
   }
 
@@ -61,11 +101,8 @@ class CertificateViewerScreen extends StatelessWidget {
             icon: const Icon(Icons.share_rounded, color: Colors.white),
             tooltip: 'Share Certificate',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content:
-                        Text('Certificate credential URL copied to clipboard!')),
-              );
+              AppToast.showSuccess(
+                  context, 'Certificate credential URL copied to clipboard!');
             },
           ),
         ],
@@ -74,13 +111,14 @@ class CertificateViewerScreen extends StatelessWidget {
         child: BlocBuilder<CertificateBloc, CertificateState>(
           builder: (context, state) {
             final cert = state.certificates
-                .where((c) => c.id == certificateId)
+                .where((c) => c.id == widget.certificateId)
                 .firstOrNull;
             final courseTitle = cert?.courseTitle ??
                 'Mastering Clean Architecture & Flutter';
             final formattedIssueDate = _formatIssueDate(cert?.issuedAt);
             final credentialCode =
-                cert?.certificateId ?? 'EDU-CERT-8849-$certificateId';
+                cert?.certificateId ?? 'EDU-CERT-8849-${widget.certificateId}';
+            final recipientName = cert?.studentName ?? studentName;
 
             return LayoutBuilder(
               builder: (context, constraints) {
@@ -98,8 +136,8 @@ class CertificateViewerScreen extends StatelessWidget {
                         children: [
                           // Reusable Digital Certificate Frame Widget
                           CertificateFrameWidget(
-                            certificateId: certificateId,
-                            studentName: cert?.studentName ?? studentName,
+                            certificateId: widget.certificateId,
+                            studentName: recipientName,
                             courseTitle: courseTitle,
                             issueDate: formattedIssueDate,
                             credentialCode: credentialCode,
@@ -108,18 +146,17 @@ class CertificateViewerScreen extends StatelessWidget {
 
                           // Actions
                           CustomButton(
-                            text: 'Download PDF Certificate',
+                            text: 'Download / Print PDF Certificate',
                             icon: Icons.download_rounded,
+                            isLoading: _isGeneratingPdf,
                             backgroundColor: AppColors.secondary,
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Downloading official certificate PDF...'),
-                                  backgroundColor: AppColors.secondary,
-                                ),
-                              );
-                            },
+                            textColor: Colors.white,
+                            onPressed: () => _downloadPdf(
+                              studentName: recipientName,
+                              courseTitle: courseTitle,
+                              issueDate: formattedIssueDate,
+                              credentialCode: credentialCode,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           CustomButton(

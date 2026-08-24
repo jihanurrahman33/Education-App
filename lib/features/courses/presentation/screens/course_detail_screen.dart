@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
@@ -102,10 +103,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
             icon: const Icon(Icons.share_outlined, color: AppColors.primary),
             tooltip: 'Share',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Course link copied to clipboard!')),
-              );
+              AppToast.showInfo(context, 'Course link copied to clipboard!');
             },
           ),
         ],
@@ -113,20 +111,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
       body: BlocConsumer<CourseBloc, CourseState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            AppToast.showError(context, state.errorMessage!);
           }
           if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: AppColors.secondary,
-              ),
-            );
+            AppToast.showSuccess(context, state.successMessage!);
             // Refresh student progress overview
             context.read<ProgressBloc>().add(const LoadMyProgressEvent());
             context.read<ProgressBloc>().add(const LoadEnrollmentsEvent());
@@ -374,13 +362,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                                         context.push(
                                             '/learning/${course.id}/lesson/$firstLessonId');
                                       } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                                'No lessons available yet in this course.'),
-                                          ),
-                                        );
+                                        AppToast.showInfo(context,
+                                            'No lessons available yet in this course.');
                                       }
                                     } else {
                                       _onEnroll(course.id, course.title);
