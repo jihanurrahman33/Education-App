@@ -340,22 +340,24 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         children: [
           Icon(icon, size: 18, color: AppColors.textSecondary),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.onSurface,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
-              ),
-            ],
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -877,27 +879,30 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                   },
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: ['All', 'Student', 'Teacher', 'Admin'].map((role) {
-                    final isSelected = _selectedRoleFilter == role;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: FilterChip(
-                        label: Text(role),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() => _selectedRoleFilter = role);
-                        },
-                        selectedColor: AppColors.primary,
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.onSurface,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: ['All', 'Student', 'Teacher', 'Admin'].map((role) {
+                      final isSelected = _selectedRoleFilter == role;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: FilterChip(
+                          label: Text(role),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() => _selectedRoleFilter = role);
+                          },
+                          selectedColor: AppColors.primary,
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          showCheckmark: false,
                         ),
-                        showCheckmark: false,
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ],
             ),

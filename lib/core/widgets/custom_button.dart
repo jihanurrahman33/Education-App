@@ -12,6 +12,7 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final double height;
   final double borderRadius;
+  final double? fontSize;
 
   const CustomButton({
     super.key,
@@ -25,6 +26,7 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.height = 52,
     this.borderRadius = 26,
+    this.fontSize,
   });
 
   @override
@@ -37,11 +39,12 @@ class CustomButton extends StatelessWidget {
 
     if (isOutlined) {
       return SizedBox(
-        width: width ?? double.infinity,
+        width: width,
         height: height,
         child: OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             side: BorderSide(color: effectiveBgColor, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
@@ -53,11 +56,12 @@ class CustomButton extends StatelessWidget {
     }
 
     return SizedBox(
-      width: width ?? double.infinity,
+      width: width,
       height: height,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
           disabledBackgroundColor: effectiveBgColor.withValues(alpha: 0.6),
@@ -86,19 +90,25 @@ class CustomButton extends StatelessWidget {
       );
     }
 
+    final effectiveFontSize = fontSize ?? 15;
+
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(width: 10),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: color,
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: effectiveFontSize,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -107,8 +117,10 @@ class CustomButton extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 16,
+        fontSize: effectiveFontSize,
         fontWeight: FontWeight.w700,
         color: color,
       ),

@@ -165,7 +165,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.15,
+              childAspectRatio: 1.05,
               children: [
                 AdminActionCardWidget(
                   title: 'Teacher Approvals',

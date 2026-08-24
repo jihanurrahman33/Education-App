@@ -259,7 +259,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 TextButton.icon(
@@ -279,7 +279,12 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+                color: AppColors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: AppColors.border),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -309,19 +314,23 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                       const SizedBox(height: 6),
                       Text(
                         q['question'] as String,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       ...choices.map((c) {
                         final isCorrect = c['isCorrect'] as bool;
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          padding: const EdgeInsets.symmetric(vertical: 3.0),
                           child: Row(
                             children: [
                               Icon(
                                 isCorrect ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
                                 size: 16,
-                                color: isCorrect ? AppColors.secondary : AppColors.outline,
+                                color: isCorrect ? AppColors.secondary : AppColors.textMuted,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -330,7 +339,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
-                                    color: isCorrect ? AppColors.secondary : AppColors.onSurface,
+                                    color: isCorrect ? AppColors.secondary : AppColors.textSecondary,
                                   ),
                                 ),
                               ),

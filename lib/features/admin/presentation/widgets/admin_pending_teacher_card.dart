@@ -42,42 +42,47 @@ class AdminPendingTeacherCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 22,
+                  radius: 20,
                   backgroundColor: AppColors.roleTeacher.withValues(alpha: 0.15),
                   child: Text(
                     fullName.isNotEmpty ? fullName[0].toUpperCase() : 'T',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.roleTeacher,
-                      fontSize: 16,
+                      fontSize: 15,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         fullName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 14,
                           color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         '@$username • $email',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -85,7 +90,7 @@ class AdminPendingTeacherCard extends StatelessWidget {
                   child: const Text(
                     'PENDING',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: FontWeight.bold,
                       color: AppColors.warning,
                     ),
@@ -103,42 +108,51 @@ class AdminPendingTeacherCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.phone_outlined, size: 16, color: AppColors.textSecondary),
+                  const Icon(Icons.phone_outlined, size: 15, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Phone: $phone • Applied: $dateJoined',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
-                    side: const BorderSide(color: AppColors.error),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: onReject,
+                    child: const Text('Reject', style: TextStyle(fontSize: 12)),
                   ),
-                  onPressed: onReject,
-                  child: const Text('Reject'),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.check_rounded, size: 16),
-                  label: const Text('Approve Teacher'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.check_rounded, size: 15),
+                    label: const Text('Approve Teacher', style: TextStyle(fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      backgroundColor: AppColors.secondary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: onApprove,
                   ),
-                  onPressed: onApprove,
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

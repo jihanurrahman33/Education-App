@@ -126,9 +126,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                       children: [
                         Text(
                           'Instructor Portal - ${widget.user.fullName}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

@@ -544,10 +544,12 @@ class _TeacherCurriculumManagerScreenState
                               Expanded(
                                 child: Text(
                                   chapter.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.onSurface,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                               ),
@@ -605,7 +607,13 @@ class _TeacherCurriculumManagerScreenState
                                     Expanded(
                                       child: Text(
                                         lesson.title,
-                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textPrimary,
+                                        ),
                                       ),
                                     ),
                                     IconButton(
