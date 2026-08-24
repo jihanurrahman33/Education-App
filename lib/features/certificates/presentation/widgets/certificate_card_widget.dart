@@ -54,6 +54,8 @@ class CertificateCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -63,6 +65,8 @@ class CertificateCardWidget extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       'Issued on $issuedDate • $instructor',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,
@@ -71,6 +75,8 @@ class CertificateCardWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       credentialId,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,

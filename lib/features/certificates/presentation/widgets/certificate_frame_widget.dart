@@ -90,8 +90,11 @@ class CertificateFrameWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             studentName,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w900,
               color: AppColors.primary,
               letterSpacing: -0.5,
@@ -114,8 +117,10 @@ class CertificateFrameWidget extends StatelessWidget {
           Text(
             courseTitle,
             textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
@@ -127,42 +132,66 @@ class CertificateFrameWidget extends StatelessWidget {
           // Signatures & Verification ID
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Issue Date',
-                    style: TextStyle(fontSize: 10, color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _displayDate,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+              Expanded(
+                flex: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Issue Date',
+                      style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      _displayDate,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text(
-                    'Verification Credential',
-                    style: TextStyle(fontSize: 10, color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    credentialCode,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Verification Credential',
+                      style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.2)),
+                      ),
+                      child: Text(
+                        credentialCode,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

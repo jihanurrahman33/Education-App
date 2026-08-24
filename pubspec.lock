@@ -41,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.9"
+  bd_phone_validator:
+    dependency: "direct main"
+    description:
+      name: bd_phone_validator
+      sha256: "7db44e5f0ed59e66c5bebde816c75b816a27aa235b02766a75576d2280f799f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   bidi:
     dependency: transitive
     description:

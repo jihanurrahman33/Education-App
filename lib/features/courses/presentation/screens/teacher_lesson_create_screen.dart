@@ -147,9 +147,11 @@ class _TeacherLessonCreateScreenState extends State<TeacherLessonCreateScreen> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isWide ? 32.0 : 20.0,
-                      vertical: 20.0,
+                    padding: EdgeInsets.fromLTRB(
+                      isWide ? 32.0 : 20.0,
+                      8.0,
+                      isWide ? 32.0 : 20.0,
+                      24.0,
                     ),
                     child: Form(
                       key: _formKey,

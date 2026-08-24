@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/utils/phone_validator.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
@@ -384,9 +385,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       CustomTextField(
                         controller: phoneController,
                         label: 'Phone (Optional)',
-                        hint: '+1234567890',
+                        hint: '017XXXXXXXX / +88017XXXXXXXX',
                         keyboardType: TextInputType.phone,
                         prefixIcon: Icons.phone_outlined,
+                        validator: (val) => PhoneValidator.validate(val),
                       ),
                       const SizedBox(height: 12),
 
@@ -594,9 +596,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       CustomTextField(
                         controller: phoneController,
                         label: 'Phone (Optional)',
-                        hint: '+1234567890',
+                        hint: '017XXXXXXXX / +88017XXXXXXXX',
                         keyboardType: TextInputType.phone,
                         prefixIcon: Icons.phone_outlined,
+                        validator: (val) => PhoneValidator.validate(val),
                       ),
                       const SizedBox(height: 12),
 

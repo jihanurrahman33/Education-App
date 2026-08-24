@@ -59,6 +59,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, dashState) {
+        if (dashState.status == DashboardStatus.loading &&
+            dashState.teacherData == null) {
+          return const TeacherDashboardSkeleton();
+        }
+
         final dashboardData = dashState.teacherData;
 
         return RefreshIndicator(
@@ -72,9 +77,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   constraints: const BoxConstraints(maxWidth: 1000),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isWide ? 32.0 : 20.0,
-                      vertical: 20.0,
+                    padding: EdgeInsets.fromLTRB(
+                      isWide ? 32.0 : 20.0,
+                      8.0,
+                      isWide ? 32.0 : 20.0,
+                      24.0,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +91,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                           TeacherVerificationBannerWidget(
                             onTap: () => context.push('/teacher/pending'),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 14),
                         ],
 
                         // Welcome Instructor Banner
@@ -184,7 +191,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: CustomButton(
-                                text: 'Manage Quizzes',
+                                text: 'Create Quiz',
                                 icon: Icons.quiz_outlined,
                                 isOutlined: true,
                                 backgroundColor: AppColors.roleTeacher,
@@ -211,8 +218,12 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                           builder: (context, courseState) {
                             if (courseState.status.isLoading &&
                                 courseState.teacherCourses.isEmpty) {
-                              return const LoadingSkeletonCard(
-                                  height: 120, borderRadius: 14);
+                              return const Column(
+                                children: [
+                                  LoadingSkeletonCard(height: 120, borderRadius: 14),
+                                  LoadingSkeletonCard(height: 120, borderRadius: 14),
+                                ],
+                              );
                             }
 
                             if (courseState.teacherCourses.isEmpty) {

@@ -69,24 +69,36 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Add Question & Choices',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            'Add Question & Choices',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
+                CustomTextField(
                   controller: qController,
-                  decoration: const InputDecoration(
-                      labelText: 'Question Text', hintText: 'Enter question...'),
+                  label: 'Question Text',
+                  hint: 'Enter question description...',
+                  maxLines: 2,
                 ),
                 const SizedBox(height: 16),
-                const Text('Choices (Select correct answer):',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                const Text(
+                  'Choices (Select correct answer):',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _buildChoiceRow(0, c1, correctIndex,
                     (val) => setDialogState(() => correctIndex = val)),
@@ -102,11 +114,18 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.roleTeacher),
+                backgroundColor: AppColors.roleTeacher,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () {
                 if (qController.text.trim().isNotEmpty) {
                   setState(() {
@@ -123,7 +142,13 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                   Navigator.of(ctx).pop();
                 }
               },
-              child: const Text('Add', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Add Question',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -155,11 +180,28 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
           Expanded(
             child: TextField(
               controller: controller,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+              ),
               decoration: InputDecoration(
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                filled: true,
+                fillColor: AppColors.surfaceContainerLow,
+                hintStyle: const TextStyle(color: AppColors.textMuted),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.roleTeacher),
+                ),
               ),
             ),
           ),
@@ -201,7 +243,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
             icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          title: const Text('Quiz Manager',
+          title: const Text('Create Quiz',
               style: TextStyle(color: AppColors.textPrimary)),
         ),
         body: Center(
@@ -248,7 +290,7 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                     onPressed: () => context.pop(),
                   ),
             title: const Text(
-              'Quiz Assessment Manager',
+              'Create Quiz',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -264,13 +306,70 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isWide ? 32.0 : 20.0,
-                      vertical: 20.0,
+                    padding: EdgeInsets.fromLTRB(
+                      isWide ? 32.0 : 20.0,
+                      8.0,
+                      isWide ? 32.0 : 20.0,
+                      24.0,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Create Quiz Hero Banner
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.roleTeacher, Color(0xFF5B21B6)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.roleTeacher
+                                    .withValues(alpha: 0.25),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'Create Quiz & Assessment',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      'Set assessment parameters and multiple choice questions for your students.',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                Icons.quiz_rounded,
+                                size: 40,
+                                color: Colors.white70,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Quiz Configuration Card
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
@@ -282,11 +381,11 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Quiz Configuration',
+                                'Quiz Details & Settings',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.onSurface,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -452,7 +551,8 @@ class _TeacherQuizManagerScreenState extends State<TeacherQuizManagerScreen> {
                         const SizedBox(height: 24),
 
                         CustomButton(
-                          text: 'Save & Publish Quiz',
+                          text: 'Create Quiz',
+                          icon: Icons.add_task_rounded,
                           backgroundColor: AppColors.roleTeacher,
                           isLoading: isLoading,
                           onPressed: _onSaveQuiz,

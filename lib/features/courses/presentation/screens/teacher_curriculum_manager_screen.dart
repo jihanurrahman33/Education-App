@@ -352,9 +352,11 @@ class _TeacherCurriculumManagerScreenState
                     constraints: const BoxConstraints(maxWidth: 900),
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isWide ? 32.0 : 20.0,
-                        vertical: 20.0,
+                      padding: EdgeInsets.fromLTRB(
+                        isWide ? 32.0 : 20.0,
+                        8.0,
+                        isWide ? 32.0 : 20.0,
+                        24.0,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,

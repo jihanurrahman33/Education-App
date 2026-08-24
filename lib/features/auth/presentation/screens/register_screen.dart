@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/utils/phone_validator.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../domain/entities/user_entity.dart';
@@ -284,11 +285,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               CustomTextField(
                                 controller: _phoneController,
                                 label: 'Phone Number (Optional)',
-                                hint: '+1 (555) 000-0000',
+                                hint: '017XXXXXXXX / +88017XXXXXXXX',
                                 keyboardType: TextInputType.phone,
                                 prefixIcon: Icons.phone_outlined,
                                 textInputAction: TextInputAction.next,
-                                autofillHints: const [AutofillHints.telephoneNumber],
+                                autofillHints: const [
+                                  AutofillHints.telephoneNumber
+                                ],
+                                validator: (val) =>
+                                    PhoneValidator.validate(val),
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(

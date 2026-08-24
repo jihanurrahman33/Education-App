@@ -33,6 +33,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.3.0
   flutter_native_splash: ^2.4.4
+  bd_phone_validator: ^1.0.3
 
 dev_dependencies:
   flutter_test:
