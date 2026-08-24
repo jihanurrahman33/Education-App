@@ -5,6 +5,7 @@ import 'data/repositories/certificate_repository_impl.dart';
 import 'domain/repositories/certificate_repository.dart';
 import 'domain/usecases/generate_certificate_usecase.dart';
 import 'domain/usecases/get_certificates_usecase.dart';
+import 'presentation/bloc/certificate_bloc.dart';
 
 void initCertificateFeature(GetIt sl) {
   // Data Sources
@@ -23,5 +24,13 @@ void initCertificateFeature(GetIt sl) {
   );
   sl.registerLazySingleton<GenerateCertificateUseCase>(
     () => GenerateCertificateUseCase(sl<CertificateRepository>()),
+  );
+
+  // Presentation (Bloc)
+  sl.registerFactory(
+    () => CertificateBloc(
+      getCertificatesUseCase: sl(),
+      generateCertificateUseCase: sl(),
+    ),
   );
 }

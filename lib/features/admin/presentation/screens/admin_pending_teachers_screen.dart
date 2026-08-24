@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
-import '../../domain/entities/admin_user_entity.dart';
-import '../../domain/usecases/approve_teacher_use_case.dart';
-import '../../domain/usecases/get_pending_teachers_use_case.dart';
+import '../bloc/admin_bloc.dart';
+import '../bloc/admin_event.dart';
+import '../bloc/admin_state.dart';
 import '../widgets/admin_pending_teacher_card.dart';
 
 class AdminPendingTeachersScreen extends StatefulWidget {
@@ -18,43 +18,10 @@ class AdminPendingTeachersScreen extends StatefulWidget {
 }
 
 class _AdminPendingTeachersScreenState extends State<AdminPendingTeachersScreen> {
-  final GetPendingTeachersUseCase _getPendingTeachersUseCase = GetIt.I<GetPendingTeachersUseCase>();
-  final ApproveTeacherUseCase _approveTeacherUseCase = GetIt.I<ApproveTeacherUseCase>();
-
-  List<AdminUserEntity> _pendingTeachers = [];
-  bool _isLoading = true;
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
-    _fetchPendingTeachers();
-  }
-
-  Future<void> _fetchPendingTeachers() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final result = await _getPendingTeachersUseCase(const GetPendingTeachersParams());
-
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = failure.message;
-        });
-      },
-      (teachers) {
-        setState(() {
-          _isLoading = false;
-          _pendingTeachers = teachers;
-        });
-      },
-    );
+    context.read<AdminBloc>().add(const LoadPendingTeachersEvent());
   }
 
   void _onApprove(int id, String name) async {
@@ -68,31 +35,7 @@ class _AdminPendingTeachersScreenState extends State<AdminPendingTeachersScreen>
     );
 
     if (confirmed == true && mounted) {
-      final result = await _approveTeacherUseCase(id);
-
-      if (!mounted) return;
-
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to approve teacher: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        },
-        (_) {
-          setState(() {
-            _pendingTeachers.removeWhere((t) => t.id == id);
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$name has been approved as an instructor!'),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
-        },
-      );
+      context.read<AdminBloc>().add(ApproveTeacherEvent(id));
     }
   }
 
@@ -107,9 +50,6 @@ class _AdminPendingTeachersScreenState extends State<AdminPendingTeachersScreen>
     );
 
     if (confirmed == true && mounted) {
-      setState(() {
-        _pendingTeachers.removeWhere((t) => t.id == id);
-      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('$name\'s application was rejected.'),
@@ -142,85 +82,86 @@ class _AdminPendingTeachersScreenState extends State<AdminPendingTeachersScreen>
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.onSurface),
             tooltip: 'Refresh',
-            onPressed: _fetchPendingTeachers,
+            onPressed: () => context.read<AdminBloc>().add(const LoadPendingTeachersEvent()),
           ),
         ],
       ),
-      body: _buildBody(),
-    );
-  }
+      body: BlocConsumer<AdminBloc, AdminState>(
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage!), backgroundColor: AppColors.error),
+            );
+          }
+          if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.successMessage!), backgroundColor: AppColors.secondary),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state.status == AdminStatus.loading && state.pendingTeachers.isEmpty;
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 4,
-        itemBuilder: (_, index) => const LoadingSkeletonCard(height: 130, borderRadius: 16),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.onSurface, fontSize: 15),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _fetchPendingTeachers,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Try Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+          if (isLoading) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 4,
+                  itemBuilder: (_, index) => const LoadingSkeletonCard(height: 130, borderRadius: 16),
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            );
+          }
 
-    if (_pendingTeachers.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _fetchPendingTeachers,
-        child: ListView(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: EmptyStateWidget(
-                icon: Icons.check_circle_outline_rounded,
-                title: 'All Caught Up!',
-                message: 'There are no pending teacher applications awaiting approval.',
-                actionText: 'Back to Dashboard',
-                onAction: () => context.go('/dashboard'),
+          if (state.pendingTeachers.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<AdminBloc>().add(const LoadPendingTeachersEvent());
+              },
+              child: ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: EmptyStateWidget(
+                      icon: Icons.check_circle_outline_rounded,
+                      title: 'All Caught Up!',
+                      message: 'There are no pending teacher applications awaiting approval.',
+                      actionText: 'Back to Dashboard',
+                      onAction: () => context.go('/dashboard'),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-      );
-    }
+            );
+          }
 
-    return RefreshIndicator(
-      onRefresh: _fetchPendingTeachers,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _pendingTeachers.length,
-        itemBuilder: (context, index) {
-          final teacher = _pendingTeachers[index];
-
-          return AdminPendingTeacherCard(
-            teacherEntity: teacher,
-            onApprove: () => _onApprove(teacher.id, teacher.fullName),
-            onReject: () => _onReject(teacher.id, teacher.fullName),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<AdminBloc>().add(const LoadPendingTeachersEvent());
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.pendingTeachers.length,
+                      itemBuilder: (context, index) {
+                        final teacher = state.pendingTeachers[index];
+                        return AdminPendingTeacherCard(
+                          teacherEntity: teacher,
+                          onApprove: () => _onApprove(teacher.id, teacher.fullName),
+                          onReject: () => _onReject(teacher.id, teacher.fullName),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

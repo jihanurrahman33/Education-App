@@ -16,6 +16,7 @@ import 'domain/usecases/get_users_use_case.dart';
 import 'domain/usecases/patch_user_use_case.dart';
 import 'domain/usecases/reject_course_use_case.dart';
 import 'domain/usecases/update_user_use_case.dart';
+import 'presentation/bloc/admin_bloc.dart';
 
 void initAdminFeature(GetIt sl) {
   // Use cases
@@ -41,5 +42,23 @@ void initAdminFeature(GetIt sl) {
   // Data source
   sl.registerLazySingleton<AdminRemoteDataSource>(
     () => AdminRemoteDataSourceImpl(apiClient: sl<ApiClient>()),
+  );
+
+  // Presentation (Bloc)
+  sl.registerFactory(
+    () => AdminBloc(
+      getAdminStatsUseCase: sl(),
+      getTopCoursesUseCase: sl(),
+      getPendingTeachersUseCase: sl(),
+      approveTeacherUseCase: sl(),
+      getPendingCoursesUseCase: sl(),
+      approveCourseUseCase: sl(),
+      rejectCourseUseCase: sl(),
+      getUsersUseCase: sl(),
+      createUserUseCase: sl(),
+      updateUserUseCase: sl(),
+      patchUserUseCase: sl(),
+      deleteUserUseCase: sl(),
+    ),
   );
 }

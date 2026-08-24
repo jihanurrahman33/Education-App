@@ -94,126 +94,184 @@ class _CourseListScreenState extends State<CourseListScreen> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Search Header
-          Container(
-            color: AppColors.background,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onSubmitted: _onSearch,
-                    onChanged: (val) {
-                      if (val.isEmpty) _onSearch('');
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search topics, skills, instructor...',
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.outline),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, size: 18),
-                              onPressed: () {
-                                _searchController.clear();
-                                _onSearch('');
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 768;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Search Header
+                  Container(
+                    color: AppColors.background,
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onSubmitted: _onSearch,
+                            onChanged: (val) {
+                              if (val.isEmpty) _onSearch('');
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Search topics, skills, instructor...',
+                              prefixIcon:
+                                  const Icon(Icons.search_rounded, color: AppColors.outline),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded, size: 18),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _onSearch('');
+                                      },
+                                    )
+                                  : null,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: _openFilterModal,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.tune_rounded,
+                                color: AppColors.primary, size: 20),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                InkWell(
-                  onTap: _openFilterModal,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+
+                  // Reusable Horizontal Categories Filter Pills
+                  CourseCategoryFilterPills(
+                    categories: _categories,
+                    selectedCategory: _selectedCategory,
+                    onSelectCategory: (cat) {
+                      setState(() => _selectedCategory = cat);
+                      _onSearch(_searchController.text.trim());
+                    },
+                  ),
+                  const Divider(height: 1, color: AppColors.divider),
+
+                  // Courses List View / Grid
+                  Expanded(
+                    child: BlocBuilder<CourseBloc, CourseState>(
+                      builder: (context, state) {
+                        if (state.status.isLoading && state.courses.isEmpty) {
+                          if (isWide) {
+                            return GridView.builder(
+                              padding: const EdgeInsets.all(16.0),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: constraints.maxWidth > 1000 ? 3 : 2,
+                                childAspectRatio: 1.4,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                              ),
+                              itemCount: 6,
+                              itemBuilder: (_, __) =>
+                                  const LoadingSkeletonCard(height: 160),
+                            );
+                          }
+                          return ListView.builder(
+                            padding: const EdgeInsets.all(16.0),
+                            itemCount: 4,
+                            itemBuilder: (context, index) =>
+                                const LoadingSkeletonCard(height: 140),
+                          );
+                        }
+
+                        if (state.status.isError && state.courses.isEmpty) {
+                          return EmptyStateWidget(
+                            icon: Icons.error_outline_rounded,
+                            title: 'Failed to load courses',
+                            message: state.errorMessage ??
+                                'Please check your connection and try again.',
+                            actionText: 'Retry',
+                            onAction: () => context
+                                .read<CourseBloc>()
+                                .add(const FetchCoursesRequested()),
+                          );
+                        }
+
+                        if (state.courses.isEmpty) {
+                          return EmptyStateWidget(
+                            icon: Icons.search_off_rounded,
+                            title: 'No courses found',
+                            message:
+                                'Try adjusting your search terms or category filter to discover content.',
+                            actionText: 'Reset Filters',
+                            onAction: () {
+                              _searchController.clear();
+                              setState(() {
+                                _selectedCategory = 'All';
+                              });
+                              _onSearch('');
+                            },
+                          );
+                        }
+
+                        return RefreshIndicator(
+                          onRefresh: () async {
+                            context
+                                .read<CourseBloc>()
+                                .add(const FetchCoursesRequested());
+                          },
+                          child: isWide
+                              ? GridView.builder(
+                                  padding: const EdgeInsets.all(16.0),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount:
+                                        constraints.maxWidth > 1000 ? 3 : 2,
+                                    childAspectRatio: 1.35,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 16,
+                                  ),
+                                  itemCount: state.courses.length,
+                                  itemBuilder: (context, index) {
+                                    final course = state.courses[index];
+                                    return CourseCardWidget(
+                                      course: course,
+                                      onTap: () {
+                                        context.push('/courses/${course.id}');
+                                      },
+                                    );
+                                  },
+                                )
+                              : ListView.builder(
+                                  padding: const EdgeInsets.all(16.0),
+                                  itemCount: state.courses.length,
+                                  itemBuilder: (context, index) {
+                                    final course = state.courses[index];
+                                    return CourseCardWidget(
+                                      course: course,
+                                      onTap: () {
+                                        context.push('/courses/${course.id}');
+                                      },
+                                    );
+                                  },
+                                ),
+                        );
+                      },
                     ),
-                    child: const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-
-          // Reusable Horizontal Categories Filter Pills
-          CourseCategoryFilterPills(
-            categories: _categories,
-            selectedCategory: _selectedCategory,
-            onSelectCategory: (cat) {
-              setState(() => _selectedCategory = cat);
-              _onSearch(_searchController.text.trim());
-            },
-          ),
-          const Divider(height: 1, color: AppColors.divider),
-
-          // Courses List View
-          Expanded(
-            child: BlocBuilder<CourseBloc, CourseState>(
-              builder: (context, state) {
-                if (state.status.isLoading && state.courses.isEmpty) {
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: 4,
-                    itemBuilder: (context, index) => const LoadingSkeletonCard(height: 140),
-                  );
-                }
-
-                if (state.status.isError && state.courses.isEmpty) {
-                  return EmptyStateWidget(
-                    icon: Icons.error_outline_rounded,
-                    title: 'Failed to load courses',
-                    message: state.errorMessage ?? 'Please check your connection and try again.',
-                    actionText: 'Retry',
-                    onAction: () => context.read<CourseBloc>().add(const FetchCoursesRequested()),
-                  );
-                }
-
-                if (state.courses.isEmpty) {
-                  return EmptyStateWidget(
-                    icon: Icons.search_off_rounded,
-                    title: 'No courses found',
-                    message: 'Try adjusting your search terms or category filter to discover content.',
-                    actionText: 'Reset Filters',
-                    onAction: () {
-                      _searchController.clear();
-                      setState(() {
-                        _selectedCategory = 'All';
-                      });
-                      _onSearch('');
-                    },
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context.read<CourseBloc>().add(const FetchCoursesRequested());
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: state.courses.length,
-                    itemBuilder: (context, index) {
-                      final course = state.courses[index];
-                      return CourseCardWidget(
-                        course: course,
-                        onTap: () {
-                          context.push('/courses/${course.id}');
-                        },
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'domain/usecases/get_my_progress_usecase.dart';
 import 'domain/usecases/get_progress_summary_usecase.dart';
 import 'domain/usecases/get_teacher_course_students_progress_usecase.dart';
 import 'domain/usecases/mark_lesson_completed_usecase.dart';
+import 'presentation/bloc/progress_bloc.dart';
 
 void initProgressFeature(GetIt sl) {
   // Data Sources
@@ -55,5 +56,21 @@ void initProgressFeature(GetIt sl) {
   );
   sl.registerLazySingleton<GetTeacherCourseStudentsProgressUseCase>(
     () => GetTeacherCourseStudentsProgressUseCase(sl<ProgressRepository>()),
+  );
+
+  // Presentation (Bloc)
+  sl.registerFactory(
+    () => ProgressBloc(
+      getProgressSummaryUseCase: sl(),
+      getMyProgressUseCase: sl(),
+      getCourseProgressUseCase: sl(),
+      enrollInCourseUseCase: sl(),
+      getEnrollmentsUseCase: sl(),
+      markLessonCompletedUseCase: sl(),
+      getCompletedLessonsUseCase: sl(),
+      generateCertificateUseCase: sl(),
+      getCertificatesUseCase: sl(),
+      getTeacherCourseStudentsProgressUseCase: sl(),
+    ),
   );
 }

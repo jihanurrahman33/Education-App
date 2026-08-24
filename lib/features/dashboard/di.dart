@@ -5,6 +5,7 @@ import 'data/repositories/dashboard_repository_impl.dart';
 import 'domain/repositories/dashboard_repository.dart';
 import 'domain/usecases/get_student_dashboard_use_case.dart';
 import 'domain/usecases/get_teacher_dashboard_use_case.dart';
+import 'presentation/bloc/dashboard_bloc.dart';
 
 void initDashboardFeature(GetIt sl) {
   // Use cases
@@ -19,5 +20,13 @@ void initDashboardFeature(GetIt sl) {
   // Data source
   sl.registerLazySingleton<DashboardRemoteDataSource>(
     () => DashboardRemoteDataSourceImpl(apiClient: sl<ApiClient>()),
+  );
+
+  // Presentation (Bloc)
+  sl.registerFactory(
+    () => DashboardBloc(
+      getStudentDashboardUseCase: sl(),
+      getTeacherDashboardUseCase: sl(),
+    ),
   );
 }

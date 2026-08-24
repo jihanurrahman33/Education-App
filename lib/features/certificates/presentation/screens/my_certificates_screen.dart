@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/loading_skeleton_widget.dart';
+import '../bloc/certificate_bloc.dart';
+import '../bloc/certificate_event.dart';
+import '../bloc/certificate_state.dart';
 import '../widgets/certificate_card_widget.dart';
 
-class MyCertificatesScreen extends StatelessWidget {
+class MyCertificatesScreen extends StatefulWidget {
   const MyCertificatesScreen({super.key});
 
-  final List<Map<String, dynamic>> mockCertificates = const [
-    {
-      'id': 1,
-      'title': 'Full-Stack Modern App Architecture',
-      'instructor': 'Lead Architect',
-      'issuedDate': 'Aug 24, 2026',
-      'credentialId': 'EDU-CERT-8849-1',
-    },
-    {
-      'id': 2,
-      'title': 'UI/UX Design Systems in Flutter',
-      'instructor': 'Senior Product Designer',
-      'issuedDate': 'Aug 15, 2026',
-      'credentialId': 'EDU-CERT-3941-2',
-    },
-  ];
+  @override
+  State<MyCertificatesScreen> createState() => _MyCertificatesScreenState();
+}
+
+class _MyCertificatesScreenState extends State<MyCertificatesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CertificateBloc>().add(const LoadCertificatesEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,30 +42,95 @@ class MyCertificatesScreen extends StatelessWidget {
             fontSize: 18,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
+            tooltip: 'Refresh Certificates',
+            onPressed: () =>
+                context.read<CertificateBloc>().add(const LoadCertificatesEvent()),
+          ),
+        ],
       ),
-      body: mockCertificates.isEmpty
-          ? EmptyStateWidget(
-              icon: Icons.workspace_premium_rounded,
-              title: 'No Certificates Earned Yet',
-              message: 'Complete 100% of any enrolled course to unlock your official verified certificate.',
-              actionText: 'Browse Courses',
-              onAction: () => context.push('/courses'),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: mockCertificates.length,
-              itemBuilder: (context, index) {
-                final cert = mockCertificates[index];
+      body: BlocBuilder<CertificateBloc, CertificateState>(
+        builder: (context, state) {
+          final isLoading =
+              state.status == CertificateStatus.loading && state.certificates.isEmpty;
 
-                return CertificateCardWidget(
-                  title: cert['title'] as String,
-                  instructor: cert['instructor'] as String,
-                  issuedDate: cert['issuedDate'] as String,
-                  credentialId: cert['credentialId'] as String,
-                  onTap: () => context.push('/certificates/${cert['id']}'),
-                );
+          if (isLoading) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 3,
+                  itemBuilder: (_, __) =>
+                      const LoadingSkeletonCard(height: 140, borderRadius: 16),
+                ),
+              ),
+            );
+          }
+
+          if (state.certificates.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<CertificateBloc>().add(const LoadCertificatesEvent());
               },
-            ),
+              child: ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: EmptyStateWidget(
+                      icon: Icons.workspace_premium_rounded,
+                      title: 'No Certificates Earned Yet',
+                      message:
+                          'Complete 100% of any enrolled course to unlock your official verified certificate.',
+                      actionText: 'Browse Courses',
+                      onAction: () => context.push('/courses'),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 768;
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context
+                          .read<CertificateBloc>()
+                          .add(const LoadCertificatesEvent());
+                    },
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isWide ? 24.0 : 16.0,
+                        vertical: 16.0,
+                      ),
+                      itemCount: state.certificates.length,
+                      itemBuilder: (context, index) {
+                        final cert = state.certificates[index];
+
+                        return CertificateCardWidget(
+                          title: cert.courseTitle ?? 'Course Certificate',
+                          instructor: 'Verified Instructor',
+                          issuedDate: cert.issuedAt,
+                          credentialId: cert.certificateId,
+                          onTap: () => context.push('/certificates/${cert.id}'),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

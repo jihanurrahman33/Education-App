@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -9,12 +10,10 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/loading_skeleton_widget.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/admin_user_entity.dart';
-import '../../domain/usecases/create_user_use_case.dart';
-import '../../domain/usecases/delete_user_use_case.dart';
 import '../../domain/usecases/get_user_by_id_use_case.dart';
-import '../../domain/usecases/get_users_use_case.dart';
-import '../../domain/usecases/patch_user_use_case.dart';
-import '../../domain/usecases/update_user_use_case.dart';
+import '../bloc/admin_bloc.dart';
+import '../bloc/admin_event.dart';
+import '../bloc/admin_state.dart';
 import '../widgets/admin_user_card_widget.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
@@ -25,24 +24,16 @@ class AdminUserManagementScreen extends StatefulWidget {
 }
 
 class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
-  final GetUsersUseCase _getUsersUseCase = GetIt.I<GetUsersUseCase>();
   final GetUserByIdUseCase _getUserByIdUseCase = GetIt.I<GetUserByIdUseCase>();
-  final CreateUserUseCase _createUserUseCase = GetIt.I<CreateUserUseCase>();
-  final UpdateUserUseCase _updateUserUseCase = GetIt.I<UpdateUserUseCase>();
-  final PatchUserUseCase _patchUserUseCase = GetIt.I<PatchUserUseCase>();
-  final DeleteUserUseCase _deleteUserUseCase = GetIt.I<DeleteUserUseCase>();
   final TextEditingController _searchController = TextEditingController();
 
-  List<AdminUserEntity> _users = [];
-  bool _isLoading = true;
-  String? _errorMessage;
   String _selectedRoleFilter = 'All';
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchUsers();
+    context.read<AdminBloc>().add(const LoadAdminUsersEvent());
   }
 
   @override
@@ -51,70 +42,23 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchUsers() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final result = await _getUsersUseCase(GetUsersParams(
-      search: _searchQuery.isNotEmpty ? _searchQuery : null,
-    ));
-
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = failure.message;
-        });
-      },
-      (users) {
-        setState(() {
-          _isLoading = false;
-          _users = users;
-        });
-      },
-    );
+  void _fetchUsers() {
+    context.read<AdminBloc>().add(const LoadAdminUsersEvent());
   }
 
   Future<void> _deleteUser(AdminUserEntity user) async {
     final confirmed = await ConfirmationDialog.show(
       context,
       title: 'Delete User Account',
-      message: 'Are you sure you want to permanently delete @${user.username}? This action cannot be undone.',
+      message:
+          'Are you sure you want to permanently delete @${user.username}? This action cannot be undone.',
       confirmText: 'Delete User',
       confirmColor: AppColors.error,
       icon: Icons.delete_forever_rounded,
     );
 
     if (confirmed == true && mounted) {
-      final result = await _deleteUserUseCase(user.id);
-
-      if (!mounted) return;
-
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to delete user: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        },
-        (_) {
-          setState(() {
-            _users.removeWhere((u) => u.id == user.id);
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('User @${user.username} has been deleted.'),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
-        },
-      );
+      context.read<AdminBloc>().add(DeleteAdminUserEvent(user.id));
     }
   }
 
@@ -132,32 +76,9 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     );
 
     if (confirmed == true && mounted) {
-      final result = await _patchUserUseCase(PatchUserParams(
-        id: user.id,
-        isActive: newStatus,
-      ));
-
-      if (!mounted) return;
-
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to update status: ${failure.message}'),
-              backgroundColor: AppColors.error,
-            ),
+      context.read<AdminBloc>().add(
+            ToggleUserStatusEvent(userId: user.id, isActive: newStatus),
           );
-        },
-        (updated) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('User @${updated.username} is now ${updated.isActive ? 'Active' : 'Inactive'}'),
-              backgroundColor: AppColors.secondary,
-            ),
-          );
-          _fetchUsers();
-        },
-      );
     }
   }
 
@@ -528,51 +449,22 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
                       CustomButton(
                         text: 'Save Changes',
-                        isLoading: isSubmitting,
-                        onPressed: () async {
+                        onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
-                            setModalState(() => isSubmitting = true);
-                            final result = await _updateUserUseCase(UpdateUserParams(
-                              id: user.id,
-                              username: usernameController.text.trim(),
-                              email: emailController.text.trim(),
-                              role: selectedRole,
-                              firstName: firstNameController.text.trim().isNotEmpty
-                                  ? firstNameController.text.trim()
-                                  : null,
-                              lastName: lastNameController.text.trim().isNotEmpty
-                                  ? lastNameController.text.trim()
-                                  : null,
-                              phone: phoneController.text.trim().isNotEmpty
-                                  ? phoneController.text.trim()
-                                  : null,
-                              isActive: isActive,
-                              isApprovedTeacher: isApprovedTeacher,
-                            ));
-
-                            if (!mounted) return;
-                            setModalState(() => isSubmitting = false);
-
-                            result.fold(
-                              (failure) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Failed to update user: ${failure.message}'),
-                                    backgroundColor: AppColors.error,
+                            context.read<AdminBloc>().add(
+                                  UpdateAdminUserEvent(
+                                    id: user.id,
+                                    username: usernameController.text.trim(),
+                                    email: emailController.text.trim(),
+                                    role: selectedRole,
+                                    firstName: firstNameController.text.trim(),
+                                    lastName: lastNameController.text.trim(),
+                                    phone: phoneController.text.trim(),
+                                    isActive: isActive,
+                                    isApprovedTeacher: isApprovedTeacher,
                                   ),
                                 );
-                              },
-                              (updated) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('User @${updated.username} updated successfully!'),
-                                    backgroundColor: AppColors.secondary,
-                                  ),
-                                );
-                                _fetchUsers();
-                              },
-                            );
+                            Navigator.pop(context);
                           }
                         },
                       ),
@@ -591,13 +483,13 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     final formKey = GlobalKey<FormState>();
     final usernameController = TextEditingController();
     final emailController = TextEditingController();
+    final passwordController = TextEditingController();
     final firstNameController = TextEditingController();
     final lastNameController = TextEditingController();
     final phoneController = TextEditingController();
     String selectedRole = 'student';
     bool isActive = true;
     bool isApprovedTeacher = false;
-    bool isSubmitting = false;
 
     showModalBottomSheet(
       context: context,
@@ -631,7 +523,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.onSurface,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           IconButton(
@@ -647,7 +539,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             child: CustomTextField(
                               controller: firstNameController,
                               label: 'First Name',
-                              hint: 'Jane',
+                              hint: 'John',
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -655,7 +547,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             child: CustomTextField(
                               controller: lastNameController,
                               label: 'Last Name',
-                              hint: 'Doe',
+                              hint: 'Smith',
                             ),
                           ),
                         ],
@@ -663,25 +555,41 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       const SizedBox(height: 12),
                       CustomTextField(
                         controller: usernameController,
-                        label: 'Username',
-                        hint: 'janedoe',
+                        label: 'Username *',
+                        hint: 'johnsmith',
                         prefixIcon: Icons.person_outline_rounded,
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) return 'Username is required';
-                          if (!RegExp(r'^[\w.@+-]+$').hasMatch(val.trim())) return 'Valid characters: letters, digits, @/./+/-/_';
+                          if (!RegExp(r'^[\w.@+-]+$').hasMatch(val.trim())) {
+                            return 'Valid characters: letters, digits, @/./+/-/_';
+                          }
                           return null;
                         },
                       ),
                       const SizedBox(height: 12),
                       CustomTextField(
                         controller: emailController,
-                        label: 'Email Address',
-                        hint: 'jane@example.com',
+                        label: 'Email Address *',
+                        hint: 'john@example.com',
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.mail_outline_rounded,
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) return 'Email is required';
-                          if (!val.contains('@') || !val.contains('.')) return 'Enter a valid email address';
+                          if (!val.contains('@') || !val.contains('.')) return 'Enter a valid email';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField(
+                        controller: passwordController,
+                        label: 'Temporary Password *',
+                        hint: '••••••••',
+                        obscureText: true,
+                        prefixIcon: Icons.lock_outline_rounded,
+                        validator: (val) {
+                          if (val == null || val.trim().length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
                           return null;
                         },
                       ),
@@ -702,7 +610,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        initialValue: selectedRole,
+                        value: selectedRole,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -742,7 +650,8 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
                             Checkbox(
                               value: isApprovedTeacher,
                               activeColor: AppColors.secondary,
-                              onChanged: (val) => setModalState(() => isApprovedTeacher = val ?? false),
+                              onChanged: (val) =>
+                                  setModalState(() => isApprovedTeacher = val ?? false),
                             ),
                             const Text('Pre-approved Teacher Status', style: TextStyle(fontSize: 13)),
                           ],
@@ -751,50 +660,22 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
                       CustomButton(
                         text: 'Create User',
-                        isLoading: isSubmitting,
-                        onPressed: () async {
+                        onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
-                            setModalState(() => isSubmitting = true);
-                            final result = await _createUserUseCase(CreateUserParams(
-                              username: usernameController.text.trim(),
-                              email: emailController.text.trim(),
-                              role: selectedRole,
-                              firstName: firstNameController.text.trim().isNotEmpty
-                                  ? firstNameController.text.trim()
-                                  : null,
-                              lastName: lastNameController.text.trim().isNotEmpty
-                                  ? lastNameController.text.trim()
-                                  : null,
-                              phone: phoneController.text.trim().isNotEmpty
-                                  ? phoneController.text.trim()
-                                  : null,
-                              isActive: isActive,
-                              isApprovedTeacher: isApprovedTeacher,
-                            ));
-
-                            if (!mounted) return;
-                            setModalState(() => isSubmitting = false);
-
-                            result.fold(
-                              (failure) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Failed to create user: ${failure.message}'),
-                                    backgroundColor: AppColors.error,
+                            context.read<AdminBloc>().add(
+                                  CreateAdminUserEvent(
+                                    username: usernameController.text.trim(),
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text.trim(),
+                                    role: selectedRole,
+                                    firstName: firstNameController.text.trim(),
+                                    lastName: lastNameController.text.trim(),
+                                    phone: phoneController.text.trim(),
+                                    isActive: isActive,
+                                    isApprovedTeacher: isApprovedTeacher,
                                   ),
                                 );
-                              },
-                              (created) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('User @${created.username} created successfully!'),
-                                    backgroundColor: AppColors.secondary,
-                                  ),
-                                );
-                                _fetchUsers();
-                              },
-                            );
+                            Navigator.pop(context);
                           }
                         },
                       ),
@@ -811,114 +692,141 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredUsers = _users.where((u) {
-      final matchesRole = _selectedRoleFilter == 'All' ||
-          u.role.toLowerCase() == _selectedRoleFilter.toLowerCase();
-      final matchesSearch = _searchQuery.isEmpty ||
-          u.username.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          u.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          u.fullName.toLowerCase().contains(_searchQuery.toLowerCase());
-      return matchesRole && matchesSearch;
-    }).toList();
+    return BlocConsumer<AdminBloc, AdminState>(
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage!), backgroundColor: AppColors.error),
+          );
+        }
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.successMessage!), backgroundColor: AppColors.secondary),
+          );
+        }
+      },
+      builder: (context, state) {
+        final filteredUsers = state.users.where((u) {
+          final matchesRole = _selectedRoleFilter == 'All' ||
+              u.role.toLowerCase() == _selectedRoleFilter.toLowerCase();
+          final matchesSearch = _searchQuery.isEmpty ||
+              u.username.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              u.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              u.fullName.toLowerCase().contains(_searchQuery.toLowerCase());
+          return matchesRole && matchesSearch;
+        }).toList();
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'User Management Directory',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+              onPressed: () => context.pop(),
+            ),
+            title: const Text(
+              'User Management Directory',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
+                tooltip: 'Refresh Users',
+                onPressed: () => context.read<AdminBloc>().add(FetchAdminUsersEvent()),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
-            tooltip: 'Refresh Users',
-            onPressed: _fetchUsers,
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            icon: const Icon(Icons.person_add_rounded),
+            label: const Text('Add User', style: TextStyle(fontWeight: FontWeight.w700)),
+            onPressed: _openCreateUserDialog,
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
-        icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Add User', style: TextStyle(fontWeight: FontWeight.w700)),
-        onPressed: _openCreateUserDialog,
-      ),
-      body: Column(
-        children: [
-          // Search & Filter Header
-          Container(
-            color: AppColors.background,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              children: [
-                CustomTextField(
-                  controller: _searchController,
-                  hint: 'Search by name, username, or email...',
-                  prefixIcon: Icons.search_rounded,
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  onChanged: (val) {
-                    setState(() => _searchQuery = val.trim());
-                  },
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: ['All', 'Student', 'Teacher', 'Admin'].map((role) {
-                      final isSelected = _selectedRoleFilter == role;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: FilterChip(
-                          label: Text(role),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() => _selectedRoleFilter = role);
-                          },
-                          selectedColor: AppColors.primary,
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          showCheckmark: false,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: Column(
+                    children: [
+                      // Search & Filter Header
+                      Container(
+                        color: AppColors.background,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              controller: _searchController,
+                              hint: 'Search by name, username, or email...',
+                              prefixIcon: Icons.search_rounded,
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded, size: 18),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        setState(() => _searchQuery = '');
+                                      },
+                                    )
+                                  : null,
+                              onChanged: (val) {
+                                setState(() => _searchQuery = val.trim());
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: ['All', 'Student', 'Teacher', 'Admin'].map((role) {
+                                  final isSelected = _selectedRoleFilter == role;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: FilterChip(
+                                      label: Text(role),
+                                      selected: isSelected,
+                                      onSelected: (selected) {
+                                        setState(() => _selectedRoleFilter = role);
+                                      },
+                                      selectedColor: AppColors.primary,
+                                      labelStyle: TextStyle(
+                                        color: isSelected ? Colors.white : AppColors.textPrimary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      showCheckmark: false,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    }).toList(),
+                      ),
+                      const Divider(height: 1, color: AppColors.divider),
+
+                      Expanded(
+                        child: _buildUserList(filteredUsers, state),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
-          const Divider(height: 1, color: AppColors.divider),
-
-          Expanded(
-            child: _buildUserList(filteredUsers),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildUserList(List<AdminUserEntity> filteredUsers) {
-    if (_isLoading) {
+  Widget _buildUserList(List<AdminUserEntity> filteredUsers, AdminState state) {
+    final isLoading = state.status == AdminStatus.loading && state.users.isEmpty;
+
+    if (isLoading) {
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 6,
@@ -926,39 +834,9 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
       );
     }
 
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.onSurface, fontSize: 15),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _fetchUsers,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Try Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (filteredUsers.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _fetchUsers,
+        onRefresh: () async => context.read<AdminBloc>().add(LoadAdminUsersEvent()),
         child: ListView(
           children: [
             SizedBox(
@@ -985,7 +863,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: _fetchUsers,
+      onRefresh: () async => context.read<AdminBloc>().add(LoadAdminUsersEvent()),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: filteredUsers.length,

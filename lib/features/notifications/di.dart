@@ -4,6 +4,7 @@ import 'data/datasources/notification_remote_data_source.dart';
 import 'data/repositories/notification_repository_impl.dart';
 import 'domain/repositories/notification_repository.dart';
 import 'domain/usecases/get_notifications_use_case.dart';
+import 'presentation/bloc/notification_bloc.dart';
 
 void initNotificationFeature(GetIt sl) {
   // Use case
@@ -17,5 +18,12 @@ void initNotificationFeature(GetIt sl) {
   // Data source
   sl.registerLazySingleton<NotificationRemoteDataSource>(
     () => NotificationRemoteDataSourceImpl(apiClient: sl<ApiClient>()),
+  );
+
+  // Presentation (Bloc)
+  sl.registerFactory(
+    () => NotificationBloc(
+      getNotificationsUseCase: sl(),
+    ),
   );
 }

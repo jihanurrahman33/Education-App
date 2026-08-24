@@ -114,7 +114,18 @@ void initCourseFeature(GetIt sl) {
   sl.registerFactory<CourseBloc>(
     () => CourseBloc(
       getCoursesUseCase: sl<GetCoursesUseCase>(),
+      getApprovedCoursesUseCase: sl<GetApprovedCoursesUseCase>(),
+      getTeacherCoursesUseCase: sl<GetTeacherCoursesUseCase>(),
       getCourseDetailsUseCase: sl<GetCourseDetailsUseCase>(),
+      createCourseUseCase: sl<CreateCourseUseCase>(),
+      updateCourseUseCase: sl<UpdateCourseUseCase>(),
+      deleteCourseUseCase: sl<DeleteCourseUseCase>(),
+      togglePublishCourseUseCase: sl<TogglePublishCourseUseCase>(),
+      createChapterUseCase: sl<CreateChapterUseCase>(),
+      updateChapterUseCase: sl<UpdateChapterUseCase>(),
+      deleteChapterUseCase: sl<DeleteChapterUseCase>(),
+      createLessonUseCase: sl<CreateLessonUseCase>(),
+      deleteLessonUseCase: sl<DeleteLessonUseCase>(),
       enrollCourseUseCase: sl<EnrollCourseUseCase>(),
     ),
   );

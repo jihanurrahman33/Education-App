@@ -143,8 +143,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(width: 8),
-          _buildRoleBadge(user.role),
         ],
       ),
       actions: [
@@ -158,27 +156,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
           onPressed: () => context.push('/settings'),
         ),
-        InkWell(
-          onTap: () => setState(() => _currentNavIndex = 3),
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.primary,
-              child: Text(
-                user.fullName.isNotEmpty
-                    ? user.fullName[0].toUpperCase()
-                    : user.username[0].toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.onPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
+        const SizedBox(width: 8),
       ],
     );
   }
@@ -201,31 +179,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
           : const TeacherPendingScreen(isTab: true),
       UserRole.admin => const AdminAnalyticsScreen(isTab: true),
     };
-  }
-
-  Widget _buildRoleBadge(UserRole role) {
-    final (badgeColor, label) = switch (role) {
-      UserRole.admin => (AppColors.roleAdmin, 'ADMIN'),
-      UserRole.teacher => (AppColors.roleTeacher, 'TEACHER'),
-      UserRole.student => (AppColors.roleStudent, 'STUDENT'),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: badgeColor.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: badgeColor,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
   }
 }
